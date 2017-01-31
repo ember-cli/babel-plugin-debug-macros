@@ -1,12 +1,15 @@
+import { satisfies } from 'semver';
+
 const DEBUG = 'DEBUG';
 
 export default class MacroBuilder {
-  constructor(t, flags, features) {
+  constructor(t, flags, features, packageVersion) {
     this.t = t;
     this.expressions = [];
     this.localBindings = [];
     this.importedBindings = [];
     this.flagDeclarations = [];
+    this.packageVersion = packageVersion;
     this.importedDebugTools = false;
     this.flags = flags;
     this.features = features;
@@ -108,6 +111,34 @@ export default class MacroBuilder {
   }
 
   _deprecate(expression) {
+    let { t } = this;
+    let [ message, predicate, metaExpression ] = expression.node.expression.arguments;
+    let meta = {
+      url: null,
+      id: null,
+      until: null
+    };
+
+    metaExpression.properties.forEach((prop) => {
+      let { key, value } = prop;
+      meta[key.name] = value.value;
+    });
+
+    if (!meta.id) {
+      throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
+    }
+
+    if (!meta.until) {
+      throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
+    }
+
+    if (satisfies(this.packageVersion, `${meta.until}`)) {
+      expression.remove();
+    } else {
+      let deprecationMessage = this.t.stringLiteral(`DEPRECATED [${meta.id}]: ${message.value}. Will be removed in ${meta.until}.${meta.url ? ` See ${meta.url} for more information.` : ''}`);
+      let consoleWarn = this._createConsoleAPI('warn', [deprecationMessage]);
+      this.expressions.push([expression, this._buildLogicalExpressions([predicate], consoleWarn)]);
+    }
 
   }
 
@@ -115,7 +146,7 @@ export default class MacroBuilder {
     let { t } = this;
     let args = expression.node.expression.arguments;
     let consoleAssert = this._createConsoleAPI('assert', args);
-	let identifiers = this._getIdentifiers(args);
+	  let identifiers = this._getIdentifiers(args);
     this.expressions.push([expression, this._buildLogicalExpressions(identifiers, consoleAssert)]);
   }
 

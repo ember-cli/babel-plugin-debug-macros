@@ -37,15 +37,30 @@ let cases = {
     fixtures: [
       'warn-expansion',
       'assert-expansion',
-      'deprecation-expansion'
+      'deprecate-expansion',
+      'deprecate-missing-id'
+    ],
+    errors: [
+      `deprecate's meta information requires an "id" field.`,
+      `deprecate's meta information requires an "until" field.`
     ]
+  },
+
+  'Deprecation stripping': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, { flags: { DEBUG: 1 }, packageVersion: '3.0.0' }]
+      ]
+    },
+
+    fixtures: ['deprecate-is-stripped-when-expired']
   }
 }
 
 function compile(source, transformOptions) {
   return transform(source, transformOptions).code;
 }
-
 
 Object.keys(cases).forEach(caseName => {
   describe(caseName, () => {

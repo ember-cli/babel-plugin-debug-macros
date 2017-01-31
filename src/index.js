@@ -14,9 +14,9 @@ export default function (babel) {
 
       Program: {
         enter(path, state) {
-          let { flags, features } = state.opts;
+          let { flags, features, packageVersion } = state.opts;
           // flagGenerator = new FlagGenerator(t);
-          builder = new MacroBuilder(t, flags, features);
+          builder = new MacroBuilder(t, flags, features, packageVersion);
         },
 
         exit(path) {
