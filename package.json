@@ -1,0 +1,30 @@
+{
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-core": "^6.22.1",
+    "babel-preset-latest": "^6.22.0",
+    "babel-preset-node7": "^1.4.0",
+    "babel-register": "^6.22.0",
+    "chai": "^3.5.0",
+    "chai-files": "^1.4.0",
+    "mocha": "^3.2.0"
+  },
+  "name": "babel-debug-macros",
+  "version": "0.0.0",
+  "description": "Debug macros and feature flag stripping",
+  "main": "dist/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "babel src --out-dir dist",
+    "prepublish": "babel src --out-dir dist",
+    "test": "babel src --out-dir dist && mocha dist/tests/**-test.js"
+  },
+  "keywords": [
+    "babel",
+    "plugin"
+  ],
+  "author": "Chad Hietala <chadhietala@gmail.com>",
+  "license": "MIT"
+}
