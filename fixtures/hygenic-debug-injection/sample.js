@@ -1,4 +1,4 @@
-import { deprecate } from 'debug-tools';
+import { deprecate } from '@ember/debug-tools';
 import bar from 'something';
 
 if (bar()) {

@@ -10,9 +10,18 @@ The plugin takes 3 options: `flags`, `features`, and `packageVersion`. `flags` a
 {
   plugins: [
     ['babel-debug-macros', {
-      flags: { DEBUG: 1 },
-      features: { FEATURE_A: 0, FEATURE_B: 1 },
-      packageVersion: '3.0.0'
+      packageVersion: '3.0.0',
+      envFlags: {
+        importSpecifier: '@ember/env-flags',
+        flags: { DEBUG: 1 }
+      },
+      features: {
+        importSpecifier: '@ember/features',
+        flags: { FEATURE_A: 0, FEATURE_B: 1 }
+      },
+      debugTools: {
+        importSpecifier: 'debug-tools'
+      }
     }]
   ]
 }
@@ -24,7 +33,7 @@ Flags and features are inlined into consuming module so that something like Ugli
 
 ```javascript
 import { DEBUG } from '@ember/env-flags';
-import { FEATURE_A, FEATURE_B } from 'feature-flags';
+import { FEATURE_A, FEATURE_B } from '@ember/features';
 
 if (DEBUG) {
   console.log('Hello from debug');

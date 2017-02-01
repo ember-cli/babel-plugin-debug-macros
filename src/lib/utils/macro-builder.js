@@ -3,16 +3,16 @@ import { satisfies } from 'semver';
 const DEBUG = 'DEBUG';
 
 export default class MacroBuilder {
-  constructor(t, flags, features, packageVersion) {
+  constructor(t, options) {
     this.t = t;
     this.expressions = [];
     this.localBindings = [];
     this.importedBindings = [];
     this.flagDeclarations = [];
-    this.packageVersion = packageVersion;
     this.importedDebugTools = false;
-    this.flags = flags;
-    this.features = features;
+    this.packageVersion = options.packageVersion;
+    this.envFlags = options.envFlags.flags;
+    this.featureFlags = options.features.flags;
   }
 
   /**
@@ -45,16 +45,16 @@ export default class MacroBuilder {
 
   _injectDebug(path, name) {
     let { t } = this;
-    path.node.body.unshift(t.variableDeclaration('const', [t.variableDeclarator(name, t.numericLiteral(this.flags.DEBUG))]));
+    path.node.body.unshift(t.variableDeclaration('const', [t.variableDeclarator(name, t.numericLiteral(this.envFlags.DEBUG))]));
   }
 
   inlineEnvFlags(path) {
-    let flagDeclarations = this.generateFlagConstants(path.node.specifiers, this.flags, path.node.source.value);
+    let flagDeclarations = this.generateFlagConstants(path.node.specifiers, this.envFlags, path.node.source.value);
     path.replaceWithMultiple(flagDeclarations);
   }
 
   inlineFeatureFlags(path) {
-    let flagDeclarations = this.generateFlagConstants(path.node.specifiers, this.features, path.node.source.value);
+    let flagDeclarations = this.generateFlagConstants(path.node.specifiers, this.featureFlags, path.node.source.value);
     path.replaceWithMultiple(flagDeclarations);
   }
 
