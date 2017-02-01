@@ -2,12 +2,6 @@
 
 This provides debug macros and feature flagging.
 
-## Todos
-
-- [ ] Introduce a "externalHelpers" API that allows for mocking out macros for things like testing.
-- [ ] Investigate if we can DCE early with `path.execute` in Babel.
-- [ ] Investigate creating a contract for consumers to explicitly strip deprecations within a specific semver range.
-
 ## Setup
 
 The plugin takes 3 options: `flags`, `features`, and `packageVersion`. `flags` are meant to be ENV flags, where as `features` is for features that are enabled or disabled. The `packageVersion` is used to strip any deprecations that expired when compared with the debug CallExpressions.
