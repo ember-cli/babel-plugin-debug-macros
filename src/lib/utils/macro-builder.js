@@ -21,21 +21,31 @@ export default class MacroBuilder {
    */
   injectFlags(path) {
     let debugBinding = path.scope.getBinding(DEBUG);
+    let { t } = this;
     let name;
 
     let importsToClean;
 
     if (!this._hasDebugModule(debugBinding)) {
-      // name = path.hub.file.addImport('@ember/env-flags', DEBUG).name;
-      this._expand(name);
+      name = path.scope.generateUidIdentifier(DEBUG);
+
+      if (this.expressions.length > 0) {
+        this._injectDebug(path, name);
+      }
+
+      this._expand(name.name);
     } else {
       name = DEBUG;
       this._expand(DEBUG);
       this.inlineEnvFlags(debugBinding.path.parentPath);
-      // debugBinding.path.parentPath.remove();
     }
 
     this._cleanImports(path);
+  }
+
+  _injectDebug(path, name) {
+    let { t } = this;
+    path.node.body.unshift(t.variableDeclaration('const', [t.variableDeclarator(name, t.numericLiteral(this.flags.DEBUG))]));
   }
 
   inlineEnvFlags(path) {

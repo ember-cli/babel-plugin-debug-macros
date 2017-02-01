@@ -38,7 +38,8 @@ let cases = {
       'warn-expansion',
       'assert-expansion',
       'deprecate-expansion',
-      'deprecate-missing-id'
+      'deprecate-missing-id',
+      'hygenic-debug-injection'
     ],
     errors: [
       `deprecate's meta information requires an "id" field.`,
