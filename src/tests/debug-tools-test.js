@@ -119,6 +119,56 @@ let cases = {
     },
 
     fixtures: ['global-external-helpers']
+  },
+
+  'Module External Test Helpers': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          externalizeHelpers: {
+            module: '@ember/metal'
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          },
+          packageVersion: '3.0.0'
+        }]
+      ]
+    },
+
+    fixtures: ['module-external-helpers']
+  },
+
+  'Retain Module External Test Helpers': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          externalizeHelpers: {
+            module: true
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          },
+          packageVersion: '3.0.0'
+        }]
+      ]
+    },
+
+    fixtures: ['retain-module-external-helpers']
   }
 }
 
