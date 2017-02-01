@@ -12,7 +12,8 @@ The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externa
     ['babel-debug-macros', {
       packageVersion: '3.0.0',
       externalizeHelpers: {
-        global: 'Ember'
+        module: 'my-helpers' // or true to retain the name in code
+        // global: '__my_global_ns__'
       },
       envFlags: {
         importSpecifier: '@ember/env-flags',
@@ -135,6 +136,8 @@ let foo = 2;
 
 When you externalize helpers you must provide runtime implementations for the above macros. An expansion will still occur however we will use emit references to those runtime helpers.
 
+A global expansion looks like the following:
+
 ```javascript
 import { warn } from 'debug-tools';
 
@@ -147,6 +150,23 @@ Expands into:
 const DEBUG = 1;
 
 (DEBUG && Ember.warn('this is a warning'));
+```
+
+While externalizing the helpers to a module looks like the following:
+
+```javascript
+import { warn } from 'debug-tools';
+
+warn('this is a warning');
+```
+
+Expands into:
+
+```javascript
+const DEBUG = 1;
+import { warn } from 'my-helpers';
+
+(DEBUG && warn('this is a warning'));
 ```
 
 # Hygenic

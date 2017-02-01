@@ -109,10 +109,20 @@ export default class MacroBuilder {
   }
 
   _cleanImports(path) {
+    let { externalizeHelpers, helpers } = this;
+
     if (this.localBindings.length > 0) {
-      // Note this nukes the entire ImportDeclaration so we simply can
-      // just grab one of the bindings to remove.
-      path.scope.getBinding(this.localBindings[0]).path.parentPath.remove();
+      let importDeclaration = path.scope.getBinding(this.localBindings[0]).path.parentPath;
+
+      if (externalizeHelpers && helpers.module) {
+        if (typeof helpers.module === 'string') {
+          importDeclaration.node.source.value = helpers.module;
+        }
+      } else {
+        // Note this nukes the entire ImportDeclaration so we simply can
+        // just grab one of the bindings to remove.
+        importDeclaration.remove();
+      }
     }
   }
 
@@ -121,9 +131,13 @@ export default class MacroBuilder {
     let args = expression.node.expression.arguments;
 
     let warn;
-    if (externalizeHelpers && helpers.global) {
+    if (externalizeHelpers) {
       let ns = helpers.global;
-      warn = this._createExternalHelper(ns, 'warn', args);
+      if (ns) {
+        warn = this._createGlobalExternalHelper('warn', args, ns);
+      } else {
+        warn = this._createExternalHelper('warn', args);
+      }
     } else {
       warn = this._createConsoleAPI('warn', args);
     }
@@ -158,44 +172,60 @@ export default class MacroBuilder {
     if (satisfies(this.packageVersion, `${meta.until}`)) {
       expression.remove();
     } else {
-      let deprecationMessage = this.t.stringLiteral(`DEPRECATED [${meta.id}]: ${message.value}. Will be removed in ${meta.until}.${meta.url ? ` See ${meta.url} for more information.` : ''}`);
+      let deprecationMessage = this._generateDeprecationMessage(message, meta);
 
       let deprecate;
-      if (externalizeHelpers && helpers.global) {
+      if (externalizeHelpers) {
         let ns = helpers.global;
-        deprecate = this._createExternalHelper(ns, 'deprecate', [deprecationMessage]);
+        if (ns) {
+          deprecate = this._createGlobalExternalHelper('deprecate', [deprecationMessage], ns);
+        } else {
+          deprecate = this._createExternalHelper('deprecate', [deprecationMessage]);
+        }
       } else {
         deprecate = this._createConsoleAPI('warn', [deprecationMessage]);
       }
 
       this.expressions.push([expression, this._buildLogicalExpressions([predicate], deprecate)]);
     }
-
   }
 
-  _assert(expression) {
+  _assert(path) {
     let { t, externalizeHelpers, helpers } = this;
-    let args = expression.node.expression.arguments;
+    let args = path.node.expression.arguments;
     let assert;
 
-    if (externalizeHelpers && helpers.global) {
+    if (externalizeHelpers) {
       let ns = helpers.global;
-      assert = this._createExternalHelper(ns, 'assert', args);
+      if (ns) {
+        assert = this._createGlobalExternalHelper('assert', args, ns);
+      } else {
+        assert = this._createExternalHelper('assert', args);
+      }
     } else {
       assert = this._createConsoleAPI('assert', args);
     }
 
     let identifiers = this._getIdentifiers(args);
-    this.expressions.push([expression, this._buildLogicalExpressions(identifiers, assert)]);
+    this.expressions.push([path, this._buildLogicalExpressions(identifiers, assert)]);
   }
 
   _getIdentifiers(args) {
     return args.filter((arg) => this.t.isIdentifier(arg));
   }
 
-  _createExternalHelper(ns, type, args) {
+  _generateDeprecationMessage(message, meta) {
+    return this.t.stringLiteral(`DEPRECATED [${meta.id}]: ${message.value}. Will be removed in ${meta.until}.${meta.url ? ` See ${meta.url} for more information.` : ''}`);
+  }
+
+  _createGlobalExternalHelper(type, args, ns) {
     let { t } = this;
     return t.callExpression(t.memberExpression(t.identifier(ns), t.identifier(type)), args);
+  }
+
+  _createExternalHelper(type, args) {
+    let { t } = this;
+    return t.callExpression(t.identifier(type), args);
   }
 
   _createConsoleAPI(type, args) {
