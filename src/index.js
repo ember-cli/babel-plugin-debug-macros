@@ -27,17 +27,17 @@ export default function (babel) {
       },
 
       ImportDeclaration(path, state) {
-        let { envFlags, featureFlags } = state.opts;
+        let { flags, features } = state.opts;
         let importPath = path.node.source.value;
 
         switch(importPath) {
           case '@ember/env-flags':
             if (envFlags) {
-              builder.generateEnvFlags(path, envFlags);
+              builder.generateEnvFlags(path);
             }
             break;
           case 'feature-flags':
-            builder.inlineFeatureFlags(path, featureFlags);
+            builder.inlineFeatureFlags(path);
             break;
           case 'debug-tools':
             builder.collectSpecifiers(path.node.specifiers);
