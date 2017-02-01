@@ -4,7 +4,7 @@ This provides debug macros and feature flagging.
 
 ## Setup
 
-The plugin takes 3 options: `flags`, `features`, and `packageVersion`. `flags` are meant to be ENV flags, where as `features` is for features that are enabled or disabled. The `packageVersion` is used to strip any deprecations that expired when compared with the debug CallExpressions.
+The plugin takes 3 options: `flags`, `features`, and `packageVersion`. `flags` are meant to be ENV flags, where as `features` is for features that are enabled or disabled. The `packageVersion` is used to strip any deprecations that expired when compared with the `deprecate` CallExpressions.
 
 ```
 {
