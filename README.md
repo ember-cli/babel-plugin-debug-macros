@@ -4,13 +4,16 @@ This provides debug macros and feature flagging.
 
 ## Setup
 
-The plugin takes 4 types options: `envFlags`, `features`, `debugTools` and `packageVersion`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. The `packageVersion` is used to strip any deprecations that expired when compared with the `deprecate` CallExpressions.
+The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externalizeHelpers` and `packageVersion`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. The `packageVersion` is used to strip any deprecations that expired when compared with the `deprecate` CallExpressions. Like Babel you can supply you're own helpers using the `externalizeHelpers` options.
 
 ```
 {
   plugins: [
     ['babel-debug-macros', {
       packageVersion: '3.0.0',
+      externalizeHelpers: {
+        global: 'Ember'
+      },
       envFlags: {
         importSpecifier: '@ember/env-flags',
         flags: { DEBUG: 1 }
@@ -126,6 +129,24 @@ const DEBUG = 1;
 let foo = 2;
 
 (DEBUG && foo % 2 && console.warn('DEPRECATED [old-and-busted]: This is deprecated. Will be removed in 4.0.0. Please see http://example.com for more details.'));
+```
+
+## Externalized Helpers
+
+When you externalize helpers you must provide runtime implementations for the above macros. An expansion will still occur however we will use emit references to those runtime helpers.
+
+```javascript
+import { warn } from 'debug-tools';
+
+warn('this is a warning');
+```
+
+Expands into:
+
+```javascript
+const DEBUG = 1;
+
+(DEBUG && Ember.warn('this is a warning'));
 ```
 
 # Hygenic

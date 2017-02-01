@@ -15,7 +15,7 @@ export default function (babel) {
       Program: {
         enter(path, state) {
           let { envFlags, features, debugTools, packageVersion } = state.opts;
-          options = normalizeOptions(features, debugTools, envFlags, packageVersion);
+          options = normalizeOptions(state.opts);
           builder = new MacroBuilder(t, options);
         },
 

@@ -1,4 +1,12 @@
-export function normalizeOptions(features, debugTools, envFlags, packageVersion) {
+export function normalizeOptions(options) {
+  let {
+    features,
+    debugTools,
+    envFlags,
+    packageVersion,
+    externalizeHelpers
+  } = options;
+
   let featuresImport;
   let featureFlags = {};
   if (features) {
@@ -31,6 +39,7 @@ export function normalizeOptions(features, debugTools, envFlags, packageVersion)
 
   return {
     packageVersion,
+    externalizeHelpers,
     features: {
       featuresImport,
       flags: featureFlags
