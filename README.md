@@ -10,9 +10,18 @@ The plugin takes 3 options: `flags`, `features`, and `packageVersion`. `flags` a
 {
   plugins: [
     ['babel-debug-macros', {
-      flags: { DEBUG: 1 },
-      features: { FEATURE_A: 0, FEATURE_B: 1 },
-      packageVersion: '3.0.0'
+      packageVersion: '3.0.0',
+      envFlags: {
+        importSpecifier: '@ember/env-flags',
+        flags: { DEBUG: 1 }
+      },
+      features: {
+        importSpecifier: '@ember/features',
+        flags: { FEATURE_A: 0, FEATURE_B: 1 }
+      },
+      debugTools: {
+        importSpecifier: 'debug-tools'
+      }
     }]
   ]
 }
