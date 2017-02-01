@@ -24,7 +24,7 @@ Flags and features are inlined into consuming module so that something like Ugli
 
 ```javascript
 import { DEBUG } from '@ember/env-flags';
-import { FEATURE_A, FEATURE_B } from 'feature-flags';
+import { FEATURE_A, FEATURE_B } from '@ember/features';
 
 if (DEBUG) {
   console.log('Hello from debug');

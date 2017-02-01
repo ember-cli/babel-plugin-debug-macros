@@ -1,4 +1,4 @@
 import { DEBUG } from '@ember/env-flags';
-import { warn } from 'debug-tools';
+import { warn } from '@ember/debug-tools';
 
 warn('This is a warning');

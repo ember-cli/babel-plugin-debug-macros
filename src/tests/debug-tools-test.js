@@ -15,7 +15,24 @@ let cases = {
     transformOptions: {
       presets,
       plugins: [
-        [DebugToolsPlugin, { features: { FEATURE_A: 0, FEATURE_B: 1 } }]
+        [DebugToolsPlugin, {
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          features: {
+            importSpecifier: '@ember/features',
+            flags: {
+              FEATURE_A: 0,
+              FEATURE_B: 1
+            }
+          }
+        }]
       ],
     },
     fixtures: [
@@ -23,7 +40,7 @@ let cases = {
       'missing-feature-flag'
     ],
     errors: [
-      'Imported FEATURE_C from feature-flags which is not a supported flag.'
+      'Imported FEATURE_C from @ember/features which is not a supported flag.'
     ]
   },
 
@@ -31,7 +48,17 @@ let cases = {
     transformOptions: {
       presets,
       plugins: [
-        [DebugToolsPlugin, { flags: { DEBUG: 1 } }]
+        [DebugToolsPlugin, {
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          }
+        }]
       ]
     },
     fixtures: [
@@ -51,7 +78,18 @@ let cases = {
     transformOptions: {
       presets,
       plugins: [
-        [DebugToolsPlugin, { flags: { DEBUG: 1 }, packageVersion: '3.0.0' }]
+        [DebugToolsPlugin, {
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          },
+          packageVersion: '3.0.0'
+        }]
       ]
     },
 

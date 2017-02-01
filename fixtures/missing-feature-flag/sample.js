@@ -1,4 +1,4 @@
-import { FEATURE_A, FEATURE_B, FEATURE_C } from 'feature-flags';
+import { FEATURE_A, FEATURE_B, FEATURE_C } from '@ember/features';
 
 let a;
 if (FEATURE_A) {
