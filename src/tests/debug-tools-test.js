@@ -94,6 +94,31 @@ let cases = {
     },
 
     fixtures: ['deprecate-is-stripped-when-expired']
+  },
+
+  'Global External Test Helpers': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          externalizeHelpers: {
+            global: '__debugHelpers__'
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          },
+          packageVersion: '3.0.0'
+        }]
+      ]
+    },
+
+    fixtures: ['global-external-helpers']
   }
 }
 

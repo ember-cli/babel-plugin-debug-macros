@@ -13,6 +13,8 @@ export default class MacroBuilder {
     this.packageVersion = options.packageVersion;
     this.envFlags = options.envFlags.flags;
     this.featureFlags = options.features.flags;
+    this.externalizeHelpers = !!options.externalizeHelpers;
+    this.helpers = options.externalizeHelpers;
   }
 
   /**
@@ -107,22 +109,33 @@ export default class MacroBuilder {
   }
 
   _cleanImports(path) {
-    this.localBindings.forEach((binding) => {
-      path.scope.getBinding(binding).path.parentPath.remove();
-    });
+    if (this.localBindings.length > 0) {
+      // Note this nukes the entire ImportDeclaration so we simply can
+      // just grab one of the bindings to remove.
+      path.scope.getBinding(this.localBindings[0]).path.parentPath.remove();
+    }
   }
 
   _warn(expression) {
-    let { t } = this;
+    let { t, externalizeHelpers, helpers } = this;
     let args = expression.node.expression.arguments;
-    let consoleWarn = this._createConsoleAPI('warn', args);
+
+    let warn;
+    if (externalizeHelpers && helpers.global) {
+      let ns = helpers.global;
+      warn = this._createExternalHelper(ns, 'warn', args);
+    } else {
+      warn = this._createConsoleAPI('warn', args);
+    }
+
     let identifiers = this._getIdentifiers(args);
-    this.expressions.push([expression, this._buildLogicalExpressions([], consoleWarn)]);
+    this.expressions.push([expression, this._buildLogicalExpressions([], warn)]);
   }
 
   _deprecate(expression) {
-    let { t } = this;
+    let { t, externalizeHelpers, helpers } = this;
     let [ message, predicate, metaExpression ] = expression.node.expression.arguments;
+
     let meta = {
       url: null,
       id: null,
@@ -146,22 +159,43 @@ export default class MacroBuilder {
       expression.remove();
     } else {
       let deprecationMessage = this.t.stringLiteral(`DEPRECATED [${meta.id}]: ${message.value}. Will be removed in ${meta.until}.${meta.url ? ` See ${meta.url} for more information.` : ''}`);
-      let consoleWarn = this._createConsoleAPI('warn', [deprecationMessage]);
-      this.expressions.push([expression, this._buildLogicalExpressions([predicate], consoleWarn)]);
+
+      let deprecate;
+      if (externalizeHelpers && helpers.global) {
+        let ns = helpers.global;
+        deprecate = this._createExternalHelper(ns, 'deprecate', [deprecationMessage]);
+      } else {
+        deprecate = this._createConsoleAPI('warn', [deprecationMessage]);
+      }
+
+      this.expressions.push([expression, this._buildLogicalExpressions([predicate], deprecate)]);
     }
 
   }
 
   _assert(expression) {
-    let { t } = this;
+    let { t, externalizeHelpers, helpers } = this;
     let args = expression.node.expression.arguments;
-    let consoleAssert = this._createConsoleAPI('assert', args);
-	  let identifiers = this._getIdentifiers(args);
-    this.expressions.push([expression, this._buildLogicalExpressions(identifiers, consoleAssert)]);
+    let assert;
+
+    if (externalizeHelpers && helpers.global) {
+      let ns = helpers.global;
+      assert = this._createExternalHelper(ns, 'assert', args);
+    } else {
+      assert = this._createConsoleAPI('assert', args);
+    }
+
+    let identifiers = this._getIdentifiers(args);
+    this.expressions.push([expression, this._buildLogicalExpressions(identifiers, assert)]);
   }
 
   _getIdentifiers(args) {
     return args.filter((arg) => this.t.isIdentifier(arg));
+  }
+
+  _createExternalHelper(ns, type, args) {
+    let { t } = this;
+    return t.callExpression(t.memberExpression(t.identifier(ns), t.identifier(type)), args);
   }
 
   _createConsoleAPI(type, args) {
