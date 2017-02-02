@@ -11,7 +11,40 @@ const presets = [["latest", {
 }]];
 
 let cases = {
-  'Feature Flags': {
+  'Production Feature Flags': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 0
+            }
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          features: {
+            importSpecifier: '@ember/features',
+            flags: {
+              FEATURE_A: 0,
+              FEATURE_B: 1
+            }
+          }
+        }]
+      ],
+    },
+    fixtures: [
+      'inline-feature-flags',
+      'missing-feature-flag'
+    ],
+    errors: [
+      'Imported FEATURE_C from @ember/features which is not a supported flag.'
+    ]
+  },
+
+  'Development Feature Flags': {
     transformOptions: {
       presets,
       plugins: [
@@ -36,11 +69,7 @@ let cases = {
       ],
     },
     fixtures: [
-      'inline-feature-flags',
-      'missing-feature-flag'
-    ],
-    errors: [
-      'Imported FEATURE_C from @ember/features which is not a supported flag.'
+      'development-feature-flags'
     ]
   },
 
