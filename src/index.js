@@ -30,12 +30,14 @@ export default function (babel) {
         let importPath = path.node.source.value;
 
         let {
-          features: { featuresImport },
+          featureImportSpecifiers,
           debugTools: { debugToolsImport },
           envFlags: { flags: { DEBUG } }
         } = options;
 
-        if (featuresImport && featuresImport === importPath && !DEBUG) {
+        let isFeaturesImport = featureImportSpecifiers.includes(importPath);
+
+        if (isFeaturesImport && !DEBUG) {
           builder.inlineFeatureFlags(path);
         } else if (debugToolsImport && debugToolsImport === importPath) {
           builder.collectSpecifiers(path.node.specifiers);

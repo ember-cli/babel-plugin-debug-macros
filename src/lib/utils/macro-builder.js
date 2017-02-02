@@ -12,7 +12,7 @@ export default class MacroBuilder {
     this.importedDebugTools = false;
     this.packageVersion = options.packageVersion;
     this.envFlags = options.envFlags.flags;
-    this.featureFlags = options.features.flags;
+    this.featureFlags = options.features;
     this.externalizeHelpers = !!options.externalizeHelpers;
     this.helpers = options.externalizeHelpers;
   }
@@ -56,8 +56,14 @@ export default class MacroBuilder {
   }
 
   inlineFeatureFlags(path) {
-    let flagDeclarations = this.generateFlagConstants(path.node.specifiers, this.featureFlags, path.node.source.value);
-    path.replaceWithMultiple(flagDeclarations);
+    for (let i = 0; i < this.featureFlags.length; i++) {
+      let features = this.featureFlags[i];
+      if (features.featuresImport === path.node.source.value) {
+        let flagDeclarations = this.generateFlagConstants(path.node.specifiers, features.flags, path.node.source.value);
+        path.replaceWithMultiple(flagDeclarations);
+        break;
+      }
+    }
   }
 
   generateFlagConstants(specifiers, flagTable, source) {
