@@ -1,11 +1,11 @@
-import MacroBuilder from './lib/utils/macro-builder';
+import Macros from './lib/utils/macros';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { normalizeOptions } from './lib/utils/normalize-options';
 
 export default function (babel) {
   const { types: t } = babel;
-  let builder;
+  let macroBuilder;
   let options;
 
   return {
@@ -15,12 +15,12 @@ export default function (babel) {
       Program: {
         enter(path, state) {
           options = normalizeOptions(state.opts);
-          builder = new MacroBuilder(t, options);
+          macroBuilder = new Macros(t, options);
         },
 
         exit(path) {
-          if (builder.importedDebugTools) {
-            builder.injectFlags(path);
+          if (macroBuilder.importedDebugTools) {
+            macroBuilder.expand(path);
           }
         }
       },
@@ -37,14 +37,14 @@ export default function (babel) {
         let isFeaturesImport = featureImportSpecifiers.includes(importPath);
 
         if (isFeaturesImport && !DEBUG) {
-          builder.inlineFeatureFlags(path);
+          macroBuilder.inlineFeatureFlags(path);
         } else if (debugToolsImport && debugToolsImport === importPath) {
-          builder.collectSpecifiers(path.node.specifiers);
+          macroBuilder.collectDebugToolsSpecifiers(path.node.specifiers);
         }
       },
 
       ExpressionStatement(path) {
-        builder.buildExpression(path);
+        macroBuilder.build(path);
       }
     }
   };

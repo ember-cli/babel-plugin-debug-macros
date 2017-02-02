@@ -9,7 +9,6 @@ export function normalizeOptions(options) {
     svelte
   } = options;
 
-
   let featureImportSpecifiers = [];
   if (features) {
     features = features.map((feature) => {
@@ -28,9 +27,7 @@ export function normalizeOptions(options) {
         } else {
           throw new Error(`Flags must be a scalar value or semver version`);
         }
-
       });
-
 
       return {
         name,
