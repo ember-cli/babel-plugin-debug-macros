@@ -27,7 +27,8 @@
   ],
   "contributors": [
     "Chad Hietala <chadhietala@gmail.com>",
-    "Kris Selden <kris.selden@gmail.com>"
+    "Kris Selden <kris.selden@gmail.com>",
+    "Robert Jackson <rwjblue@gmail.com>"
   ],
   "license": "MIT",
   "dependencies": {
