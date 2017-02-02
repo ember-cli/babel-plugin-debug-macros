@@ -25,13 +25,14 @@ let cases = {
           debugTools: {
             importSpecifier: '@ember/debug-tools'
           },
-          features: {
+          features: [{
+            name: "ember-source",
             importSpecifier: '@ember/features',
             flags: {
               FEATURE_A: 0,
               FEATURE_B: 1
             }
-          }
+          }]
         }]
       ],
     },
@@ -58,15 +59,16 @@ let cases = {
           debugTools: {
             importSpecifier: '@ember/debug-tools'
           },
-          features: {
+          features: [{
+            name: 'ember-source',
             importSpecifier: '@ember/features',
             flags: {
               FEATURE_A: 0,
               FEATURE_B: 1
             }
-          }
+          }]
         }]
-      ],
+      ]
     },
     fixtures: [
       'development-feature-flags'
@@ -198,6 +200,92 @@ let cases = {
     },
 
     fixtures: ['retain-module-external-helpers']
+  },
+
+  'Development Svelte Builds': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          },
+
+          svelte: {
+            'ember-source': '2.15.0'
+          },
+
+          features: [{
+            name: 'my-app',
+            importSpecifier: 'my-app/features',
+            flags: {
+              FEATURE_A: 0,
+              FEATURE_B: 1
+            }
+          },
+          // Note this going to have to be concated in by each lib
+          {
+            name: 'ember-source',
+            importSpecifier: '@ember/features',
+            flags: {
+              DEPRECATED_PARTIALS: '2.14.0',
+              DEPRECATED_CONTROLERS: '2.16.0'
+            }
+          }]
+        }]
+      ]
+    },
+
+    fixtures: ['development-svelte-builds']
+  },
+
+  'Production Svelte Builds': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 0
+            }
+          },
+
+          svelte: {
+            'ember-source': '2.15.0'
+          },
+
+          features: [{
+            name: 'my-app',
+            importSpecifier: 'my-app/features',
+            flags: {
+              FEATURE_A: 0,
+              FEATURE_B: 1
+            }
+          },
+          // Note this going to have to be concated in by each lib
+          {
+            name: 'ember-source',
+            importSpecifier: '@ember/features',
+            flags: {
+              DEPRECATED_PARTIALS: '2.14.0',
+              DEPRECATED_CONTROLLERS: '2.16.0'
+            }
+          }]
+        }]
+      ]
+    },
+
+    fixtures: ['production-svelte-builds']
   }
 }
 
