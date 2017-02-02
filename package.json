@@ -25,7 +25,10 @@
     "babel",
     "plugin"
   ],
-  "author": "Chad Hietala <chadhietala@gmail.com>",
+  "contributors": [
+    "Chad Hietala <chadhietala@gmail.com>",
+    "Kris Selden <kris.selden@gmail.com>"
+  ],
   "license": "MIT",
   "dependencies": {
     "semver": "^5.3.0"
