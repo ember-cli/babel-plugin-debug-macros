@@ -1,5 +1,3 @@
-import { satisfies } from 'semver';
-
 const DEBUG = 'DEBUG';
 
 export default class MacroBuilder {
