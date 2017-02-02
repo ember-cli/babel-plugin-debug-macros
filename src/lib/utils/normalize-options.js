@@ -5,7 +5,6 @@ export function normalizeOptions(options) {
     features,
     debugTools,
     envFlags,
-    packageVersion,
     externalizeHelpers,
     svelte
   } = options;
@@ -68,7 +67,6 @@ export function normalizeOptions(options) {
 
   return {
     featureImportSpecifiers,
-    packageVersion,
     externalizeHelpers,
     features,
     envFlags: {

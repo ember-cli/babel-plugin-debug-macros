@@ -10,7 +10,6 @@ export default class MacroBuilder {
     this.importedBindings = [];
     this.flagDeclarations = [];
     this.importedDebugTools = false;
-    this.packageVersion = options.packageVersion;
     this.envFlags = options.envFlags.flags;
     this.featureFlags = options.features;
     this.externalizeHelpers = !!options.externalizeHelpers;
@@ -175,25 +174,21 @@ export default class MacroBuilder {
       throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
     }
 
-    if (satisfies(this.packageVersion, `${meta.until}`)) {
-      expression.remove();
-    } else {
-      let deprecationMessage = this._generateDeprecationMessage(message, meta);
+    let deprecationMessage = this._generateDeprecationMessage(message, meta);
 
-      let deprecate;
-      if (externalizeHelpers) {
-        let ns = helpers.global;
-        if (ns) {
-          deprecate = this._createGlobalExternalHelper('deprecate', [deprecationMessage], ns);
-        } else {
-          deprecate = this._createExternalHelper('deprecate', [deprecationMessage]);
-        }
+    let deprecate;
+    if (externalizeHelpers) {
+      let ns = helpers.global;
+      if (ns) {
+        deprecate = this._createGlobalExternalHelper('deprecate', [deprecationMessage], ns);
       } else {
-        deprecate = this._createConsoleAPI('warn', [deprecationMessage]);
+        deprecate = this._createExternalHelper('deprecate', [deprecationMessage]);
       }
-
-      this.expressions.push([expression, this._buildLogicalExpressions([predicate], deprecate)]);
+    } else {
+      deprecate = this._createConsoleAPI('warn', [deprecationMessage]);
     }
+
+    this.expressions.push([expression, this._buildLogicalExpressions([predicate], deprecate)]);
   }
 
   _assert(path) {

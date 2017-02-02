@@ -105,28 +105,6 @@ let cases = {
     ]
   },
 
-  'Deprecation stripping': {
-    transformOptions: {
-      presets,
-      plugins: [
-        [DebugToolsPlugin, {
-          debugTools: {
-            importSpecifier: '@ember/debug-tools'
-          },
-          envFlags: {
-            importSpecifier: '@ember/env-flags',
-            flags: {
-              DEBUG: 1
-            }
-          },
-          packageVersion: '3.0.0'
-        }]
-      ]
-    },
-
-    fixtures: ['deprecate-is-stripped-when-expired']
-  },
-
   'Global External Test Helpers': {
     transformOptions: {
       presets,
@@ -143,8 +121,7 @@ let cases = {
             flags: {
               DEBUG: 1
             }
-          },
-          packageVersion: '3.0.0'
+          }
         }]
       ]
     },
@@ -168,8 +145,7 @@ let cases = {
             flags: {
               DEBUG: 1
             }
-          },
-          packageVersion: '3.0.0'
+          }
         }]
       ]
     },
@@ -193,8 +169,7 @@ let cases = {
             flags: {
               DEBUG: 1
             }
-          },
-          packageVersion: '3.0.0'
+          }
         }]
       ]
     },

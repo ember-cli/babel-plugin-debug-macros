@@ -4,27 +4,35 @@ This provides debug macros and feature flagging.
 
 ## Setup
 
-The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externalizeHelpers` and `packageVersion`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. The `packageVersion` is used to strip any deprecations that expired when compared with the `deprecate` CallExpressions. Like Babel you can supply you're own helpers using the `externalizeHelpers` options.
+The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externalizeHelpers` and `svelte`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. Like Babel you can supply you're own helpers using the `externalizeHelpers` options.
 
 ```
 {
   plugins: [
     ['babel-debug-macros', {
-      packageVersion: '3.0.0',
-      externalizeHelpers: {
-        module: 'my-helpers' // or true to retain the name in code
-        // global: '__my_global_ns__'
-      },
+      // @required
       envFlags: {
         importSpecifier: '@ember/env-flags',
         flags: { DEBUG: 1 }
       },
-      features: {
-        importSpecifier: '@ember/features',
-        flags: { FEATURE_A: 0, FEATURE_B: 1 }
-      },
+      // @required
       debugTools: {
         importSpecifier: 'debug-tools'
+      },
+      // @optional
+      features: [{
+        name: 'ember-source',
+        importSpecifier: '@ember/features',
+        flags: { FEATURE_A: 0, FEATURE_B: 1, DEPRECATED_CONTROLLERS: "2.12.0" }
+      }],
+      // @optional
+      svelte: {
+        'ember-source': "2.15.0"
+      },
+      // @optional
+      externalizeHelpers: {
+        module: 'my-helpers' // or true to retain the name in code
+        // global: '__my_global_ns__'
       }
     }]
   ]
@@ -167,6 +175,28 @@ const DEBUG = 1;
 import { warn } from 'my-helpers';
 
 (DEBUG && warn('this is a warning'));
+```
+
+# Svelte
+
+Svelte allows for consumers to opt into stripping deprecated code from your dependecies. By adding a package name and minimum version that contains no deprecations that code will be compiled away.
+
+For example, consider you are on `ember-source@2.10.0` and you have no deprecations all deprecated code in `ember-source` that is `<=2.10.0` will be removed.
+
+```
+...
+svelte: {
+  "ember-source": "2.10.0"
+}
+...
+```
+
+Now if you bump to `ember-source@2.11.0` you may encounter new deprecations. The workflow would then be to clear out all deprecations and then bump the version in the `svelte` options.
+
+```
+svelte: {
+  "ember-source": "2.11.0"
+}
 ```
 
 # Hygenic
