@@ -31,10 +31,11 @@ export default function (babel) {
 
         let {
           features: { featuresImport },
-          debugTools: { debugToolsImport }
+          debugTools: { debugToolsImport },
+          envFlags: { flags: { DEBUG } }
         } = options;
 
-        if (featuresImport && featuresImport === importPath) {
+        if (featuresImport && featuresImport === importPath && !DEBUG) {
           builder.inlineFeatureFlags(path);
         } else if (debugToolsImport && debugToolsImport === importPath) {
           builder.collectSpecifiers(path.node.specifiers);
