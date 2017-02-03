@@ -2,7 +2,7 @@ import DebugToolsPlugin from '../index';
 import { transform } from 'babel-core';
 import { expect } from 'chai';
 import { file } from 'chai-files';
-import { lstatSync } from 'fs';
+import { lstatSync, writeFileSync } from 'fs';
 
 const presets = [["latest", {
   "es2015": false,
@@ -265,7 +265,7 @@ let cases = {
 }
 
 function compile(source, transformOptions) {
-  return transform(source, transformOptions).code;
+  return transform(source, transformOptions);
 }
 
 Object.keys(cases).forEach(caseName => {
@@ -287,7 +287,9 @@ Object.keys(cases).forEach(caseName => {
 
         if (expectationExists) {
           let expectation = file(`./fixtures/${assertionName}/expectation.js`).content;
-          expect(compile(sample, options)).to.equal(expectation);
+          let compiled = compile(sample, options);
+          expect(compiled.code).to.equal(expectation);
+
         } else {
           let fn = () => compile(sample, options);
           expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));

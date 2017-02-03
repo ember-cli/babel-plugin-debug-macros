@@ -25,18 +25,19 @@ export default class Builder {
    */
   assert(path) {
     let { t, hasHelpers, helpers } = this;
-    let args = path.node.expression.arguments;
+    let expression = path.node.expression;
+    let { callee, arguments: args } = expression;
     let assert;
 
     if (hasHelpers) {
       let ns = helpers.global;
       if (ns) {
-        assert = this._createGlobalExternalHelper('assert', args, ns);
+        assert = this._createGlobalExternalHelper(callee, args, ns);
       } else {
-        assert = this._createExternalHelper('assert', args);
+        assert = path.node.expression;
       }
     } else {
-      assert = this._createConsoleAPI('assert', args);
+      assert = this._createConsoleAPI(callee, args);
     }
 
     let identifiers = this._getIdentifiers(args);
@@ -62,18 +63,19 @@ export default class Builder {
    */
   warn(path) {
     let { t, hasHelpers, helpers } = this;
-    let args = path.node.expression.arguments;
+    let expression = path.node.expression;
+    let { callee, arguments: args } = expression;
 
     let warn;
     if (hasHelpers) {
       let ns = helpers.global;
       if (ns) {
-        warn = this._createGlobalExternalHelper('warn', args, ns);
+        warn = this._createGlobalExternalHelper(callee, args, ns);
       } else {
-        warn = this._createExternalHelper('warn', args);
+        warn = expression
       }
     } else {
-      warn = this._createConsoleAPI('warn', args);
+      warn = this._createConsoleAPI(callee, args);
     }
 
     let identifiers = this._getIdentifiers(args);
@@ -103,7 +105,9 @@ export default class Builder {
    */
   deprecate(path) {
     let { t, hasHelpers, helpers } = this;
-    let [ message, predicate, metaExpression ] = path.node.expression.arguments;
+    let expression = path.node.expression;
+    let { callee, arguments: args } = expression;
+    let [ message, predicate, metaExpression ] = args;
 
     let meta = {
       url: null,
@@ -130,12 +134,13 @@ export default class Builder {
     if (hasHelpers) {
       let ns = helpers.global;
       if (ns) {
-        deprecate = this._createGlobalExternalHelper('deprecate', [deprecationMessage], ns);
+        deprecate = this._createGlobalExternalHelper(callee, [deprecationMessage], ns);
       } else {
-        deprecate = this._createExternalHelper('deprecate', [deprecationMessage]);
+        deprecate = path.node.expression;
+        deprecate.arguments = [deprecationMessage];
       }
     } else {
-      deprecate = this._createConsoleAPI('warn', [deprecationMessage]);
+      deprecate = this._createConsoleAPI(t.identifier('warn'), [deprecationMessage]);
     }
 
     this.expressions.push([path, this._buildLogicalExpressions([predicate], deprecate)]);
@@ -170,10 +175,10 @@ export default class Builder {
   /**
    * Performs the actually expansion of macros
    */
-  expandMacros(binding) {
+  expandMacros(debugIdentifier) {
     for (let i = 0; i < this.expressions.length; i++) {
       let [exp, logicalExp] = this.expressions[i];
-      exp.replaceWith(this.t.parenthesizedExpression(logicalExp(binding)));
+      exp.replaceWith(this.t.parenthesizedExpression(logicalExp(debugIdentifier)));
     }
   }
 
@@ -186,19 +191,19 @@ export default class Builder {
     return args.filter((arg) => this.t.isIdentifier(arg));
   }
 
-  _createGlobalExternalHelper(type, args, ns) {
+  _createGlobalExternalHelper(identifier, args, ns) {
     let { t } = this;
-    return t.callExpression(t.memberExpression(t.identifier(ns), t.identifier(type)), args);
+    return t.callExpression(t.memberExpression(t.identifier(ns), identifier), args);
   }
 
-  _createExternalHelper(type, args) {
+  _createExternalHelper(identifier, args) {
     let { t } = this;
     return t.callExpression(t.identifier(type), args);
   }
 
-  _createConsoleAPI(type, args) {
+  _createConsoleAPI(identifier, args) {
     let { t } = this;
-    return t.callExpression(t.memberExpression(t.identifier('console'), t.identifier(type)), args);
+    return t.callExpression(t.memberExpression(t.identifier('console'), identifier), args);
   }
 
   _generateDeprecationMessage(message, meta) {
@@ -208,8 +213,8 @@ export default class Builder {
   _buildLogicalExpressions(identifiers, callExpression) {
     let { t } = this;
 
-    return (binding) => {
-      identifiers.unshift(t.identifier(binding));
+    return (debugIdentifier) => {
+      identifiers.unshift(debugIdentifier);
       identifiers.push(callExpression);
       let logicalExpressions;
 
