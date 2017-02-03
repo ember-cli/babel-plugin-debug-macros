@@ -21,22 +21,18 @@ export default class Macros {
   expand(path) {
     let debugBinding = path.scope.getBinding(DEBUG);
     let { builder } = this;
-    let name;
 
-    let importsToClean;
-
-    if (!this._hasDebugModule(debugBinding)) {
-      name = path.scope.generateUidIdentifier(DEBUG);
+    if (this._hasDebugModule(debugBinding)) {
+      this.builder.expandMacros(debugBinding.path.node.local);
+      this._inlineEnvFlags(debugBinding.path.parentPath);
+    } else {
+      let debugIdentifier = path.scope.generateUidIdentifier(DEBUG);
 
       if (builder.expressions.length > 0) {
-        this._injectDebug(path, name);
+        this._injectDebug(path, debugIdentifier);
       }
 
-      this.builder.expandMacros(name.name);
-    } else {
-      name = DEBUG;
-      this.builder.expandMacros(DEBUG);
-      this._inlineEnvFlags(debugBinding.path.parentPath);
+      this.builder.expandMacros(debugIdentifier);
     }
 
     this._cleanImports(path);
