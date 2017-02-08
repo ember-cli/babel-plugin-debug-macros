@@ -24,24 +24,7 @@ export default class Builder {
    * (DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
   assert(path) {
-    let { t, hasHelpers, helpers } = this;
-    let expression = path.node.expression;
-    let { callee, arguments: args } = expression;
-    let assert;
-
-    if (hasHelpers) {
-      let ns = helpers.global;
-      if (ns) {
-        assert = this._createGlobalExternalHelper(callee, args, ns);
-      } else {
-        assert = path.node.expression;
-      }
-    } else {
-      assert = this._createConsoleAPI(callee, args);
-    }
-
-    let identifiers = this._getIdentifiers(args);
-    this.expressions.push([path, this._buildLogicalExpressions(identifiers, assert)]);
+    this._createMacroExpression(path);
   }
 
   /**
@@ -62,24 +45,31 @@ export default class Builder {
    * (DEBUG && $GLOBAL_NS.warn($MESSAGE));
    */
   warn(path) {
+    this._createMacroExpression(path);
+  }
+
+  log(path) {
+    this._createMacroExpression(path);
+  }
+
+  _createMacroExpression(path) {
     let { t, hasHelpers, helpers } = this;
     let expression = path.node.expression;
     let { callee, arguments: args } = expression;
-
-    let warn;
+    let callExpression;
     if (hasHelpers) {
       let ns = helpers.global;
       if (ns) {
-        warn = this._createGlobalExternalHelper(callee, args, ns);
+        callExpression = this._createGlobalExternalHelper(callee, args, ns);
       } else {
-        warn = expression
+        callExpression = expression;
       }
     } else {
-      warn = this._createConsoleAPI(callee, args);
+      callExpression = this._createConsoleAPI(callee, args);
     }
 
     let identifiers = this._getIdentifiers(args);
-    this.expressions.push([path, this._buildLogicalExpressions([], warn)]);
+    this.expressions.push([path, this._buildLogicalExpressions(identifiers, callExpression)]);
   }
 
   /**
