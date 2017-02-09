@@ -1,7 +1,6 @@
 export default class Builder {
   constructor(t, externalizeHelpers) {
     this.t = t;
-    this.hasHelpers = !!externalizeHelpers;
     this.helpers = externalizeHelpers;
     this.expressions = [];
   }
@@ -24,7 +23,8 @@ export default class Builder {
    * (DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
   assert(path) {
-    this._createMacroExpression(path);
+    let { helpers } = this;
+    this._createMacroExpression(path, helpers.debug);
   }
 
   /**
@@ -45,19 +45,39 @@ export default class Builder {
    * (DEBUG && $GLOBAL_NS.warn($MESSAGE));
    */
   warn(path) {
-    this._createMacroExpression(path);
+    let { helpers } = this;
+    this._createMacroExpression(path, helpers.debug);
   }
 
+  /**
+   * Expands:
+   *
+   * log($MESSAGE)
+   *
+   * into
+   *
+   * (DEBUG && console.log($MESSAGE));
+   *
+   * or
+   *
+   * (DEBUG && log($MESSAGE));
+   *
+   * or
+   *
+   * (DEBUG && $GLOBAL_NS.log($MESSAGE));
+   */
   log(path) {
-    this._createMacroExpression(path);
+    let { helpers } = this;
+    this._createMacroExpression(path, helpers.debug);
   }
 
-  _createMacroExpression(path) {
-    let { t, hasHelpers, helpers } = this;
+  _createMacroExpression(path, helpers) {
+    let { t } = this;
     let expression = path.node.expression;
     let { callee, arguments: args } = expression;
     let callExpression;
-    if (hasHelpers) {
+
+    if (helpers) {
       let ns = helpers.global;
       if (ns) {
         callExpression = this._createGlobalExternalHelper(callee, args, ns);
@@ -94,7 +114,7 @@ export default class Builder {
    * (DEBUG && $PREDICATE && $GLOBAL_NS.deprecate('DEPRECATED [$ID]: $MESSAGE. Will be removed in $UNIL. See $URL for more information.'));
    */
   deprecate(path) {
-    let { t, hasHelpers, helpers } = this;
+    let { t, helpers } = this;
     let expression = path.node.expression;
     let { callee, arguments: args } = expression;
     let [ message, predicate, metaExpression ] = args;
@@ -121,8 +141,9 @@ export default class Builder {
     let deprecationMessage = this._generateDeprecationMessage(message, meta);
 
     let deprecate;
-    if (hasHelpers) {
-      let ns = helpers.global;
+    let { debug } = helpers;
+    if (debug) {
+      let ns = debug.global;
       if (ns) {
         deprecate = this._createGlobalExternalHelper(callee, [deprecationMessage], ns);
       } else {

@@ -4,13 +4,13 @@ import Builder from './builder';
 
 export default class Macros {
   constructor(t, options) {
-    this.localBindings = [];
-    this.importedBindings = [];
+    this.localDebugBindings = [];
     this.importedDebugTools = false;
     this.envFlags = options.envFlags.flags;
     this.featureFlags = options.features;
-    this.externalizeHelpers = !!options.externalizeHelpers;
-    this.helpers = options.externalizeHelpers;
+    this.debugHelpers = options.externalizeHelpers.debug;
+    this.isGlobals = true;
+
     this.builder = new Builder(t, options.externalizeHelpers);
   }
 
@@ -54,10 +54,7 @@ export default class Macros {
    */
   collectDebugToolsSpecifiers(specifiers) {
     this.importedDebugTools = true;
-    specifiers.forEach((specifier) => {
-      this.importedBindings.push(specifier.imported.name);
-      this.localBindings.push(specifier.local.name);
-    });
+    this._collectImportBindings(specifiers, this.localDebugBindings);
   }
 
   /**
@@ -65,11 +62,17 @@ export default class Macros {
    */
   build(path) {
     let expression = path.node.expression;
-    let { builder, localBindings, importedBindings } = this;
-    if (builder.t.isCallExpression(expression) && localBindings.indexOf(expression.callee.name) > -1) {
-      let imported = importedBindings[localBindings.indexOf(expression.callee.name)];
+    let { builder, localDebugBindings } = this;
+    if (builder.t.isCallExpression(expression) && localDebugBindings.indexOf(expression.callee.name) > -1) {
+      let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
     }
+  }
+
+  _collectImportBindings(specifiers, buffer) {
+    specifiers.forEach((specifier) => {
+      this.localDebugBindings.push(specifier.local.name);
+    });
   }
 
   _injectDebug(path, name) {
@@ -88,20 +91,18 @@ export default class Macros {
   }
 
   _cleanImports(path) {
-    let { externalizeHelpers, helpers } = this;
+    let { debugHelpers } = this;
 
-    if (this.localBindings.length > 0) {
-      let importDeclaration = path.scope.getBinding(this.localBindings[0]).path.parentPath;
+    if (debugHelpers) {
+      this.isGlobals = !!debugHelpers.global;
+    }
 
-      if (externalizeHelpers && helpers.module) {
-        if (typeof helpers.module === 'string') {
-          importDeclaration.node.source.value = helpers.module;
-        }
-      } else {
-        // Note this nukes the entire ImportDeclaration so we simply can
-        // just grab one of the bindings to remove.
-        importDeclaration.remove();
-      }
+    if (this.localDebugBindings.length > 0 && this.isGlobals) {
+      let importDeclaration = path.scope.getBinding(this.localDebugBindings[0]).path.parentPath;
+
+      // Note this nukes the entire ImportDeclaration so we simply can
+      // just grab one of the bindings to remove.
+      importDeclaration.remove();
     }
   }
 }

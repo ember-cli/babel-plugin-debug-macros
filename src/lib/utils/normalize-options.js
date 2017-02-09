@@ -62,6 +62,10 @@ export function normalizeOptions(options) {
     throw new Error('You must specify envFlags.flags.DEBUG at minimum.')
   }
 
+  if (!externalizeHelpers) {
+    externalizeHelpers = {};
+  }
+
   return {
     featureImportSpecifiers,
     externalizeHelpers,
