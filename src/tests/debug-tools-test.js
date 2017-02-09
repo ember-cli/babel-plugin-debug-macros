@@ -112,7 +112,9 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           externalizeHelpers: {
-            global: '__debugHelpers__'
+            debug: {
+              global: '__debugHelpers__'
+            }
           },
           debugTools: {
             importSpecifier: '@ember/debug-tools'
@@ -130,37 +132,15 @@ let cases = {
     fixtures: ['global-external-helpers']
   },
 
-  'Module External Test Helpers': {
-    transformOptions: {
-      presets,
-      plugins: [
-        [DebugToolsPlugin, {
-          externalizeHelpers: {
-            module: '@ember/metal'
-          },
-          debugTools: {
-            importSpecifier: '@ember/debug-tools'
-          },
-          envFlags: {
-            importSpecifier: '@ember/env-flags',
-            flags: {
-              DEBUG: 1
-            }
-          }
-        }]
-      ]
-    },
-
-    fixtures: ['module-external-helpers']
-  },
-
   'Retain Module External Test Helpers': {
     transformOptions: {
       presets,
       plugins: [
         [DebugToolsPlugin, {
           externalizeHelpers: {
-            module: true
+            debug: {
+              module: true
+            }
           },
           debugTools: {
             importSpecifier: '@ember/debug-tools'
