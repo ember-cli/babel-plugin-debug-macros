@@ -10,7 +10,7 @@
     "mocha": "^3.2.0"
   },
   "name": "babel-debug-macros",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Debug macros and feature flag stripping",
   "main": "dist/index.js",
   "files": [
