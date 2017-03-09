@@ -13,8 +13,13 @@
   "version": "0.0.1",
   "description": "Debug macros and feature flag stripping",
   "main": "dist/index.js",
-  "directories": {
-    "test": "tests"
+  "files": [
+    "dist/",
+    "!dist/tests"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chadhietala/babel-debug-macros"
   },
   "scripts": {
     "build": "babel src --out-dir dist",
