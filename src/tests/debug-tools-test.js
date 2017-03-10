@@ -242,6 +242,30 @@ let cases = {
     },
 
     fixtures: ['production-svelte-builds']
+  },
+
+  'Inline Env Flags': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1,
+              TESTING: 0
+            }
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          features: []
+        }]
+      ]
+    },
+    fixtures: [
+      'inject-env-flags'
+    ]
   }
 }
 

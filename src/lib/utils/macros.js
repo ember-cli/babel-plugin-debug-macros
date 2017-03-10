@@ -5,6 +5,10 @@ import Builder from './builder';
 export default class Macros {
   constructor(t, options) {
     this.localDebugBindings = [];
+    this.envFlagBindings = [];
+    this.hasEnvFlags = false;
+    this.envFlagsSource = options.envFlags.envFlagsImport;
+    this.debugSource = options.debugTools.debugToolsImport;
     this.importedDebugTools = false;
     this.envFlags = options.envFlags.flags;
     this.featureFlags = options.features;
@@ -24,7 +28,6 @@ export default class Macros {
 
     if (this._hasDebugModule(debugBinding)) {
       this.builder.expandMacros(debugBinding.path.node.local);
-      this._inlineEnvFlags(debugBinding.path.parentPath);
     } else {
       let debugIdentifier = path.scope.generateUidIdentifier(DEBUG);
 
@@ -36,6 +39,21 @@ export default class Macros {
     }
 
     this._cleanImports(path);
+  }
+
+  inlineEnvFlags(path) {
+    let flags = [];
+    let declaration;
+    Object.keys(this.envFlags).forEach(flag =>  {
+      let binding = path.scope.getBinding(flag);
+      let source = binding.path.parentPath.node.source.value;
+      if (binding.path.isImportSpecifier() && source === this.envFlagsSource) {
+        declaration = binding.path.parentPath;
+        flags = flags.concat(this.builder.flagConstants([binding.path.node], this.envFlags, this.envFlagsSource));
+      }
+    });
+
+    declaration.replaceWithMultiple(flags);
   }
 
   inlineFeatureFlags(path) {
@@ -57,6 +75,11 @@ export default class Macros {
     this._collectImportBindings(specifiers, this.localDebugBindings);
   }
 
+  collectEnvFlagSpecifiers(specifiers) {
+    this.hasEnvFlags = true;
+    this._collectImportBindings(specifiers, this.envFlagBindings)
+  }
+
   /**
    * Builds the expressions that the CallExpression will expand into.
    */
@@ -71,7 +94,7 @@ export default class Macros {
 
   _collectImportBindings(specifiers, buffer) {
     specifiers.forEach((specifier) => {
-      this.localDebugBindings.push(specifier.local.name);
+      buffer.push(specifier.local.name);
     });
   }
 
@@ -87,7 +110,7 @@ export default class Macros {
   _hasDebugModule(debugBinding) {
     let fromModule = debugBinding && debugBinding.kind === 'module';
     let moduleName = fromModule && debugBinding.path.parent.source.value;
-    return moduleName === '@ember/env-flags';
+    return moduleName === this.envFlagsSource;
   }
 
   _cleanImports(path) {

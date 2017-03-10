@@ -22,6 +22,10 @@ export default function (babel) {
           if (macroBuilder.importedDebugTools) {
             macroBuilder.expand(path);
           }
+
+          if (macroBuilder.hasEnvFlags) {
+            macroBuilder.inlineEnvFlags(path);
+          }
         }
       },
 
@@ -31,15 +35,17 @@ export default function (babel) {
         let {
           featureImportSpecifiers,
           debugTools: { debugToolsImport },
-          envFlags: { flags: { DEBUG } }
+          envFlags: { envFlagsImport, flags }
         } = options;
 
         let isFeaturesImport = featureImportSpecifiers.includes(importPath);
 
-        if (isFeaturesImport && !DEBUG) {
+        if (isFeaturesImport && !flags.DEBUG) {
           macroBuilder.inlineFeatureFlags(path);
         } else if (debugToolsImport && debugToolsImport === importPath) {
           macroBuilder.collectDebugToolsSpecifiers(path.node.specifiers);
+        } if (envFlagsImport && envFlagsImport === importPath) {
+          macroBuilder.collectEnvFlagSpecifiers(path.node.specifiers);
         }
       },
 
