@@ -43,9 +43,9 @@ export default function (babel) {
         if (isFeaturesImport && !flags.DEBUG) {
           macroBuilder.inlineFeatureFlags(path);
         } else if (debugToolsImport && debugToolsImport === importPath) {
-          macroBuilder.collectDebugToolsSpecifiers(path.node.specifiers);
+          macroBuilder.collectDebugToolsSpecifiers(path.get('specifiers'));
         } if (envFlagsImport && envFlagsImport === importPath) {
-          macroBuilder.collectEnvFlagSpecifiers(path.node.specifiers);
+          macroBuilder.collectEnvFlagSpecifiers(path.get('specifiers'));
         }
       },
 
