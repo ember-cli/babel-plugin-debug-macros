@@ -266,6 +266,28 @@ let cases = {
     fixtures: [
       'inject-env-flags'
     ]
+  },
+
+  'Retains non-macro types': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 1
+            }
+          }
+        }]
+      ]
+    },
+    fixtures: [
+      'retains-import-for-non-macro-types'
+    ]
   }
 }
 

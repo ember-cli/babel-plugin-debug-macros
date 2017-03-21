@@ -2,9 +2,12 @@ const DEBUG = 'DEBUG';
 
 import Builder from './builder';
 
+const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
+
 export default class Macros {
   constructor(t, options) {
     this.localDebugBindings = [];
+    this.isImportRemovable = false;
     this.envFlagBindings = [];
     this.hasEnvFlags = false;
     this.envFlagsSource = options.envFlags.envFlagsImport;
@@ -73,11 +76,14 @@ export default class Macros {
   collectDebugToolsSpecifiers(specifiers) {
     this.importedDebugTools = true;
     this._collectImportBindings(specifiers, this.localDebugBindings);
+    if (specifiers.length === this.localDebugBindings.length) {
+      this.isImportRemovable = true;
+    }
   }
 
   collectEnvFlagSpecifiers(specifiers) {
     this.hasEnvFlags = true;
-    this._collectImportBindings(specifiers, this.envFlagBindings)
+    this._collectImportBindings(specifiers, this.envFlagBindings);
   }
 
   /**
@@ -86,7 +92,7 @@ export default class Macros {
   build(path) {
     let expression = path.node.expression;
     let { builder, localDebugBindings } = this;
-    if (builder.t.isCallExpression(expression) && localDebugBindings.indexOf(expression.callee.name) > -1) {
+    if (builder.t.isCallExpression(expression) && localDebugBindings.some((b) => b.node.name === expression.callee.name)) {
       let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
     }
@@ -94,7 +100,9 @@ export default class Macros {
 
   _collectImportBindings(specifiers, buffer) {
     specifiers.forEach((specifier) => {
-      buffer.push(specifier.local.name);
+      if (SUPPORTED_MACROS.includes(specifier.node.imported.name)) {
+        buffer.push(specifier.get('local'));
+      }
     });
   }
 
@@ -121,11 +129,11 @@ export default class Macros {
     }
 
     if (this.localDebugBindings.length > 0 && this.isGlobals) {
-      let importDeclaration = path.scope.getBinding(this.localDebugBindings[0]).path.parentPath;
-
-      // Note this nukes the entire ImportDeclaration so we simply can
-      // just grab one of the bindings to remove.
-      importDeclaration.remove();
+      if (this.isImportRemovable) {
+        this.localDebugBindings[0].parentPath.parentPath.remove();
+      } else {
+        this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
+      }
     }
   }
 }
