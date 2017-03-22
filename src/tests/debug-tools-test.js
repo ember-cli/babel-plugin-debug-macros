@@ -319,18 +319,37 @@ function test(caseName, cases, assertionName, ep) {
   let options = cases[caseName].transformOptions;
   let expectationPath = `./fixtures/${assertionName}/expectation.js`;
   let expectationExists = true;
-
   try {
     lstatSync(expectationPath);
   } catch (e) {
     expectationExists = false
   }
 
+  let deadCodeExpectationPath = `./fixtures/${assertionName}/expectation.min.js`;
+  let deadCodeExpectationExists = true;
+  try {
+    lstatSync(deadCodeExpectationPath);
+  } catch (e) {
+    deadCodeExpectationExists = false
+  }
+
   if (expectationExists) {
     let expectation = file(`./fixtures/${assertionName}/expectation.js`).content;
     let compiled = compile(sample, options);
+
     expect(compiled.code).to.equal(expectation);
 
+    let minifyOpts = require('babel-preset-babili')();
+
+    expectation = file(`./fixtures/${assertionName}/expectation.js`).content;
+    expectation = compile(expectation, minifyOpts).code;
+
+    // console.log('DEADCODE --- \n' + expectation + '\nDEADCODE');
+    options = Object.assign(options, minifyOpts, {
+      presets: options.presets.concat(minifyOpts.presets)
+    });
+    compiled = compile(sample, options);
+    expect(compiled.code).to.equal(expectation);
   } else {
     let fn = () => compile(sample, options);
     expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));
