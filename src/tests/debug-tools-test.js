@@ -11,7 +11,7 @@ const presets = [["latest", {
 }]];
 
 let cases = {
-  'Production Feature Flags': {
+  'Feature Flags': {
     transformOptions: {
       presets,
       plugins: [
@@ -42,36 +42,6 @@ let cases = {
     ],
     errors: [
       'Imported FEATURE_C from @ember/features which is not a supported flag.'
-    ]
-  },
-
-  'Development Feature Flags': {
-    transformOptions: {
-      presets,
-      plugins: [
-        [DebugToolsPlugin, {
-          envFlags: {
-            importSpecifier: '@ember/env-flags',
-            flags: {
-              DEBUG: 1
-            }
-          },
-          debugTools: {
-            importSpecifier: '@ember/debug-tools'
-          },
-          features: [{
-            name: 'ember-source',
-            importSpecifier: '@ember/features',
-            flags: {
-              FEATURE_A: 0,
-              FEATURE_B: 1
-            }
-          }]
-        }]
-      ]
-    },
-    fixtures: [
-      'development-feature-flags'
     ]
   },
 
@@ -191,7 +161,7 @@ let cases = {
             importSpecifier: '@ember/features',
             flags: {
               DEPRECATED_PARTIALS: '2.14.0',
-              DEPRECATED_CONTROLERS: '2.16.0'
+              DEPRECATED_CONTROLLERS: '2.16.0'
             }
           }]
         }]

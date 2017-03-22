@@ -1,13 +1,11 @@
-const DEBUG = 1;
-const TESTING = 0;
 
 
 let testing;
-if (TESTING) {
+if (0) {
   testing = 'WOOT';
 }
 
 let debug;
-if (DEBUG) {
+if (1) {
   debug = 'DEBUG';
 }

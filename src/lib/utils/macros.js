@@ -11,13 +11,11 @@ export default class Macros {
     this.envFlagBindings = [];
     this.hasEnvFlags = false;
     this.envFlagsSource = options.envFlags.envFlagsImport;
-    this.debugSource = options.debugTools.debugToolsImport;
     this.importedDebugTools = false;
     this.envFlags = options.envFlags.flags;
-    this.featureFlags = options.features;
+    this.featureFlags = options.features || [];
     this.debugHelpers = options.externalizeHelpers.debug;
     this.isGlobals = true;
-
     this.builder = new Builder(t, options.externalizeHelpers);
   }
 
@@ -27,47 +25,44 @@ export default class Macros {
    */
   expand(path) {
     let debugBinding = path.scope.getBinding(DEBUG);
-    let { builder } = this;
+    let { builder, envFlags } = this;
+
 
     if (this._hasDebugModule(debugBinding)) {
-      this.builder.expandMacros(debugBinding.path.node.local);
-    } else {
-      let debugIdentifier = path.scope.generateUidIdentifier(DEBUG);
-
-      if (builder.expressions.length > 0) {
-        this._injectDebug(path, debugIdentifier);
-      }
-
-      this.builder.expandMacros(debugIdentifier);
+      debugBinding.path.parentPath.remove();
     }
 
+    this._inlineFeatureFlags(path);
+    this._inlineEnvFlags(path)
+    this.builder.expandMacros(envFlags.DEBUG);
     this._cleanImports(path);
   }
 
-  inlineEnvFlags(path) {
-    let flags = [];
-    let declaration;
-    Object.keys(this.envFlags).forEach(flag =>  {
-      let binding = path.scope.getBinding(flag);
-      let source = binding.path.parentPath.node.source.value;
-      if (binding.path.isImportSpecifier() && source === this.envFlagsSource) {
-        declaration = binding.path.parentPath;
-        flags = flags.concat(this.builder.flagConstants([binding.path.node], this.envFlags, this.envFlagsSource));
-      }
-    });
+  _inlineFeatureFlags(path) {
+    let { envFlags, builder, featureFlags } = this;
+    if (!envFlags.DEBUG) {
+      featureFlags.forEach((features) => {
+        Object.keys(features.flags).forEach((feature) => {
 
-    declaration.replaceWithMultiple(flags);
+          let binding = path.scope.getBinding(feature);
+
+          if (binding) {
+            binding.referencePaths.forEach(p => p.replaceWith(builder.t.numericLiteral(features.flags[feature])));
+            binding.path.remove();
+          }
+        });
+      });
+    }
   }
 
-  inlineFeatureFlags(path) {
-    for (let i = 0; i < this.featureFlags.length; i++) {
-      let features = this.featureFlags[i];
-      if (features.featuresImport === path.node.source.value) {
-        let flagDeclarations = this.builder.flagConstants(path.node.specifiers, features.flags, path.node.source.value);
-        path.replaceWithMultiple(flagDeclarations);
-        break;
-      }
-    }
+  _inlineEnvFlags(path) {
+    let { envFlags, builder } = this;
+    Object.keys(envFlags).forEach(flag => {
+       let binding = path.scope.getBinding(flag);
+       if (binding) {
+         binding.referencePaths.forEach(p => p.replaceWith(builder.t.numericLiteral(envFlags[flag])));
+       }
+    });
   }
 
   /**
@@ -106,15 +101,6 @@ export default class Macros {
     });
   }
 
-  _injectDebug(path, name) {
-    path.node.body.unshift(this.builder.debugFlag(name, this.envFlags.DEBUG));
-  }
-
-  _inlineEnvFlags(path) {
-    let flagDeclarations = this.builder.flagConstants(path.node.specifiers, this.envFlags, path.node.source.value);
-    path.replaceWithMultiple(flagDeclarations);
-  }
-
   _hasDebugModule(debugBinding) {
     let fromModule = debugBinding && debugBinding.kind === 'module';
     let moduleName = fromModule && debugBinding.path.parent.source.value;
@@ -122,7 +108,27 @@ export default class Macros {
   }
 
   _cleanImports(path) {
-    let { debugHelpers } = this;
+    let { debugHelpers, builder } = this;
+
+    let body = path.get('body');
+
+    let featureSources = this.featureFlags.map((lib) => {
+      return lib.featuresImport;
+    })
+
+    if (!this.envFlags.DEBUG) {
+      for (let i = 0; i < body.length; i++) {
+        let decl = body[i];
+        if (builder.t.isImportDeclaration(decl) && featureSources.includes(decl.node.source.value)) {
+          if (decl.node.specifiers.length > 0) {
+            throw new Error(`Imported ${decl.node.specifiers[0].imported.name} from ${decl.node.source.value} which is not a supported flag.`);
+          }
+
+          decl.remove();
+          break;
+        }
+      }
+    }
 
     if (debugHelpers) {
       this.isGlobals = !!debugHelpers.global;

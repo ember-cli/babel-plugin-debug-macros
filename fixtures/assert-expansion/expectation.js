@@ -1,3 +1,2 @@
-const DEBUG = 1;
-(DEBUG && console.assert((() => true)(), 'This is an assertion'));
-(DEBUG && console.assert(false, 'This is an assertion 2'));
+(1 && console.assert((() => true)(), 'This is an assertion'));
+(1 && console.assert(false, 'This is an assertion 2'));

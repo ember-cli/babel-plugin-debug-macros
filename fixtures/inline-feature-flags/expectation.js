@@ -1,10 +1,8 @@
-const FEATURE_A = 0;
-const FEATURE_B = 1;
 
 
 let a;
-if (FEATURE_A) {
+if (0) {
   a = () => console.log('hello');
-} else if (FEATURE_B) {
+} else if (1) {
   a = () => console.log('bye');
 }

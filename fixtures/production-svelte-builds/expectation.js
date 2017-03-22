@@ -1,9 +1,7 @@
-const DEPRECATED_PARTIALS = 0;
-const DEPRECATED_CONTROLLERS = 1;
 
 
 export let PartialComponentManager;
-if (DEPRECATED_PARTIALS) {
+if (0) {
   PartialComponentManager = class {
     constructor() {
       this.isDone = true;
@@ -12,7 +10,7 @@ if (DEPRECATED_PARTIALS) {
 }
 
 export let ObjectController;
-if (DEPRECATED_CONTROLLERS) {
+if (1) {
   ObjectController = class {
     constructor() {
       this.isDoneAsWell = true;

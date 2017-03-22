@@ -145,44 +145,15 @@ export default class Builder {
   }
 
   /**
-   * Produces
-   *
-   * const $NAME = $DEBUG;
-   */
-  debugFlag(name, debug) {
-    let { t } = this;
-    return this._createConstant(name, t.numericLiteral(debug));
-  }
-
-  /**
-   * Produces an array on "const" VariableDeclarations based on
-   * flags.
-   */
-  flagConstants(specifiers, flagTable, source) {
-    let { t } = this;
-    return specifiers.map((specifier) => {
-      let flag = flagTable[specifier.imported.name];
-      if (flag !== undefined) {
-        return this._createConstant(t.identifier(specifier.imported.name), t.numericLiteral(flag));
-      }
-
-      throw new Error(`Imported ${specifier.imported.name} from ${source} which is not a supported flag.`);
-    });
-  }
-
-  /**
    * Performs the actually expansion of macros
    */
-  expandMacros(debugIdentifier) {
+  expandMacros(debugFlag) {
+    let { t } = this;
+    let flag = t.numericLiteral(debugFlag);
     for (let i = 0; i < this.expressions.length; i++) {
       let [exp, logicalExp] = this.expressions[i];
-      exp.replaceWith(this.t.parenthesizedExpression(logicalExp(debugIdentifier)));
+      exp.replaceWith(this.t.parenthesizedExpression(logicalExp(flag)));
     }
-  }
-
-  _createConstant(left, right) {
-    let { t } = this;
-    return t.variableDeclaration('const', [t.variableDeclarator(left, right)])
   }
 
   _getIdentifiers(args) {
@@ -192,11 +163,6 @@ export default class Builder {
   _createGlobalExternalHelper(identifier, args, ns) {
     let { t } = this;
     return t.callExpression(t.memberExpression(t.identifier(ns), identifier), args);
-  }
-
-  _createExternalHelper(identifier, args) {
-    let { t } = this;
-    return t.callExpression(t.identifier(type), args);
   }
 
   _createConsoleAPI(identifier, args) {
