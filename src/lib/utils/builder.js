@@ -115,16 +115,16 @@ export default class Builder {
    */
   deprecate(path) {
     let { t, helpers } = this;
-    let expression = path.get('expression');
-    let callee = expression.get('callee');
-    let args = expression.get('arguments');
+    let expression = path.node.expression;
+    let callee = expression.callee;
+    let args = expression.arguments;
     let [ message, predicate, meta ] = args;
 
-    if (meta && !meta.node.properties.some( prop =>  prop.key.name === 'id')) {
+    if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
       throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
     }
 
-    if (meta && !meta.node.properties.some(prop =>  prop.key.name === 'until')) {
+    if (meta && meta.properties && !meta.properties.some(prop =>  prop.key.name === 'until')) {
       throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
     }
 
@@ -133,16 +133,15 @@ export default class Builder {
     if (debug) {
       let ns = debug.global;
       if (ns) {
-        deprecate = this._createGlobalExternalHelper(callee.node, [message.node, meta.node], ns);
+        deprecate = this._createGlobalExternalHelper(callee, args, ns);
       } else {
-        expression.node.arguments.splice(1,1); // Splice out the predicate
-        deprecate = expression.node;
+        deprecate = expression;
       }
     } else {
-      deprecate = this._createConsoleAPI(t.identifier('warn'), [message.node]);
+      deprecate = this._createConsoleAPI(t.identifier('warn'), [message]);
     }
 
-    this.expressions.push([path, this._buildLogicalExpressions([predicate.node], deprecate)]);
+    this.expressions.push([path, this._buildLogicalExpressions([t.unaryExpression('!', predicate)], deprecate)]);
   }
 
   /**

@@ -100,7 +100,7 @@ export default class Macros {
 
   _collectImportBindings(specifiers, buffer) {
     specifiers.forEach((specifier) => {
-      if (SUPPORTED_MACROS.includes(specifier.node.imported.name)) {
+      if (specifier.node.imported && SUPPORTED_MACROS.includes(specifier.node.imported.name)) {
         buffer.push(specifier.get('local'));
       }
     });

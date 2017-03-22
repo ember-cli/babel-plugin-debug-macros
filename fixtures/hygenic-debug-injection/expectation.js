@@ -4,5 +4,5 @@ import bar from 'something';
 
 if (bar()) {
   const DEBUG = 'hahah';
-  (_DEBUG && true && console.warn('This is deprecated'));
+  (_DEBUG && !true && console.warn('This is deprecated'));
 }
