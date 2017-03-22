@@ -115,46 +115,34 @@ export default class Builder {
    */
   deprecate(path) {
     let { t, helpers } = this;
-    let expression = path.node.expression;
-    let { callee, arguments: args } = expression;
-    let [ message, predicate, metaExpression ] = args;
+    let expression = path.get('expression');
+    let callee = expression.get('callee');
+    let args = expression.get('arguments');
+    let [ message, predicate, meta ] = args;
 
-    let meta = {
-      url: null,
-      id: null,
-      until: null
-    };
-
-    metaExpression.properties.forEach((prop) => {
-      let { key, value } = prop;
-      meta[key.name] = value.value;
-    });
-
-    if (!meta.id) {
+    if (meta && !meta.node.properties.some( prop =>  prop.key.name === 'id')) {
       throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
     }
 
-    if (!meta.until) {
+    if (meta && !meta.node.properties.some(prop =>  prop.key.name === 'until')) {
       throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
     }
-
-    let deprecationMessage = this._generateDeprecationMessage(message, meta);
 
     let deprecate;
     let { debug } = helpers;
     if (debug) {
       let ns = debug.global;
       if (ns) {
-        deprecate = this._createGlobalExternalHelper(callee, [deprecationMessage], ns);
+        deprecate = this._createGlobalExternalHelper(callee.node, [message.node, meta.node], ns);
       } else {
-        deprecate = path.node.expression;
-        deprecate.arguments = [deprecationMessage];
+        expression.node.arguments.splice(1,1); // Splice out the predicate
+        deprecate = expression.node;
       }
     } else {
-      deprecate = this._createConsoleAPI(t.identifier('warn'), [deprecationMessage]);
+      deprecate = this._createConsoleAPI(t.identifier('warn'), [message.node]);
     }
 
-    this.expressions.push([path, this._buildLogicalExpressions([predicate], deprecate)]);
+    this.expressions.push([path, this._buildLogicalExpressions([predicate.node], deprecate)]);
   }
 
   /**
@@ -215,10 +203,6 @@ export default class Builder {
   _createConsoleAPI(identifier, args) {
     let { t } = this;
     return t.callExpression(t.memberExpression(t.identifier('console'), identifier), args);
-  }
-
-  _generateDeprecationMessage(message, meta) {
-    return this.t.stringLiteral(`DEPRECATED [${meta.id}]: ${message.value}. Will be removed in ${meta.until}.${meta.url ? ` See ${meta.url} for more information.` : ''}`);
   }
 
   _buildLogicalExpressions(identifiers, callExpression) {

@@ -123,11 +123,7 @@ import { deprecate } from 'debug-tools';
 
 let foo = 2;
 
-deprecate('This is deprecated.', foo % 2, {
-  id: 'old-and-busted',
-  url: 'http://example.com',
-  until: '4.0.0'
-});
+deprecate('This is deprecated.', foo % 2);
 ```
 
 Expands into:
@@ -137,7 +133,7 @@ const DEBUG = 1;
 
 let foo = 2;
 
-(DEBUG && foo % 2 && console.warn('DEPRECATED [old-and-busted]: This is deprecated. Will be removed in 4.0.0. Please see http://example.com for more details.'));
+(DEBUG && foo % 2 && console.warn('This is deprecated.'));
 ```
 
 ## Externalized Helpers

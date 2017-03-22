@@ -300,28 +300,39 @@ Object.keys(cases).forEach(caseName => {
     let ep = 0;
 
     cases[caseName].fixtures.forEach(assertionName => {
-      it(assertionName, () => {
-        let sample = file(`./fixtures/${assertionName}/sample.js`).content;
-        let options = cases[caseName].transformOptions;
-        let expectationPath = `./fixtures/${assertionName}/expectation.js`;
-        let expectationExists = true;
-
-        try {
-          lstatSync(expectationPath);
-        } catch (e) {
-          expectationExists = false
-        }
-
-        if (expectationExists) {
-          let expectation = file(`./fixtures/${assertionName}/expectation.js`).content;
-          let compiled = compile(sample, options);
-          expect(compiled.code).to.equal(expectation);
-
-        } else {
-          let fn = () => compile(sample, options);
-          expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));
-        }
-      });
+      if (cases[caseName].only) {
+        it.only(assertionName, () => {
+          test(caseName, cases, assertionName, ep);
+        });
+      } else {
+        it(assertionName, () => {
+          test(caseName, cases, assertionName, ep);
+        });
+      }
     });
   });
 });
+
+
+function test(caseName, cases, assertionName, ep) {
+  let sample = file(`./fixtures/${assertionName}/sample.js`).content;
+  let options = cases[caseName].transformOptions;
+  let expectationPath = `./fixtures/${assertionName}/expectation.js`;
+  let expectationExists = true;
+
+  try {
+    lstatSync(expectationPath);
+  } catch (e) {
+    expectationExists = false
+  }
+
+  if (expectationExists) {
+    let expectation = file(`./fixtures/${assertionName}/expectation.js`).content;
+    let compiled = compile(sample, options);
+    expect(compiled.code).to.equal(expectation);
+
+  } else {
+    let fn = () => compile(sample, options);
+    expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));
+  }
+}
