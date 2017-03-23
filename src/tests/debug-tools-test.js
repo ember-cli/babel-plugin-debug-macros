@@ -230,7 +230,8 @@ let cases = {
       ]
     },
     fixtures: [
-      'inject-env-flags'
+      'inject-env-flags',
+      'debug-flag'
     ]
   },
 

@@ -86,7 +86,7 @@ export default class Builder {
     }
 
     let identifiers = this._getIdentifiers(args);
-    this.expressions.push([path, this._buildLogicalExpressions(identifiers, callExpression)]);
+    this.expressions.push([path, this._buildLogicalExpressions([], callExpression)]);
   }
 
   /**
