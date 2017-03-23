@@ -22,7 +22,7 @@ export function normalizeOptions(options) {
 
         if (typeof value === 'string' && svelte[name]) {
           flags[flagName] = satisfies(value, `>=${svelte[name]}`) | 0;
-        } else if (typeof value === 'number') {
+        } else if (typeof value === 'number' || typeof value === 'boolean' || value === null) {
           flags[flagName] = value;
         } else {
           throw new Error(`Flags must be a scalar value or semver version`);

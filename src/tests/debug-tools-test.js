@@ -258,7 +258,37 @@ let cases = {
     fixtures: [
       'retains-import-for-non-macro-types'
     ]
-  }
+  },
+
+  'Runtime Feature Flags': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          envFlags: {
+            importSpecifier: '@ember/env-flags',
+            flags: {
+              DEBUG: 0
+            }
+          },
+          debugTools: {
+            importSpecifier: '@ember/debug-tools'
+          },
+          features: [{
+            name: 'ember-source',
+            importSpecifier: '@ember/features',
+            flags: {
+              FEATURE_A: 1,
+              FEATURE_B: null
+            }
+          }]
+        }]
+      ]
+    },
+    fixtures: [
+      'runtime-feature-flags'
+    ]
+  },
 }
 
 function compile(source, transformOptions) {

@@ -46,7 +46,7 @@ export default class Macros {
 
           let binding = path.scope.getBinding(feature);
 
-          if (binding) {
+          if (binding && features.flags[feature] !== null) {
             binding.referencePaths.forEach(p => p.replaceWith(builder.t.numericLiteral(features.flags[feature])));
             binding.path.remove();
           }
@@ -108,24 +108,31 @@ export default class Macros {
   }
 
   _cleanImports(path) {
-    let { debugHelpers, builder } = this;
+    let { debugHelpers, builder, featureFlags } = this;
 
     let body = path.get('body');
 
-    let featureSources = this.featureFlags.map((lib) => {
+    let featureSources = featureFlags.map((lib) => {
       return lib.featuresImport;
-    })
+    });
 
     if (!this.envFlags.DEBUG) {
       for (let i = 0; i < body.length; i++) {
         let decl = body[i];
         if (builder.t.isImportDeclaration(decl) && featureSources.includes(decl.node.source.value)) {
           if (decl.node.specifiers.length > 0) {
-            throw new Error(`Imported ${decl.node.specifiers[0].imported.name} from ${decl.node.source.value} which is not a supported flag.`);
-          }
 
-          decl.remove();
-          break;
+            decl.node.specifiers.forEach((specifier) => {
+              featureFlags.forEach((pkg) => {
+                if (pkg.flags[specifier.imported.name] !== null) {
+                   throw new Error(`Imported ${decl.node.specifiers[0].imported.name} from ${decl.node.source.value} which is not a supported flag.`);
+                }
+              });
+            });
+          } else {
+            decl.remove();
+            break;
+          }
         }
       }
     }
