@@ -15,6 +15,8 @@ export default class Macros {
     this.envFlags = options.envFlags.flags;
     this.featureSources = options.featureSources;
     this.featuresMap = options.featuresMap;
+    this.svelteMap = options.svelteMap;
+    this.svelteVersions = options.svelte;
     this.featureFlags = options.features || [];
     this.debugHelpers = options.externalizeHelpers || {};
     let { module, global } = this.debugHelpers;
@@ -35,26 +37,24 @@ export default class Macros {
     }
 
     this._inlineFeatureFlags(path);
+    this._inlineSvelteFlags(path);
     this._inlineEnvFlags(path)
     this.builder.expandMacros(envFlags.DEBUG);
     this._cleanImports(path);
   }
 
   _inlineFeatureFlags(path) {
-    let { envFlags, builder, featureFlags } = this;
-    if (!envFlags.DEBUG) {
-      featureFlags.forEach((features) => {
-        Object.keys(features.flags).forEach((feature) => {
+    let { envFlags, builder, featureFlags, featuresMap } = this;
 
-          let binding = path.scope.getBinding(feature);
-
-          if (binding && features.flags[feature] !== null) {
-            binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(features.flags[feature])));
-            binding.path.remove();
-          }
-        });
+    Object.keys(featuresMap).forEach((source) => {
+      Object.keys(featuresMap[source]).forEach((flag) => {
+        let binding = path.scope.getBinding(flag);
+        if (binding && featuresMap[source][flag] !== null) {
+          binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(featuresMap[source][flag])));
+          binding.path.remove();
+        }
       });
-    }
+    });
   }
 
   _inlineEnvFlags(path) {
@@ -64,6 +64,32 @@ export default class Macros {
        if (binding) {
          binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(envFlags[flag])));
        }
+    });
+  }
+
+  _inlineSvelteFlags(path) {
+    let { svelteMap, envFlags, builder } = this;
+    let sources = Object.keys(svelteMap);
+    sources.forEach((source) => {
+      Object.keys(svelteMap[source]).forEach((flag) => {
+        path.scope.getBinding(flag).referencePaths.forEach((p) => {
+          if (envFlags.DEBUG) {
+            if (!svelteMap[source][flag]) {
+              let { t } = builder;
+              let consequent = p.parentPath.get('consequent');
+              consequent.unshiftContainer('body', builder.t.throwStatement(
+                t.newExpression(t.identifier('Error'), [t.stringLiteral(`You indicated you don't have any deprecations, however you are relying on ${flag}.`)])
+              ));
+            }
+          } else {
+            let binding = path.scope.getBinding(flag);
+            if (binding) {
+              binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(svelteMap[source][flag])));
+              binding.path.remove();
+            }
+          }
+        });
+      });
     });
   }
 
