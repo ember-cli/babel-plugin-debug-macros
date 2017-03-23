@@ -11,6 +11,8 @@ export function normalizeOptions(options) {
 
   let featureSources = [];
   let featuresMap = {};
+  let svelteMap = {};
+  let hasSvelteBuild = false;
 
   if (!Array.isArray(features)) {
     features = [features]
@@ -23,12 +25,14 @@ export function normalizeOptions(options) {
 
     let flags = {};
     featuresMap[featuresSource] = {};
+    svelteMap[featuresSource] = {};
 
     Object.keys(feature.flags).forEach((flagName) => {
       let value = feature.flags[flagName];
 
       if (typeof value === 'string' && svelte[name]) {
-        flags[flagName] = featuresMap[featuresSource][flagName] = satisfies(value, `>=${svelte[name]}`);
+        hasSvelteBuild = true;
+        flags[flagName] = svelteMap[featuresSource][flagName] = satisfies(value, `>=${svelte[name]}`);
       } else if (typeof value === 'boolean' || value === null) {
         flags[flagName] = featuresMap[featuresSource][flagName] = value;
       } else {
@@ -70,6 +74,9 @@ export function normalizeOptions(options) {
     externalizeHelpers,
     features,
     featuresMap,
+    svelteMap,
+    hasSvelteBuild,
+    svelte,
     envFlags: {
       envFlagsImport,
       flags: _envFlags

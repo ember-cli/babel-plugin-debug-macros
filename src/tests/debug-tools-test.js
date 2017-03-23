@@ -301,6 +301,8 @@ Object.keys(cases).forEach(caseName => {
         it.only(assertionName, () => {
           test(caseName, cases, assertionName, ep);
         });
+      } else if (cases[caseName].skip) {
+        it.skip(assertionName, () => {});
       } else {
         it(assertionName, () => {
           test(caseName, cases, assertionName, ep);
