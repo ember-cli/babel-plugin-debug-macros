@@ -2,7 +2,7 @@ import { warn, assert, deprecate } from '@ember/debug-tools';
 
 warn('This is a warning');
 
-assert(false, 'Hahahaha');
+assert('Hahahaha', false);
 
 deprecate('This thing is donzo', true, {
   id: 'donzo',
