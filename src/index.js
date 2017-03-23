@@ -53,8 +53,8 @@ function macros(babel) {
   };
 }
 
-macros.cacheKey = function() {
-  return macros.toString();
+macros.baseDir = function() {
+  return __dirname;
 }
 
 export default macros;
