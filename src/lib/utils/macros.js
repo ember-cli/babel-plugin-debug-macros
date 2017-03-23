@@ -13,10 +13,12 @@ export default class Macros {
     this.envFlagsSource = options.envFlags.envFlagsImport;
     this.importedDebugTools = false;
     this.envFlags = options.envFlags.flags;
+    this.featureSources = options.featureSources;
+    this.featuresMap = options.featuresMap;
     this.featureFlags = options.features || [];
-    this.debugHelpers = options.externalizeHelpers.debug;
-    this.isGlobals = true;
-    this.builder = new Builder(t, options.externalizeHelpers);
+    this.debugHelpers = options.externalizeHelpers || {};
+    let { module, global } = this.debugHelpers;
+    this.builder = new Builder(t, module, global);
   }
 
   /**
@@ -47,7 +49,7 @@ export default class Macros {
           let binding = path.scope.getBinding(feature);
 
           if (binding && features.flags[feature] !== null) {
-            binding.referencePaths.forEach(p => p.replaceWith(builder.t.numericLiteral(features.flags[feature])));
+            binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(features.flags[feature])));
             binding.path.remove();
           }
         });
@@ -60,7 +62,7 @@ export default class Macros {
     Object.keys(envFlags).forEach(flag => {
        let binding = path.scope.getBinding(flag);
        if (binding) {
-         binding.referencePaths.forEach(p => p.replaceWith(builder.t.numericLiteral(envFlags[flag])));
+         binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(envFlags[flag])));
        }
     });
   }
@@ -107,45 +109,50 @@ export default class Macros {
     return moduleName === this.envFlagsSource;
   }
 
+  _detectForeignFeatureFlag(specifiers, source) {
+    let { featuresMap } = this;
+    specifiers.forEach((specifier) => {
+      if (featuresMap[source][specifier.imported.name] !== null) {
+        throw new Error(`Imported ${specifier.imported.name} from ${source} which is not a supported flag.`);
+      }
+    });
+  }
+
   _cleanImports(path) {
-    let { debugHelpers, builder, featureFlags } = this;
+    let {
+      debugHelpers,
+      builder,
+      featureFlags,
+      featureSources
+    } = this;
 
     let body = path.get('body');
-
-    let featureSources = featureFlags.map((lib) => {
-      return lib.featuresImport;
-    });
 
     if (!this.envFlags.DEBUG) {
       for (let i = 0; i < body.length; i++) {
         let decl = body[i];
-        if (builder.t.isImportDeclaration(decl) && featureSources.includes(decl.node.source.value)) {
-          if (decl.node.specifiers.length > 0) {
 
-            decl.node.specifiers.forEach((specifier) => {
-              featureFlags.forEach((pkg) => {
-                if (pkg.flags[specifier.imported.name] !== null) {
-                   throw new Error(`Imported ${decl.node.specifiers[0].imported.name} from ${decl.node.source.value} which is not a supported flag.`);
-                }
-              });
-            });
-          } else {
-            decl.remove();
-            break;
+        if (builder.t.isImportDeclaration(decl)) {
+          let source = decl.node.source.value;
+          if (featureSources.includes(source)) {
+            if (decl.node.specifiers.length > 0) {
+              this._detectForeignFeatureFlag(decl.node.specifiers, source);
+            } else {
+              decl.remove();
+              break;
+            }
           }
         }
       }
     }
 
-    if (debugHelpers) {
-      this.isGlobals = !!debugHelpers.global;
-    }
-
-    if (this.localDebugBindings.length > 0 && this.isGlobals) {
-      if (this.isImportRemovable) {
-        this.localDebugBindings[0].parentPath.parentPath.remove();
-      } else {
-        this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
+    if (!debugHelpers.module) {
+      if (this.localDebugBindings.length > 0) {
+        if (this.isImportRemovable) {
+          this.localDebugBindings[0].parentPath.parentPath.remove();
+        } else {
+          this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
+        }
       }
     }
   }

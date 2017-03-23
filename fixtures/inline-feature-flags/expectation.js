@@ -1,8 +1,8 @@
 
 
 let a;
-if (0) {
+if (false) {
   a = () => console.log('hello');
-} else if (1) {
+} else if (true) {
   a = () => console.log('bye');
 }

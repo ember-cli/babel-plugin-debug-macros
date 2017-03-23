@@ -1,1 +1,1 @@
-(1 && !true && console.warn('This is deprecated'));
+(true && !(true) && console.warn('This is deprecated'));

@@ -12,26 +12,26 @@ The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externa
     ['babel-debug-macros', {
       // @required
       envFlags: {
-        importSpecifier: '@ember/env-flags',
-        flags: { DEBUG: 1 }
+        source: '@ember/env-flags',
+        flags: { DEBUG: true }
       },
       // @required
       debugTools: {
-        importSpecifier: 'debug-tools'
+        source: 'debug-tools'
       },
       // @optional
-      features: [{
+      features: {
         name: 'ember-source',
-        importSpecifier: '@ember/features',
-        flags: { FEATURE_A: 0, FEATURE_B: 1, DEPRECATED_CONTROLLERS: "2.12.0" }
-      }],
+        source: '@ember/features',
+        flags: { FEATURE_A: false, FEATURE_B: true, DEPRECATED_CONTROLLERS: "2.12.0" }
+      },
       // @optional
       svelte: {
         'ember-source': "2.15.0"
       },
       // @optional
       externalizeHelpers: {
-        module: 'my-helpers' // or true to retain the name in code
+        module: true,
         // global: '__my_global_ns__'
       }
     }]
@@ -64,18 +64,14 @@ woot();
 Transforms to:
 
 ```javascript
-const DEBUG = 1;
-const FEATURE_A = 0;
-cosnt FEATURE_B = 1;
-
-if (DEBUG) {
+if (true) {
   console.log('Hello from debug');
 }
 
 let woot;
-if (FEATURE_A) {
+if (false) {
   woot = () => 'woot';
-} else if (FEATURE_B) {
+} else if (true) {
   woot = () => 'toow';
 }
 
@@ -93,9 +89,7 @@ warn('this is a warning');
 Expands into:
 
 ```javascript
-const DEBUG = 1;
-
-(DEBUG && console.warn('this is a warning'));
+(true && console.warn('this is a warning'));
 ```
 
 ## `assert` macro expansion
@@ -111,9 +105,8 @@ assert((() => {
 Expands into:
 
 ```javascript
-const DEBUG = 1;
 
-(DEBUG && console.assert((() => { return 1 === 1;})(), 'this is a warning'));
+(true && console.assert((() => { return 1 === 1;})(), 'this is a warning'));
 ```
 
 ## `deprecate` macro expansion
@@ -129,11 +122,9 @@ deprecate('This is deprecated.', foo % 2);
 Expands into:
 
 ```javascript
-const DEBUG = 1;
-
 let foo = 2;
 
-(DEBUG && foo % 2 && console.warn('This is deprecated.'));
+(true && !(foo % 2) && console.warn('This is deprecated.'));
 ```
 
 ## Externalized Helpers
@@ -151,9 +142,7 @@ warn('this is a warning');
 Expands into:
 
 ```javascript
-const DEBUG = 1;
-
-(DEBUG && Ember.warn('this is a warning'));
+(true && Ember.warn('this is a warning'));
 ```
 
 While externalizing the helpers to a module looks like the following:
@@ -167,10 +156,7 @@ warn('this is a warning');
 Expands into:
 
 ```javascript
-const DEBUG = 1;
-import { warn } from 'my-helpers';
-
-(DEBUG && warn('this is a warning'));
+(true && warn('this is a warning'));
 ```
 
 # Svelte

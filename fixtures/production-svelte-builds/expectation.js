@@ -1,7 +1,7 @@
 
 
 export let PartialComponentManager;
-if (0) {
+if (false) {
   PartialComponentManager = class {
     constructor() {
       this.isDone = true;
@@ -10,7 +10,7 @@ if (0) {
 }
 
 export let ObjectController;
-if (1) {
+if (true) {
   ObjectController = class {
     constructor() {
       this.isDoneAsWell = true;

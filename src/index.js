@@ -24,12 +24,12 @@ function macros(babel) {
               let importPath = item.node.source.value;
 
               let {
-                featureImportSpecifiers,
+                featureSources,
                 debugTools: { debugToolsImport },
                 envFlags: { envFlagsImport, flags }
               } = options;
 
-              let isFeaturesImport = featureImportSpecifiers.includes(importPath);
+              let isFeaturesImport = featureSources.includes(importPath);
 
               if (debugToolsImport && debugToolsImport === importPath) {
                 this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));

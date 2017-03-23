@@ -1,11 +1,11 @@
 
 
 let testing;
-if (0) {
+if (false) {
   testing = 'WOOT';
 }
 
 let debug;
-if (1) {
+if (true) {
   debug = 'DEBUG';
 }

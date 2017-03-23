@@ -17,20 +17,20 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 0
+              DEBUG: false
             }
           },
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           features: [{
             name: "ember-source",
-            importSpecifier: '@ember/features',
+            source: '@ember/features',
             flags: {
-              FEATURE_A: 0,
-              FEATURE_B: 1
+              FEATURE_A: false,
+              FEATURE_B: true
             }
           }]
         }]
@@ -51,12 +51,12 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 1
+              DEBUG: true
             }
           }
         }]
@@ -82,17 +82,15 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           externalizeHelpers: {
-            debug: {
-              global: '__debugHelpers__'
-            }
+            global: '__debugHelpers__'
           },
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 1
+              DEBUG: true
             }
           }
         }]
@@ -108,17 +106,15 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           externalizeHelpers: {
-            debug: {
-              module: true
-            }
+            module: true
           },
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 1
+              DEBUG: true
             }
           }
         }]
@@ -134,12 +130,12 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 1
+              DEBUG: true
             }
           },
 
@@ -149,16 +145,16 @@ let cases = {
 
           features: [{
             name: 'my-app',
-            importSpecifier: 'my-app/features',
+            source: 'my-app/features',
             flags: {
-              FEATURE_A: 0,
-              FEATURE_B: 1
+              FEATURE_A: false,
+              FEATURE_B: true
             }
           },
           // Note this going to have to be concated in by each lib
           {
             name: 'ember-source',
-            importSpecifier: '@ember/features',
+            source: '@ember/features',
             flags: {
               DEPRECATED_PARTIALS: '2.14.0',
               DEPRECATED_CONTROLLERS: '2.16.0'
@@ -177,12 +173,12 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 0
+              DEBUG: false
             }
           },
 
@@ -192,16 +188,16 @@ let cases = {
 
           features: [{
             name: 'my-app',
-            importSpecifier: 'my-app/features',
+            source: 'my-app/features',
             flags: {
-              FEATURE_A: 0,
-              FEATURE_B: 1
+              FEATURE_A: false,
+              FEATURE_B: true
             }
           },
           // Note this going to have to be concated in by each lib
           {
             name: 'ember-source',
-            importSpecifier: '@ember/features',
+            source: '@ember/features',
             flags: {
               DEPRECATED_PARTIALS: '2.14.0',
               DEPRECATED_CONTROLLERS: '2.16.0'
@@ -220,14 +216,14 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 1,
-              TESTING: 0
+              DEBUG: true,
+              TESTING: false
             }
           },
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           features: []
         }]
@@ -244,12 +240,12 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 1
+              DEBUG: true
             }
           }
         }]
@@ -266,22 +262,22 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           envFlags: {
-            importSpecifier: '@ember/env-flags',
+            source: '@ember/env-flags',
             flags: {
-              DEBUG: 0
+              DEBUG: false
             }
           },
           debugTools: {
-            importSpecifier: '@ember/debug-tools'
+            source: '@ember/debug-tools'
           },
-          features: [{
+          features: {
             name: 'ember-source',
-            importSpecifier: '@ember/features',
+            source: '@ember/features',
             flags: {
-              FEATURE_A: 1,
+              FEATURE_A: true,
               FEATURE_B: null
             }
-          }]
+          }
         }]
       ]
     },
