@@ -1,7 +1,8 @@
 export default class Builder {
-  constructor(t, externalizeHelpers) {
+  constructor(t, module, global) {
     this.t = t;
-    this.helpers = externalizeHelpers;
+    this.module = module;
+    this.global = global;
     this.expressions = [];
   }
 
@@ -12,19 +13,18 @@ export default class Builder {
    *
    * into
    *
-   * (DEBUG && console.assert($PREDICATE, $MESSAGE));
+   * ($DEBUG && console.assert($PREDICATE, $MESSAGE));
    *
    * or
    *
-   * (DEBUG && assert($PREDICATE, $MESSAGE));
+   * ($DEBUG && assert($PREDICATE, $MESSAGE));
    *
    * or
    *
-   * (DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
+   * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
   assert(path) {
-    let { helpers } = this;
-    this._createMacroExpression(path, helpers.debug);
+    this._createMacroExpression(path);
   }
 
   /**
@@ -34,19 +34,18 @@ export default class Builder {
    *
    * into
    *
-   * (DEBUG && console.warn($MESSAGE));
+   * ($DEBUG && console.warn($MESSAGE));
    *
    * or
    *
-   * (DEBUG && warn($MESSAGE));
+   * ($DEBUG && warn($MESSAGE));
    *
    * or
    *
-   * (DEBUG && $GLOBAL_NS.warn($MESSAGE));
+   * ($DEBUG && $GLOBAL_NS.warn($MESSAGE));
    */
   warn(path) {
-    let { helpers } = this;
-    this._createMacroExpression(path, helpers.debug);
+    this._createMacroExpression(path);
   }
 
   /**
@@ -56,31 +55,29 @@ export default class Builder {
    *
    * into
    *
-   * (DEBUG && console.log($MESSAGE));
+   * ($DEBUG && console.log($MESSAGE));
    *
    * or
    *
-   * (DEBUG && log($MESSAGE));
+   * ($DEBUG && log($MESSAGE));
    *
    * or
    *
-   * (DEBUG && $GLOBAL_NS.log($MESSAGE));
+   * ($DEBUG && $GLOBAL_NS.log($MESSAGE));
    */
   log(path) {
-    let { helpers } = this;
-    this._createMacroExpression(path, helpers.debug);
+    this._createMacroExpression(path);
   }
 
-  _createMacroExpression(path, helpers) {
-    let { t } = this;
+  _createMacroExpression(path) {
+    let { t, module, global } = this;
     let expression = path.node.expression;
     let { callee, arguments: args } = expression;
     let callExpression;
 
-    if (helpers) {
-      let ns = helpers.global;
-      if (ns) {
-        callExpression = this._createGlobalExternalHelper(callee, args, ns);
+    if (module || global) {
+      if (global) {
+        callExpression = this._createGlobalExternalHelper(callee, args, global);
       } else {
         callExpression = expression;
       }
@@ -95,6 +92,10 @@ export default class Builder {
   /**
    * Expands:
    *
+   * deprecate($MESSAGE, $PREDICATE)
+   *
+   * or
+   *
    * deprecate($MESSAGE, $PREDICATE, {
    *  $ID,
    *  $URL,
@@ -103,18 +104,18 @@ export default class Builder {
    *
    * into
    *
-   * (DEBUG && $PREDICATE && console.warn('DEPRECATED [$ID]: $MESSAGE. Will be removed in $UNIL. See $URL for more information.'));
+   * ($DEBUG && $PREDICATE && console.warn($MESSAGE));
    *
    * or
    *
-   * (DEBUG && $PREDICATE && deprecate('DEPRECATED [$ID]: $MESSAGE. Will be removed in $UNIL. See $URL for more information.'));
+   * ($DEBUG && $PREDICATE && deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    *
    * or
    *
-   * (DEBUG && $PREDICATE && $GLOBAL_NS.deprecate('DEPRECATED [$ID]: $MESSAGE. Will be removed in $UNIL. See $URL for more information.'));
+   * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    */
   deprecate(path) {
-    let { t, helpers } = this;
+    let { t, module, global } = this;
     let expression = path.node.expression;
     let callee = expression.callee;
     let args = expression.arguments;
@@ -129,11 +130,9 @@ export default class Builder {
     }
 
     let deprecate;
-    let { debug } = helpers;
-    if (debug) {
-      let ns = debug.global;
-      if (ns) {
-        deprecate = this._createGlobalExternalHelper(callee, args, ns);
+    if (module || global) {
+      if (global) {
+        deprecate = this._createGlobalExternalHelper(callee, args, global);
       } else {
         deprecate = expression;
       }
@@ -141,48 +140,21 @@ export default class Builder {
       deprecate = this._createConsoleAPI(t.identifier('warn'), [message]);
     }
 
-    this.expressions.push([path, this._buildLogicalExpressions([t.unaryExpression('!', predicate)], deprecate)]);
-  }
-
-  /**
-   * Produces
-   *
-   * const $NAME = $DEBUG;
-   */
-  debugFlag(name, debug) {
-    let { t } = this;
-    return this._createConstant(name, t.numericLiteral(debug));
-  }
-
-  /**
-   * Produces an array on "const" VariableDeclarations based on
-   * flags.
-   */
-  flagConstants(specifiers, flagTable, source) {
-    let { t } = this;
-    return specifiers.map((specifier) => {
-      let flag = flagTable[specifier.imported.name];
-      if (flag !== undefined) {
-        return this._createConstant(t.identifier(specifier.imported.name), t.numericLiteral(flag));
-      }
-
-      throw new Error(`Imported ${specifier.imported.name} from ${source} which is not a supported flag.`);
-    });
+    this.expressions.push([path, this._buildLogicalExpressions([
+      t.unaryExpression('!', t.parenthesizedExpression(predicate))
+    ], deprecate)]);
   }
 
   /**
    * Performs the actually expansion of macros
    */
-  expandMacros(debugIdentifier) {
+  expandMacros(debugFlag) {
+    let { t } = this;
+    let flag = t.booleanLiteral(debugFlag);
     for (let i = 0; i < this.expressions.length; i++) {
       let [exp, logicalExp] = this.expressions[i];
-      exp.replaceWith(this.t.parenthesizedExpression(logicalExp(debugIdentifier)));
+      exp.replaceWith(t.parenthesizedExpression(logicalExp(flag)));
     }
-  }
-
-  _createConstant(left, right) {
-    let { t } = this;
-    return t.variableDeclaration('const', [t.variableDeclarator(left, right)])
   }
 
   _getIdentifiers(args) {
@@ -192,11 +164,6 @@ export default class Builder {
   _createGlobalExternalHelper(identifier, args, ns) {
     let { t } = this;
     return t.callExpression(t.memberExpression(t.identifier(ns), identifier), args);
-  }
-
-  _createExternalHelper(identifier, args) {
-    let { t } = this;
-    return t.callExpression(t.identifier(type), args);
   }
 
   _createConsoleAPI(identifier, args) {

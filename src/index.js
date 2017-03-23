@@ -16,36 +16,33 @@ function macros(babel) {
         enter(path, state) {
           options = normalizeOptions(state.opts);
           this.macroBuilder = new Macros(t, options);
+
+          let body = path.get('body');
+
+          body.forEach((item) => {
+            if (item.isImportDeclaration()) {
+              let importPath = item.node.source.value;
+
+              let {
+                featureSources,
+                debugTools: { debugToolsImport },
+                envFlags: { envFlagsImport, flags }
+              } = options;
+
+              let isFeaturesImport = featureSources.includes(importPath);
+
+              if (debugToolsImport && debugToolsImport === importPath) {
+                this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
+              } if (envFlagsImport && envFlagsImport === importPath) {
+                this.macroBuilder.collectEnvFlagSpecifiers(item.get('specifiers'));
+              }
+            }
+          });
+
         },
 
         exit(path) {
-          if (this.macroBuilder.importedDebugTools) {
-            this.macroBuilder.expand(path);
-          }
-
-          if (this.macroBuilder.hasEnvFlags) {
-            this.macroBuilder.inlineEnvFlags(path);
-          }
-        }
-      },
-
-      ImportDeclaration(path, state) {
-        let importPath = path.node.source.value;
-
-        let {
-          featureImportSpecifiers,
-          debugTools: { debugToolsImport },
-          envFlags: { envFlagsImport, flags }
-        } = options;
-
-        let isFeaturesImport = featureImportSpecifiers.includes(importPath);
-
-        if (isFeaturesImport && !flags.DEBUG) {
-          this.macroBuilder.inlineFeatureFlags(path);
-        } else if (debugToolsImport && debugToolsImport === importPath) {
-          this.macroBuilder.collectDebugToolsSpecifiers(path.get('specifiers'));
-        } if (envFlagsImport && envFlagsImport === importPath) {
-          this.macroBuilder.collectEnvFlagSpecifiers(path.get('specifiers'));
+          this.macroBuilder.expand(path);
         }
       },
 

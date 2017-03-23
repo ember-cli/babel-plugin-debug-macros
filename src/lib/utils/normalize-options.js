@@ -2,59 +2,62 @@ import { satisfies } from 'semver';
 
 export function normalizeOptions(options) {
   let {
-    features,
+    features = [],
     debugTools,
     envFlags,
     externalizeHelpers,
     svelte
   } = options;
 
-  let featureImportSpecifiers = [];
-  if (features) {
-    features = features.map((feature) => {
-      let featuresImport = feature.importSpecifier;
-      featureImportSpecifiers.push(featuresImport);
-      let name = feature.name;
+  let featureSources = [];
+  let featuresMap = {};
 
-      let flags = {};
-      Object.keys(feature.flags).forEach((flagName) => {
-        let value = feature.flags[flagName];
+  if (!Array.isArray(features)) {
+    features = [features]
+  }
 
-        if (typeof value === 'string' && svelte[name]) {
-          flags[flagName] = satisfies(value, `>=${svelte[name]}`) | 0;
-        } else if (typeof value === 'number') {
-          flags[flagName] = value;
-        } else {
-          throw new Error(`Flags must be a scalar value or semver version`);
-        }
-      });
+  features = features.map((feature) => {
+    let featuresSource = feature.source;
+    featureSources.push(featuresSource);
+    let name = feature.name;
 
-      return {
-        name,
-        featuresImport,
-        flags
+    let flags = {};
+    featuresMap[featuresSource] = {};
+
+    Object.keys(feature.flags).forEach((flagName) => {
+      let value = feature.flags[flagName];
+
+      if (typeof value === 'string' && svelte[name]) {
+        flags[flagName] = featuresMap[featuresSource][flagName] = satisfies(value, `>=${svelte[name]}`);
+      } else if (typeof value === 'boolean' || value === null) {
+        flags[flagName] = featuresMap[featuresSource][flagName] = value;
+      } else {
+        throw new Error(`Flags must be a scalar value or semver version`);
       }
     });
 
-    if (features.flags) {
-      featureFlags = features.flags;
+    return {
+      name,
+      source: feature.source,
+      flags
     }
-  }
+  });
+
 
   if (!debugTools) {
-    throw new Error('You must specify `debugTools.importSpecifier`');
+    throw new Error('You must specify `debugTools.source`');
   }
 
   let debugToolsImport;
   if (debugTools) {
-    debugToolsImport = debugTools.importSpecifier;
+    debugToolsImport = debugTools.source;
   }
 
   let envFlagsImport;
   let _envFlags = {};
 
   if (envFlags) {
-    envFlagsImport = envFlags.importSpecifier;
+    envFlagsImport = envFlags.source;
     if (envFlags.flags) {
       _envFlags = envFlags.flags;
     }
@@ -62,14 +65,11 @@ export function normalizeOptions(options) {
     throw new Error('You must specify envFlags.flags.DEBUG at minimum.')
   }
 
-  if (!externalizeHelpers) {
-    externalizeHelpers = {};
-  }
-
   return {
-    featureImportSpecifiers,
+    featureSources,
     externalizeHelpers,
     features,
+    featuresMap,
     envFlags: {
       envFlagsImport,
       flags: _envFlags

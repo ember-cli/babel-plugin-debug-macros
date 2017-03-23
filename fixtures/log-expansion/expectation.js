@@ -1,2 +1,1 @@
-const DEBUG = 1;
-(DEBUG && console.log('This is a logging'));
+(true && console.log('This is a logging'));
