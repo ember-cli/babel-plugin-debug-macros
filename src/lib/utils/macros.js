@@ -138,7 +138,7 @@ export default class Macros {
   _detectForeignFeatureFlag(specifiers, source) {
     let { featuresMap } = this;
     specifiers.forEach((specifier) => {
-      if (featuresMap[source][specifier.imported.name] !== null) {
+      if (specifier.imported && featuresMap[source][specifier.imported.name] !== null) {
         throw new Error(`Imported ${specifier.imported.name} from ${source} which is not a supported flag.`);
       }
     });
