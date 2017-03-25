@@ -29,7 +29,7 @@ function macros(babel) {
                 envFlags: { envFlagsImport, flags }
               } = options;
 
-              let isFeaturesImport = featureSources.includes(importPath);
+              let isFeaturesImport = featureSources.indexOf(importPath) > -1;
 
               if (debugToolsImport && debugToolsImport === importPath) {
                 this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
