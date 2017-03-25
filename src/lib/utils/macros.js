@@ -123,7 +123,7 @@ export default class Macros {
 
   _collectImportBindings(specifiers, buffer) {
     specifiers.forEach((specifier) => {
-      if (specifier.node.imported && SUPPORTED_MACROS.includes(specifier.node.imported.name)) {
+      if (specifier.node.imported && SUPPORTED_MACROS.indexOf(specifier.node.imported.name) > -1) {
         buffer.push(specifier.get('local'));
       }
     });
@@ -160,7 +160,7 @@ export default class Macros {
 
         if (builder.t.isImportDeclaration(decl)) {
           let source = decl.node.source.value;
-          if (featureSources.includes(source)) {
+          if (featureSources.indexOf(source) > -1) {
             if (decl.node.specifiers.length > 0) {
               this._detectForeignFeatureFlag(decl.node.specifiers, source);
             } else {
