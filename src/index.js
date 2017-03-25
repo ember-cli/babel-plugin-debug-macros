@@ -1,6 +1,6 @@
 import Macros from './lib/utils/macros';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { normalizeOptions } from './lib/utils/normalize-options';
 
 function macros(babel) {
@@ -54,7 +54,7 @@ function macros(babel) {
 }
 
 macros.baseDir = function() {
-  return __dirname;
+  return dirname(__dirname);
 }
 
 export default macros;
