@@ -36,7 +36,7 @@ export function normalizeOptions(options) {
       } else if (typeof value === 'boolean' || value === null) {
         flags[flagName] = featuresMap[featuresSource][flagName] = value;
       } else {
-        throw new Error(`Flags must be a scalar value or semver version`);
+        flags[flagName] = featuresMap[featuresSource][flagName] = true;
       }
     });
 

@@ -316,6 +316,36 @@ let cases = {
       'default-export-features'
     ]
   },
+
+  'Retains runtime feature flag definitions': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          envFlags: {
+            source: '@ember/env-flags',
+            flags: {
+              DEBUG: true
+            }
+          },
+          debugTools: {
+            source: '@ember/debug-tools'
+          },
+          features: {
+            name: 'ember-source',
+            source: '@ember/features',
+            flags: {
+              FOO_BAR: false,
+              WIDGET_WOO: false
+            }
+          }
+        }]
+      ]
+    },
+    fixtures: [
+      'retains-runtime-definitions'
+    ]
+  },
 }
 
 function compile(source, transformOptions) {

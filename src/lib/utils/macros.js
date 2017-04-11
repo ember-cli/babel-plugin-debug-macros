@@ -50,8 +50,15 @@ export default class Macros {
       Object.keys(featuresMap[source]).forEach((flag) => {
         let binding = path.scope.getBinding(flag);
         if (binding && featuresMap[source][flag] !== null) {
-          binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(featuresMap[source][flag])));
-          binding.path.remove();
+          binding.referencePaths.forEach(p => {
+            if (p.parentPath.isIfStatement()) {
+              p.replaceWith(builder.t.booleanLiteral(featuresMap[source][flag]))
+            }
+          });
+
+          if (binding.path.parentPath.isImportDeclaration()) {
+            binding.path.remove();
+          }
         }
       });
     });
