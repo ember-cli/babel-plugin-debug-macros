@@ -30,7 +30,7 @@ export function normalizeOptions(options) {
     Object.keys(feature.flags).forEach((flagName) => {
       let value = feature.flags[flagName];
 
-      if (typeof value === 'string' && svelte[name]) {
+      if (svelte !== undefined && typeof value === 'string' && svelte[name]) {
         hasSvelteBuild = true;
         flags[flagName] = svelteMap[featuresSource][flagName] = satisfies(value, `>=${svelte[name]}`);
       } else if (typeof value === 'boolean' || value === null) {
