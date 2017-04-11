@@ -72,23 +72,29 @@ export default class Macros {
     let sources = Object.keys(svelteMap);
     sources.forEach((source) => {
       Object.keys(svelteMap[source]).forEach((flag) => {
-        path.scope.getBinding(flag).referencePaths.forEach((p) => {
-          if (envFlags.DEBUG) {
-            if (!svelteMap[source][flag]) {
-              let { t } = builder;
-              let consequent = p.parentPath.get('consequent');
-              consequent.unshiftContainer('body', builder.t.throwStatement(
-                t.newExpression(t.identifier('Error'), [t.stringLiteral(`You indicated you don't have any deprecations, however you are relying on ${flag}.`)])
-              ));
+        let binding = path.scope.getBinding(flag);
+        if (binding !== undefined) {
+          binding.referencePaths.forEach((p) => {
+            if (envFlags.DEBUG) {
+              if (svelteMap[source][flag] === false) {
+                let { t } = builder;
+                if (!p.parentPath.isIfStatement()) { return; }
+                let consequent = p.parentPath.get('consequent');
+                consequent.unshiftContainer('body', builder.t.throwStatement(
+                  t.newExpression(t.identifier('Error'), [t.stringLiteral(`You indicated you don't have any deprecations, however you are relying on ${flag}.`)])
+                ));
+              }
+            } else {
+              if (p.parentPath.isIfStatement()) {
+                p.replaceWith(builder.t.booleanLiteral(svelteMap[source][flag]));
+              }
             }
-          } else {
-            let binding = path.scope.getBinding(flag);
-            if (binding) {
-              binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(svelteMap[source][flag])));
-              binding.path.remove();
-            }
+          });
+
+          if (!envFlags.DEBUG && binding) {
+            binding.path.remove();
           }
-        });
+        }
       });
     });
   }
