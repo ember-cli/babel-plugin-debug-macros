@@ -46,6 +46,7 @@ export default class Macros {
   _inlineFeatureFlags(path) {
     let { envFlags, builder, featureFlags, featuresMap } = this;
 
+    if (this.envFlags.DEBUG) { return; }
     Object.keys(featuresMap).forEach((source) => {
       Object.keys(featuresMap[source]).forEach((flag) => {
         let binding = path.scope.getBinding(flag);
