@@ -52,7 +52,10 @@ export default class Macros {
         let binding = path.scope.getBinding(flag);
         if (binding && featuresMap[source][flag] !== null) {
           binding.referencePaths.forEach(p => {
-            if (p.parentPath.isIfStatement()) {
+            if (p.parentPath.isIfStatement() ||
+              (p.parentPath.isLogicalExpression() &&
+               p.parentPath.parentPath &&
+               p.parentPath.parentPath.isIfStatement())) {
               p.replaceWith(builder.t.booleanLiteral(featuresMap[source][flag]))
             }
           });
