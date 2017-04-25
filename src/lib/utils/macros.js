@@ -72,7 +72,10 @@ export default class Macros {
     let { envFlags, builder } = this;
     Object.keys(envFlags).forEach(flag => {
        let binding = path.scope.getBinding(flag);
-       if (binding) {
+       if (binding &&
+          binding.path.isImportSpecifier() &&
+          binding.path.parent.source.value === this.envFlagsSource) {
+
          binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(envFlags[flag])));
        }
     });

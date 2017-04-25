@@ -253,7 +253,8 @@ let cases = {
       ]
     },
     fixtures: [
-      'retains-import-for-non-macro-types'
+      'retains-import-for-non-macro-types',
+      'does-not-modify-non-imported-flags'
     ]
   },
 
