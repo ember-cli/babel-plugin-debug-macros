@@ -4,7 +4,7 @@ This provides debug macros and feature flagging.
 
 ## Setup
 
-The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externalizeHelpers` and `svelte`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. Like Babel you can supply you're own helpers using the `externalizeHelpers` options.
+The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externalizeHelpers` and `svelte`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. Like Babel you can supply your own helpers using the `externalizeHelpers` options.
 
 ```
 {
@@ -39,7 +39,7 @@ The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externa
 }
 ```
 
-Flags and features are inlined into consuming module so that something like UglifyJS with DCE them when they are unreachable.
+Flags and features are inlined into the consuming module so that something like UglifyJS will DCE them when they are unreachable.
 
 ## Simple environment and fetaure flags
 
@@ -129,7 +129,7 @@ let foo = 2;
 
 ## Externalized Helpers
 
-When you externalize helpers you must provide runtime implementations for the above macros. An expansion will still occur however we will use emit references to those runtime helpers.
+When you externalize helpers you must provide runtime implementations for the above macros. An expansion will still occur, however we will emit references to those runtime helpers.
 
 A global expansion looks like the following:
 
@@ -161,9 +161,9 @@ Expands into:
 
 # Svelte
 
-Svelte allows for consumers to opt into stripping deprecated code from your dependecies. By adding a package name and minimum version that contains no deprecations that code will be compiled away.
+Svelte allows for consumers to opt into stripping deprecated code from your dependecies. By adding a package name and minimum version that contains no deprecations, that code will be compiled away.
 
-For example, consider you are on `ember-source@2.10.0` and you have no deprecations all deprecated code in `ember-source` that is `<=2.10.0` will be removed.
+For example, consider you are on `ember-source@2.10.0` and you have no deprecations. All deprecated code in `ember-source` that is `<=2.10.0` will be removed.
 
 ```
 ...
@@ -183,4 +183,4 @@ svelte: {
 
 # Hygenic
 
-As you may notice that we inject `DEBUG` into the code when we expand the macro. We gurantee that the binding is unique when injected and follow the local binding name if it is imported directly.
+As you may notice that we inject `DEBUG` into the code when we expand the macro. We guarantee that the binding is unique when injected and follow the local binding name if it is imported directly.
