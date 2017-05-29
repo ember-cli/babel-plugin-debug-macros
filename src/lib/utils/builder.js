@@ -69,11 +69,17 @@ export default class Builder {
     this._createMacroExpression(path);
   }
 
-  _createMacroExpression(path) {
+  _createMacroExpression(path, _options) {
+    let options = _options || {};
+
     let { t, module, global } = this;
     let expression = path.node.expression;
     let { callee, arguments: args } = expression;
     let callExpression;
+
+    if (options.validate) {
+      options.validate(expression, args);
+    }
 
     if (module || global) {
       if (global) {
@@ -81,12 +87,22 @@ export default class Builder {
       } else {
         callExpression = expression;
       }
+    } else if (options.buildConsoleAPI) {
+      callExpression = options.buildConsoleAPI(expression, args);
     } else {
-      callExpression = this._createConsoleAPI(callee, args);
+      callExpression = this._createConsoleAPI(options.consoleAPI || callee, args);
     }
 
     let identifiers = this._getIdentifiers(args);
-    this.expressions.push([path, this._buildLogicalExpressions([], callExpression)]);
+    let prefixedIdentifiers = [];
+
+    if (options.predicate) {
+      let predicate = options.predicate(expression, args);
+      let negatedPredicate = t.unaryExpression('!', t.parenthesizedExpression(predicate));
+      prefixedIdentifiers.push(negatedPredicate);
+    }
+
+    this.expressions.push([path, this._buildLogicalExpressions(prefixedIdentifiers, callExpression)]);
   }
 
   /**
@@ -115,34 +131,27 @@ export default class Builder {
    * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    */
   deprecate(path) {
-    let { t, module, global } = this;
-    let expression = path.node.expression;
-    let callee = expression.callee;
-    let args = expression.arguments;
-    let [ message, predicate, meta ] = args;
+    this._createMacroExpression(path, {
+      predicate: (expression, args) => args[1],
 
-    if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
-      throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
-    }
+      buildConsoleAPI: (expression, args) => {
+        let [message] = args;
 
-    if (meta && meta.properties && !meta.properties.some(prop =>  prop.key.name === 'until')) {
-      throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
-    }
+        return this._createConsoleAPI(this.t.identifier('warn'), [message]);
+      },
 
-    let deprecate;
-    if (module || global) {
-      if (global) {
-        deprecate = this._createGlobalExternalHelper(callee, args, global);
-      } else {
-        deprecate = expression;
+      validate: (expression, args) => {
+        let [ , , meta ] = args;
+
+        if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
+          throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
+        }
+
+        if (meta && meta.properties && !meta.properties.some(prop =>  prop.key.name === 'until')) {
+          throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
+        }
       }
-    } else {
-      deprecate = this._createConsoleAPI(t.identifier('warn'), [message]);
-    }
-
-    this.expressions.push([path, this._buildLogicalExpressions([
-      t.unaryExpression('!', t.parenthesizedExpression(predicate))
-    ], deprecate)]);
+    });
   }
 
   /**
