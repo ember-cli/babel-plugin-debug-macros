@@ -19,8 +19,11 @@ export default class Macros {
     this.svelteVersions = options.svelte;
     this.featureFlags = options.features || [];
     this.debugHelpers = options.externalizeHelpers || {};
-    let { module, global } = this.debugHelpers;
-    this.builder = new Builder(t, module, global);
+    this.builder = new Builder(t, {
+      module: this.debugHelpers.module,
+      global: this.debugHelpers.global,
+      assertPredicateIndex: options.debugTools.assertPredicateIndex
+    });
   }
 
   /**

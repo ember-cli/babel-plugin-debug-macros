@@ -52,10 +52,10 @@ export function normalizeOptions(options) {
     throw new Error('You must specify `debugTools.source`');
   }
 
-  let debugToolsImport;
-  if (debugTools) {
-    debugToolsImport = debugTools.source;
-  }
+  let {
+    source: debugToolsImport,
+    assertPredicateIndex
+  } = debugTools;
 
   let envFlagsImport;
   let _envFlags = {};
@@ -82,7 +82,8 @@ export function normalizeOptions(options) {
       flags: _envFlags
     },
     debugTools: {
-      debugToolsImport
+      debugToolsImport,
+      assertPredicateIndex
     }
   };
 }

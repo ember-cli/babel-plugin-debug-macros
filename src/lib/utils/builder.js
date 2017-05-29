@@ -1,8 +1,9 @@
 export default class Builder {
-  constructor(t, module, global) {
+  constructor(t, options) {
     this.t = t;
-    this.module = module;
-    this.global = global;
+    this.module = options.module;
+    this.global = options.global;
+    this.assertPredicateIndex = options.assertPredicateIndex;
     this.expressions = [];
   }
 
@@ -24,16 +25,15 @@ export default class Builder {
    * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
   assert(path) {
-    this._createMacroExpression(path, {
-      predicate: (expression, args) => {
-        let { global } = this;
-        let predicateLocation = 0;
-        if (global === 'Ember') {
-          predicateLocation = 1;
-        }
+    let predicate;
+    if (this.assertPredicateIndex !== undefined) {
+      predicate = (expression, args) => {
+        return args[this.assertPredicateIndex];
+      };
+    }
 
-        return args[predicateLocation];
-      }
+    this._createMacroExpression(path, {
+      predicate
     });
   }
 

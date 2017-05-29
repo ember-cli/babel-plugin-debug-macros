@@ -51,7 +51,8 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           debugTools: {
-            source: '@ember/debug-tools'
+            source: '@ember/debug-tools',
+            assertPredicateIndex: 0
           },
           envFlags: {
             source: '@ember/env-flags',
