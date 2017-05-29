@@ -51,7 +51,8 @@ let cases = {
       plugins: [
         [DebugToolsPlugin, {
           debugTools: {
-            source: '@ember/debug-tools'
+            source: '@ember/debug-tools',
+            assertPredicateIndex: 0
           },
           envFlags: {
             source: '@ember/env-flags',
@@ -98,6 +99,31 @@ let cases = {
     },
 
     fixtures: ['global-external-helpers']
+  },
+
+  'ember-cli-babel default configuration': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          externalizeHelpers: {
+            global: 'Ember'
+          },
+          debugTools: {
+            source: '@ember/debug',
+            assertPredicateIndex: 1
+          },
+          envFlags: {
+            source: '@glimmer/env',
+            flags: {
+              DEBUG: true
+            }
+          }
+        }]
+      ]
+    },
+
+    fixtures: ['ember-cli-babel-config']
   },
 
   'Retain Module External Test Helpers': {

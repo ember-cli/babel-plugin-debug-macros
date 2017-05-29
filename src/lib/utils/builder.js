@@ -1,8 +1,9 @@
 export default class Builder {
-  constructor(t, module, global) {
+  constructor(t, options) {
     this.t = t;
-    this.module = module;
-    this.global = global;
+    this.module = options.module;
+    this.global = options.global;
+    this.assertPredicateIndex = options.assertPredicateIndex;
     this.expressions = [];
   }
 
@@ -15,16 +16,40 @@ export default class Builder {
    *
    * ($DEBUG && console.assert($PREDICATE, $MESSAGE));
    *
-   * or
+   * or (when `assertPredicateIndex` specified)
+   *
+   * ($DEBUG && $PREDICATE && console.assert(false, $MESSAGE));
+   *
+   * or (`{ externalizeHelpers: { module: true } }`)
    *
    * ($DEBUG && assert($PREDICATE, $MESSAGE));
    *
-   * or
+   * or (when `{ externalizeHelpers: { module: true }, debugTools: { source: '...', assertPredicateIndex: 0 } }` specified)
+   *
+   * ($DEBUG && $PREDICATE && assert(false, $MESSAGE));
+   *
+   * or (when `{ externalizeHelpers: { global: '$GLOBLA_NS' }` specified)
    *
    * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
+   *
+   * or (when `{ externalizeHelpers: { global: '$GLOBLA_NS' }, debugTools: { source: '...', assertPredicateIndex: 0 } }` specified)
+   *
+   * ($DEBUG && $PREDICATE && $GLOBAL_NS.assert(false, $MESSAGE));
    */
   assert(path) {
-    this._createMacroExpression(path);
+    let predicate;
+    if (this.assertPredicateIndex !== undefined) {
+      predicate = (expression, args) => {
+        let predicate = args[this.assertPredicateIndex];
+        args[this.assertPredicateIndex] = this.t.identifier('false');
+
+        return predicate;
+      };
+    }
+
+    this._createMacroExpression(path, {
+      predicate
+    });
   }
 
   /**
@@ -69,11 +94,17 @@ export default class Builder {
     this._createMacroExpression(path);
   }
 
-  _createMacroExpression(path) {
+  _createMacroExpression(path, _options) {
+    let options = _options || {};
+
     let { t, module, global } = this;
     let expression = path.node.expression;
     let { callee, arguments: args } = expression;
     let callExpression;
+
+    if (options.validate) {
+      options.validate(expression, args);
+    }
 
     if (module || global) {
       if (global) {
@@ -81,12 +112,22 @@ export default class Builder {
       } else {
         callExpression = expression;
       }
+    } else if (options.buildConsoleAPI) {
+      callExpression = options.buildConsoleAPI(expression, args);
     } else {
-      callExpression = this._createConsoleAPI(callee, args);
+      callExpression = this._createConsoleAPI(options.consoleAPI || callee, args);
     }
 
     let identifiers = this._getIdentifiers(args);
-    this.expressions.push([path, this._buildLogicalExpressions([], callExpression)]);
+    let prefixedIdentifiers = [];
+
+    if (options.predicate) {
+      let predicate = options.predicate(expression, args);
+      let negatedPredicate = t.unaryExpression('!', t.parenthesizedExpression(predicate));
+      prefixedIdentifiers.push(negatedPredicate);
+    }
+
+    this.expressions.push([path, this._buildLogicalExpressions(prefixedIdentifiers, callExpression)]);
   }
 
   /**
@@ -108,41 +149,39 @@ export default class Builder {
    *
    * or
    *
-   * ($DEBUG && $PREDICATE && deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
+   * ($DEBUG && $PREDICATE && deprecate($MESSAGE, false, { $ID, $URL, $UNTIL }));
    *
    * or
    *
-   * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
+   * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, false, { $ID, $URL, $UNTIL }));
    */
   deprecate(path) {
-    let { t, module, global } = this;
-    let expression = path.node.expression;
-    let callee = expression.callee;
-    let args = expression.arguments;
-    let [ message, predicate, meta ] = args;
+    this._createMacroExpression(path, {
+      predicate: (expression, args) => {
+        let [, predicate] = args;
+        args[1] = this.t.identifier('false');
 
-    if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
-      throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
-    }
+        return predicate;
+      },
 
-    if (meta && meta.properties && !meta.properties.some(prop =>  prop.key.name === 'until')) {
-      throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
-    }
+      buildConsoleAPI: (expression, args) => {
+        let [message] = args;
 
-    let deprecate;
-    if (module || global) {
-      if (global) {
-        deprecate = this._createGlobalExternalHelper(callee, args, global);
-      } else {
-        deprecate = expression;
+        return this._createConsoleAPI(this.t.identifier('warn'), [message]);
+      },
+
+      validate: (expression, args) => {
+        let [ , , meta ] = args;
+
+        if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
+          throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
+        }
+
+        if (meta && meta.properties && !meta.properties.some(prop =>  prop.key.name === 'until')) {
+          throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
+        }
       }
-    } else {
-      deprecate = this._createConsoleAPI(t.identifier('warn'), [message]);
-    }
-
-    this.expressions.push([path, this._buildLogicalExpressions([
-      t.unaryExpression('!', t.parenthesizedExpression(predicate))
-    ], deprecate)]);
+    });
   }
 
   /**
