@@ -24,7 +24,17 @@ export default class Builder {
    * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
   assert(path) {
-    this._createMacroExpression(path);
+    this._createMacroExpression(path, {
+      predicate: (expression, args) => {
+        let { global } = this;
+        let predicateLocation = 0;
+        if (global === 'Ember') {
+          predicateLocation = 1;
+        }
+
+        return args[predicateLocation];
+      }
+    });
   }
 
   /**
