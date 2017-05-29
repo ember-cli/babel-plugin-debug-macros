@@ -17,7 +17,9 @@ The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externa
       },
       // @required
       debugTools: {
-        source: 'debug-tools'
+        source: 'debug-tools',
+        // @optional
+        assertPredicateIndex: 0
       },
       // @optional
       features: {
@@ -94,6 +96,11 @@ Expands into:
 
 ## `assert` macro expansion
 
+The `assert` macro can expand in a more intelligent way with the correct
+configuration. When `babel-plugin-debug-macros` is provided with the
+`assertPredicateIndex` the predicate is injected in front of the assertion
+in order to avoid costly assertion message generation when not needed.
+
 ```javascript
 import { assert } from 'debug-tools';
 
@@ -102,10 +109,15 @@ assert((() => {
 })(), 'You bad!');
 ```
 
-Expands into:
+With the `debugTools: { assertPredicateIndex: 0 }` configuration the following expansion is done:
+
+```js
+(true && !((() => { return 1 === 1;})()) && console.assert(false, 'this is a warning'));
+```
+
+When `assertPredicateIndex` is not specified, the following expansion is done:
 
 ```javascript
-
 (true && console.assert((() => { return 1 === 1;})(), 'this is a warning'));
 ```
 
