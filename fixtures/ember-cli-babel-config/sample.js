@@ -8,6 +8,7 @@ if (DEBUG) {
 warn('This is a warning');
 
 assert('Hahahaha', foo);
+assert('without predicate');
 
 deprecate('This thing is donzo', true, {
   id: 'donzo',
