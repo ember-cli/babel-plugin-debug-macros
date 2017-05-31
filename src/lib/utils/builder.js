@@ -122,7 +122,7 @@ export default class Builder {
     let prefixedIdentifiers = [];
 
     if (options.predicate) {
-      let predicate = options.predicate(expression, args);
+      let predicate = options.predicate(expression, args) || t.identifier('false');
       let negatedPredicate = t.unaryExpression('!', t.parenthesizedExpression(predicate));
       prefixedIdentifiers.push(negatedPredicate);
     }
