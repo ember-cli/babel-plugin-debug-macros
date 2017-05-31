@@ -138,9 +138,14 @@ export default class Macros {
   build(path) {
     let expression = path.node.expression;
     let { builder, localDebugBindings } = this;
-    if (builder.t.isCallExpression(expression) && localDebugBindings.some((b) => b.node.name === expression.callee.name)) {
+    if (
+      builder.t.isCallExpression(expression) &&
+        localDebugBindings.some((b) => b.node.name === expression.callee.name) &&
+      expression._debugMacrosProcessed !== true
+    ) {
       let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
+      expression._debugMacrosProcessed = true;
     }
   }
 
