@@ -16,34 +16,19 @@ export default class Builder {
    *
    * ($DEBUG && console.assert($PREDICATE, $MESSAGE));
    *
-   * or (when `assertPredicateIndex` specified)
-   *
-   * ($DEBUG && $PREDICATE && console.assert(false, $MESSAGE));
-   *
-   * or (`{ externalizeHelpers: { module: true } }`)
+   * or
    *
    * ($DEBUG && assert($PREDICATE, $MESSAGE));
    *
-   * or (when `{ externalizeHelpers: { module: true }, debugTools: { source: '...', assertPredicateIndex: 0 } }` specified)
-   *
-   * ($DEBUG && $PREDICATE && assert(false, $MESSAGE));
-   *
-   * or (when `{ externalizeHelpers: { global: '$GLOBLA_NS' }` specified)
+   * or
    *
    * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
-   *
-   * or (when `{ externalizeHelpers: { global: '$GLOBLA_NS' }, debugTools: { source: '...', assertPredicateIndex: 0 } }` specified)
-   *
-   * ($DEBUG && $PREDICATE && $GLOBAL_NS.assert(false, $MESSAGE));
    */
   assert(path) {
     let predicate;
     if (this.assertPredicateIndex !== undefined) {
       predicate = (expression, args) => {
-        let predicate = args[this.assertPredicateIndex];
-        args[this.assertPredicateIndex] = this.t.identifier('false');
-
-        return predicate;
+        return args[this.assertPredicateIndex];
       };
     }
 
@@ -149,20 +134,15 @@ export default class Builder {
    *
    * or
    *
-   * ($DEBUG && $PREDICATE && deprecate($MESSAGE, false, { $ID, $URL, $UNTIL }));
+   * ($DEBUG && $PREDICATE && deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    *
    * or
    *
-   * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, false, { $ID, $URL, $UNTIL }));
+   * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    */
   deprecate(path) {
     this._createMacroExpression(path, {
-      predicate: (expression, args) => {
-        let [, predicate] = args;
-        args[1] = this.t.identifier('false');
-
-        return predicate;
-      },
+      predicate: (expression, args) => args[1],
 
       buildConsoleAPI: (expression, args) => {
         let [message] = args;
