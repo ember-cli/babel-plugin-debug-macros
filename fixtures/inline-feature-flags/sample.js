@@ -6,3 +6,13 @@ if (FEATURE_A) {
 } else if (FEATURE_B) {
   a = () => console.log('bye');
 }
+
+if (!FEATURE_A) {
+  console.log('stuff');
+}
+
+a = FEATURE_A ? 'hello' : 'bye';
+
+if (FEATURE_A && window.foo && window.bar) {
+  console.log('wheeee');
+}
