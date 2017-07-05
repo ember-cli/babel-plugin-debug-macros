@@ -77,6 +77,64 @@ let cases = {
     ]
   },
 
+  'foreign debug imports': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          externalizeHelpers: {
+            global: 'Ember'
+          },
+          debugTools: {
+            source: '@ember/debug-tools',
+            assertPredicateIndex: 0
+          },
+          envFlags: {
+            source: '@ember/env-flags',
+            flags: {
+              DEBUG: true
+            }
+          }
+        }],
+
+        [function(babel) {
+          let t = babel.types;
+
+          return {
+            name: 'import-remover',
+            visitor: {
+              ImportSpecifier(path) {
+                let importedName = path.node.imported.name;
+                if (importedName === 'inspect') {
+                  let importDeclarationPath = path.findParent(p => p.isImportDeclaration());
+                  let binding = path.scope.getBinding(importedName);
+                  let references = binding.referencePaths;
+
+                  let replacements = [];
+                  for (let reference of references) {
+                    replacements.push(t.variableDeclaration('var', [
+                      t.variableDeclarator(
+                        t.identifier(path.node.local.name),
+                        t.memberExpression(t.identifier('Ember'), t.identifier(importedName))
+                      ),
+                    ]));
+                  }
+
+                  path.remove();
+                  importDeclarationPath.insertAfter(replacements);
+                }
+              }
+            }
+          }
+        }]
+      ]
+    },
+    fixtures: [
+      'shared-debug-module',
+    ],
+    errors: [ ]
+  },
+
   'Global External Test Helpers': {
     transformOptions: {
       presets,

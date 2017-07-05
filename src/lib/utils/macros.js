@@ -7,7 +7,6 @@ const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 export default class Macros {
   constructor(t, options) {
     this.localDebugBindings = [];
-    this.isImportRemovable = false;
     this.envFlagBindings = [];
     this.hasEnvFlags = false;
     this.envFlagsSource = options.envFlags.envFlagsImport;
@@ -122,9 +121,6 @@ export default class Macros {
   collectDebugToolsSpecifiers(specifiers) {
     this.importedDebugTools = true;
     this._collectImportBindings(specifiers, this.localDebugBindings);
-    if (specifiers.length === this.localDebugBindings.length) {
-      this.isImportRemovable = true;
-    }
   }
 
   collectEnvFlagSpecifiers(specifiers) {
@@ -197,7 +193,11 @@ export default class Macros {
 
     if (!debugHelpers.module) {
       if (this.localDebugBindings.length > 0) {
-        if (this.isImportRemovable) {
+        this.localDebugBindings[0].parentPath.parentPath
+        let importPath = this.localDebugBindings[0].findParent(p => p.isImportDeclaration());
+        let specifiers = importPath.get('specifiers');
+
+        if (specifiers.length === this.localDebugBindings.length) {
           this.localDebugBindings[0].parentPath.parentPath.remove();
         } else {
           this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
