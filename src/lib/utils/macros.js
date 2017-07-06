@@ -52,15 +52,12 @@ export default class Macros {
     if (this.envFlags.DEBUG) { return; }
     Object.keys(featuresMap).forEach((source) => {
       Object.keys(featuresMap[source]).forEach((flag) => {
+        let flagValue = featuresMap[source][flag];
         let binding = path.scope.getBinding(flag);
-        if (binding && featuresMap[source][flag] !== null) {
-          binding.referencePaths.forEach(p => {
-            if (p.parentPath.isIfStatement() ||
-              (p.parentPath.isLogicalExpression() &&
-               p.parentPath.parentPath &&
-               p.parentPath.parentPath.isIfStatement())) {
-              p.replaceWith(builder.t.booleanLiteral(featuresMap[source][flag]))
-            }
+
+        if (binding && flagValue !== null) {
+          binding.referencePaths.forEach(referencePath => {
+            referencePath.replaceWith(builder.t.booleanLiteral(flagValue));
           });
 
           if (binding.path.parentPath.isImportDeclaration()) {
