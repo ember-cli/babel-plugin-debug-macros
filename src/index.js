@@ -4,7 +4,8 @@ import { dirname, join } from 'path';
 import { normalizeOptions } from './lib/utils/normalize-options';
 
 function macros(babel) {
-  const { types: t } = babel;
+  const t = babel.types;
+
   let macroBuilder;
   let options;
 
@@ -23,11 +24,9 @@ function macros(babel) {
             if (item.isImportDeclaration()) {
               let importPath = item.node.source.value;
 
-              let {
-                featureSources,
-                debugTools: { debugToolsImport },
-                envFlags: { envFlagsImport, flags }
-              } = options;
+              let featureSources = options.featureSources;
+              let debugToolsImport = options.debugTools.debugToolsImport;
+              let envFlagsImport = options.envFlags.envFlagsImport;
 
               let isFeaturesImport = featureSources.indexOf(importPath) > -1;
 

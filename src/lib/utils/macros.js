@@ -31,8 +31,6 @@ export default class Macros {
    */
   expand(path) {
     let debugBinding = path.scope.getBinding(DEBUG);
-    let { builder, envFlags } = this;
-
 
     if (this._hasDebugModule(debugBinding)) {
       debugBinding.path.parentPath.remove();
@@ -41,12 +39,12 @@ export default class Macros {
     this._inlineFeatureFlags(path);
     this._inlineSvelteFlags(path);
     this._inlineEnvFlags(path)
-    this.builder.expandMacros(envFlags.DEBUG);
+    this.builder.expandMacros(this.envFlags.DEBUG);
     this._cleanImports(path);
   }
 
   _inlineFeatureFlags(path) {
-    let { envFlags, builder, featureFlags, featuresMap } = this;
+    let featuresMap = this.featuresMap;
 
     if (this.envFlags.DEBUG) { return; }
     Object.keys(featuresMap).forEach((source) => {
@@ -56,7 +54,7 @@ export default class Macros {
 
         if (binding && flagValue !== null) {
           binding.referencePaths.forEach(referencePath => {
-            referencePath.replaceWith(builder.t.booleanLiteral(flagValue));
+            referencePath.replaceWith(this.builder.t.booleanLiteral(flagValue));
           });
 
           if (binding.path.parentPath.isImportDeclaration()) {
@@ -68,38 +66,42 @@ export default class Macros {
   }
 
   _inlineEnvFlags(path) {
-    let { envFlags, builder } = this;
+    let envFlags = this.envFlags;
+
     Object.keys(envFlags).forEach(flag => {
        let binding = path.scope.getBinding(flag);
        if (binding &&
           binding.path.isImportSpecifier() &&
           binding.path.parent.source.value === this.envFlagsSource) {
 
-         binding.referencePaths.forEach(p => p.replaceWith(builder.t.booleanLiteral(envFlags[flag])));
+         binding.referencePaths.forEach(p => p.replaceWith(this.builder.t.booleanLiteral(envFlags[flag])));
        }
     });
   }
 
   _inlineSvelteFlags(path) {
-    let { svelteMap, envFlags, builder } = this;
+    let svelteMap = this.svelteMap;
+    let envFlags = this.envFlags;
+    let builder = this.builder;
+
     let sources = Object.keys(svelteMap);
     sources.forEach((source) => {
       Object.keys(svelteMap[source]).forEach((flag) => {
         let binding = path.scope.getBinding(flag);
         if (binding !== undefined) {
           binding.referencePaths.forEach((p) => {
+            let t = builder.t;
             if (envFlags.DEBUG) {
               if (svelteMap[source][flag] === false) {
-                let { t } = builder;
                 if (!p.parentPath.isIfStatement()) { return; }
                 let consequent = p.parentPath.get('consequent');
-                consequent.unshiftContainer('body', builder.t.throwStatement(
+                consequent.unshiftContainer('body', t.throwStatement(
                   t.newExpression(t.identifier('Error'), [t.stringLiteral(`You indicated you don't have any deprecations, however you are relying on ${flag}.`)])
                 ));
               }
             } else {
               if (p.parentPath.isIfStatement()) {
-                p.replaceWith(builder.t.booleanLiteral(svelteMap[source][flag]));
+                p.replaceWith(t.booleanLiteral(svelteMap[source][flag]));
               }
             }
           });
@@ -130,8 +132,8 @@ export default class Macros {
    */
   build(path) {
     let expression = path.node.expression;
-    let { builder, localDebugBindings } = this;
-    if (builder.t.isCallExpression(expression) && localDebugBindings.some((b) => b.node.name === expression.callee.name)) {
+
+    if (this.builder.t.isCallExpression(expression) && this.localDebugBindings.some((b) => b.node.name === expression.callee.name)) {
       let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
     }
@@ -152,31 +154,23 @@ export default class Macros {
   }
 
   _detectForeignFeatureFlag(specifiers, source) {
-    let { featuresMap } = this;
     specifiers.forEach((specifier) => {
-      if (specifier.imported && featuresMap[source][specifier.imported.name] !== null) {
+      if (specifier.imported && this.featuresMap[source][specifier.imported.name] !== null) {
         throw new Error(`Imported ${specifier.imported.name} from ${source} which is not a supported flag.`);
       }
     });
   }
 
   _cleanImports(path) {
-    let {
-      debugHelpers,
-      builder,
-      featureFlags,
-      featureSources
-    } = this;
-
     let body = path.get('body');
 
     if (!this.envFlags.DEBUG) {
       for (let i = 0; i < body.length; i++) {
         let decl = body[i];
 
-        if (builder.t.isImportDeclaration(decl)) {
+        if (this.builder.t.isImportDeclaration(decl)) {
           let source = decl.node.source.value;
-          if (featureSources.indexOf(source) > -1) {
+          if (this.featureSources.indexOf(source) > -1) {
             if (decl.node.specifiers.length > 0) {
               this._detectForeignFeatureFlag(decl.node.specifiers, source);
             } else {
@@ -188,7 +182,7 @@ export default class Macros {
       }
     }
 
-    if (!debugHelpers.module) {
+    if (!this.debugHelpers.module) {
       if (this.localDebugBindings.length > 0) {
         this.localDebugBindings[0].parentPath.parentPath
         let importPath = this.localDebugBindings[0].findParent(p => p.isImportDeclaration());

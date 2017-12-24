@@ -82,21 +82,20 @@ export default class Builder {
   _createMacroExpression(path, _options) {
     let options = _options || {};
 
-    let { t, module, global } = this;
+    let t = this.t;
     let expression = path.node.expression;
-    let { callee, arguments: args } = expression;
-    let callExpression;
+    let callee = expression.callee;
+    let args = expression.arguments;
 
     if (options.validate) {
       options.validate(expression, args);
     }
 
-    if (module || global) {
-      if (global) {
-        callExpression = this._createGlobalExternalHelper(callee, args, global);
-      } else {
-        callExpression = expression;
-      }
+    let callExpression;
+    if (this.module) {
+      callExpression = expression;
+    } else if (this.global) {
+      callExpression = this._createGlobalExternalHelper(callee, args, this.global);
     } else if (options.buildConsoleAPI) {
       callExpression = options.buildConsoleAPI(expression, args);
     } else {
@@ -145,13 +144,13 @@ export default class Builder {
       predicate: (expression, args) => args[1],
 
       buildConsoleAPI: (expression, args) => {
-        let [message] = args;
+        let message = args[0];
 
         return this._createConsoleAPI(this.t.identifier('warn'), [message]);
       },
 
       validate: (expression, args) => {
-        let [ , , meta ] = args;
+        let meta = args[2];
 
         if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
           throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
@@ -168,10 +167,12 @@ export default class Builder {
    * Performs the actually expansion of macros
    */
   expandMacros(debugFlag) {
-    let { t } = this;
+    let t = this.t;
     let flag = t.booleanLiteral(debugFlag);
     for (let i = 0; i < this.expressions.length; i++) {
-      let [exp, logicalExp] = this.expressions[i];
+      let expression = this.expressions[i];
+      let exp = expression[0];
+      let logicalExp = expression[1];
       exp.replaceWith(t.parenthesizedExpression(logicalExp(flag)));
     }
   }
@@ -181,17 +182,17 @@ export default class Builder {
   }
 
   _createGlobalExternalHelper(identifier, args, ns) {
-    let { t } = this;
+    let t = this.t;
     return t.callExpression(t.memberExpression(t.identifier(ns), identifier), args);
   }
 
   _createConsoleAPI(identifier, args) {
-    let { t } = this;
+    let t = this.t;
     return t.callExpression(t.memberExpression(t.identifier('console'), identifier), args);
   }
 
   _buildLogicalExpressions(identifiers, callExpression) {
-    let { t } = this;
+    let t = this.t;
 
     return (debugIdentifier) => {
       identifiers.unshift(debugIdentifier);
