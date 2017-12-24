@@ -4,7 +4,6 @@ const DebugToolsPlugin = require('../index');
 const transform = require('babel-core').transform;
 const expect = require('chai').expect;
 const fs = require('fs');
-const lstatSync = fs.lstatSync;
 
 const presets = [["latest", {
   "es2015": false,
@@ -464,13 +463,7 @@ function test(caseName, cases, assertionName, ep) {
   let sample = fs.readFileSync(`./fixtures/${assertionName}/sample.js`, 'utf-8');
   let options = cases[caseName].transformOptions;
   let expectationPath = `./fixtures/${assertionName}/expectation.js`;
-  let expectationExists = true;
-
-  try {
-    lstatSync(expectationPath);
-  } catch (e) {
-    expectationExists = false
-  }
+  let expectationExists = fs.existsSync(expectationPath);
 
   if (expectationExists) {
     let expectation = fs.readFileSync(`./fixtures/${assertionName}/expectation.js`, 'utf-8');
