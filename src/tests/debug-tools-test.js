@@ -2,6 +2,7 @@
 
 const DebugToolsPlugin = require('../index');
 const transform = require('babel-core').transform;
+const Es2015Spread = require('babel-plugin-transform-es2015-spread');
 const fs = require('fs');
 
 const presets = [["latest", {
@@ -65,6 +66,29 @@ describe('Debug Macros', function(){
   h.generateErrorTest('deprecate-missing-id', `deprecate's meta information requires an "id" field.`);
   h.generateTest('hygenic-debug-injection');
   h.generateTest('log-expansion');
+});
+
+describe('transpile-moved-args', function(){
+  let h = transformTestHelper({
+    presets,
+    plugins: [
+      Es2015Spread,
+      [DebugToolsPlugin, {
+        debugTools: {
+          source: '@ember/debug-tools',
+          assertPredicateIndex: 0
+        },
+        envFlags: {
+          source: '@ember/env-flags',
+          flags: {
+            DEBUG: true
+          }
+        }
+      }]
+    ]
+  });
+
+  h.generateTest('transpile-moved-args');
 });
 
 describe('foreign debug imports', function() {
