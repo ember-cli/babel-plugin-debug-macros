@@ -1,10 +1,9 @@
+const Builder = require('./builder');
+
 const DEBUG = 'DEBUG';
-
-import Builder from './builder';
-
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 
-export default class Macros {
+module.exports = class Macros {
   constructor(t, options) {
     this.localDebugBindings = [];
     this.envFlagBindings = [];

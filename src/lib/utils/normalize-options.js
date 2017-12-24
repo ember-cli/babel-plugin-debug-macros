@@ -1,6 +1,6 @@
-import { satisfies } from 'semver';
+const satisfies = require('semver').satisfies;
 
-export function normalizeOptions(options) {
+function normalizeOptions(options) {
   let features = options.features || [];
   let debugTools = options.debugTools;
   let envFlags = options.envFlags;
@@ -83,3 +83,7 @@ export function normalizeOptions(options) {
     }
   };
 }
+
+module.exports = {
+  normalizeOptions,
+};

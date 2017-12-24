@@ -1,4 +1,4 @@
-export default class Builder {
+module.exports = class Builder {
   constructor(t, options) {
     this.t = t;
     this.module = options.module;

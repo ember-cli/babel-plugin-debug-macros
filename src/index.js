@@ -1,7 +1,5 @@
-import Macros from './lib/utils/macros';
-import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { normalizeOptions } from './lib/utils/normalize-options';
+const Macros = require('./lib/utils/macros');
+const normalizeOptions = require('./lib/utils/normalize-options').normalizeOptions;
 
 function macros(babel) {
   const t = babel.types;
@@ -56,4 +54,4 @@ macros.baseDir = function() {
   return dirname(__dirname);
 }
 
-export default macros;
+module.exports = macros;
