@@ -6,7 +6,7 @@ This provides debug macros and feature flagging.
 
 The plugin takes 5 types options: `envFlags`, `features`, `debugTools`, `externalizeHelpers` and `svelte`. The `importSpecifier` is used as a hint to this plugin as to where macros are being imported and completely configurable by the host. Like Babel you can supply your own helpers using the `externalizeHelpers` options.
 
-```
+```js
 {
   plugins: [
     ['babel-debug-macros', {
