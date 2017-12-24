@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
     "babel-preset-env": "^1.2.2",
     "babel-preset-latest": "^6.24.0",
@@ -12,19 +11,17 @@
   "name": "babel-plugin-debug-macros",
   "version": "0.1.11",
   "description": "Debug macros and feature flag stripping",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "files": [
-    "dist/",
-    "!dist/tests"
+    "src/",
+    "!src/tests"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/chadhietala/babel-debug-macros"
   },
   "scripts": {
-    "build": "babel src --out-dir dist",
-    "prepublish": "babel src --out-dir dist",
-    "test": "babel src --out-dir dist && mocha dist/tests/**-test.js"
+    "test": "mocha src/tests/**-test.js"
   },
   "keywords": [
     "babel",
