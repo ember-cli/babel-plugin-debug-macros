@@ -438,16 +438,18 @@ Object.keys(cases).forEach(caseName => {
   describe(caseName, () => {
     let ep = 0;
 
-    cases[caseName].fixtures.forEach(assertionName => {
-      if (cases[caseName].only) {
+    let testcase = cases[caseName];
+
+    testcase.fixtures.forEach(assertionName => {
+      if (testcase.only) {
         it.only(assertionName, () => {
-          test(caseName, cases, assertionName, ep);
+          test(testcase, assertionName, ep);
         });
-      } else if (cases[caseName].skip) {
+      } else if (testcase.skip) {
         it.skip(assertionName, () => {});
       } else {
         it(assertionName, () => {
-          test(caseName, cases, assertionName, ep);
+          test(testcase, assertionName, ep);
         });
       }
     });
@@ -455,9 +457,9 @@ Object.keys(cases).forEach(caseName => {
 });
 
 
-function test(caseName, cases, assertionName, ep) {
+function test(testcase, assertionName, ep) {
   let sample = fs.readFileSync(`./fixtures/${assertionName}/sample.js`, 'utf-8');
-  let options = cases[caseName].transformOptions;
+  let options = testcase.transformOptions;
   let expectationPath = `./fixtures/${assertionName}/expectation.js`;
   let expectationExists = fs.existsSync(expectationPath);
 
@@ -468,6 +470,6 @@ function test(caseName, cases, assertionName, ep) {
 
   } else {
     let fn = () => transform(sample, options);
-    expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));
+    expect(fn).to.throw(new RegExp(testcase.errors[ep++]));
   }
 }
