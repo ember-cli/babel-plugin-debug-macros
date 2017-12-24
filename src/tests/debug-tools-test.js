@@ -1,3 +1,5 @@
+'use strict';
+
 const DebugToolsPlugin = require('../index');
 const transform = require('babel-core').transform;
 const expect = require('chai').expect;

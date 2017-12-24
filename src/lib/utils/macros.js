@@ -1,3 +1,5 @@
+'use strict';
+
 const Builder = require('./builder');
 
 const DEBUG = 'DEBUG';

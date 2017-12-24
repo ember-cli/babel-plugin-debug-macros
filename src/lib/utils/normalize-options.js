@@ -1,3 +1,5 @@
+'use strict';
+
 const satisfies = require('semver').satisfies;
 
 function normalizeOptions(options) {

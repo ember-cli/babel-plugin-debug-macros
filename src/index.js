@@ -1,3 +1,5 @@
+'use strict';
+
 const Macros = require('./lib/utils/macros');
 const normalizeOptions = require('./lib/utils/normalize-options').normalizeOptions;
 

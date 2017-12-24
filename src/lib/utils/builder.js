@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = class Builder {
   constructor(t, options) {
     this.t = t;
