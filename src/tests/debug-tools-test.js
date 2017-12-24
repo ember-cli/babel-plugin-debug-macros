@@ -1,8 +1,10 @@
-import DebugToolsPlugin from '../index';
-import { transform } from 'babel-core';
-import { expect } from 'chai';
-import { file } from 'chai-files';
-import { lstatSync, writeFileSync } from 'fs';
+'use strict';
+
+const DebugToolsPlugin = require('../index');
+const transform = require('babel-core').transform;
+const expect = require('chai').expect;
+const file = require('chai-files').file;
+const lstatSync = require('fs').lstatSync;
 
 const presets = [["latest", {
   "es2015": false,

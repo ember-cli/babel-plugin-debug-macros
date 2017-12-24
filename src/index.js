@@ -1,10 +1,11 @@
-import Macros from './lib/utils/macros';
-import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { normalizeOptions } from './lib/utils/normalize-options';
+'use strict';
+
+const Macros = require('./lib/utils/macros');
+const normalizeOptions = require('./lib/utils/normalize-options').normalizeOptions;
 
 function macros(babel) {
-  const { types: t } = babel;
+  const t = babel.types;
+
   let macroBuilder;
   let options;
 
@@ -23,11 +24,9 @@ function macros(babel) {
             if (item.isImportDeclaration()) {
               let importPath = item.node.source.value;
 
-              let {
-                featureSources,
-                debugTools: { debugToolsImport },
-                envFlags: { envFlagsImport, flags }
-              } = options;
+              let featureSources = options.featureSources;
+              let debugToolsImport = options.debugTools.debugToolsImport;
+              let envFlagsImport = options.envFlags.envFlagsImport;
 
               let isFeaturesImport = featureSources.indexOf(importPath) > -1;
 
@@ -57,4 +56,4 @@ macros.baseDir = function() {
   return dirname(__dirname);
 }
 
-export default macros;
+module.exports = macros;

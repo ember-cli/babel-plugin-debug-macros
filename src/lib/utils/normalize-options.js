@@ -1,13 +1,13 @@
-import { satisfies } from 'semver';
+'use strict';
 
-export function normalizeOptions(options) {
-  let {
-    features = [],
-    debugTools,
-    envFlags,
-    externalizeHelpers,
-    svelte
-  } = options;
+const satisfies = require('semver').satisfies;
+
+function normalizeOptions(options) {
+  let features = options.features || [];
+  let debugTools = options.debugTools;
+  let envFlags = options.envFlags;
+  let externalizeHelpers = options.externalizeHelpers;
+  let svelte = options.svelte;
 
   let featureSources = [];
   let featuresMap = {};
@@ -52,10 +52,8 @@ export function normalizeOptions(options) {
     throw new Error('You must specify `debugTools.source`');
   }
 
-  let {
-    source: debugToolsImport,
-    assertPredicateIndex
-  } = debugTools;
+  let debugToolsImport = debugTools.source;
+  let assertPredicateIndex = debugTools.assertPredicateIndex;
 
   let envFlagsImport;
   let _envFlags = {};
@@ -87,3 +85,7 @@ export function normalizeOptions(options) {
     }
   };
 }
+
+module.exports = {
+  normalizeOptions,
+};
