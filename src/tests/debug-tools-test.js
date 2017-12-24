@@ -464,7 +464,7 @@ function test(testcase, assertionName, ep) {
   let expectationExists = fs.existsSync(expectationPath);
 
   if (expectationExists) {
-    let expectation = fs.readFileSync(`./fixtures/${assertionName}/expectation.js`, 'utf-8');
+    let expectation = fs.readFileSync(expectationPath, 'utf-8');
     let compiled = transform(sample, options);
     expect(compiled.code).to.equal(expectation);
 
