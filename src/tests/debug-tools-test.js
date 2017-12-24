@@ -434,10 +434,6 @@ let cases = {
   },
 }
 
-function compile(source, transformOptions) {
-  return transform(source, transformOptions);
-}
-
 Object.keys(cases).forEach(caseName => {
   describe(caseName, () => {
     let ep = 0;
@@ -467,11 +463,11 @@ function test(caseName, cases, assertionName, ep) {
 
   if (expectationExists) {
     let expectation = fs.readFileSync(`./fixtures/${assertionName}/expectation.js`, 'utf-8');
-    let compiled = compile(sample, options);
+    let compiled = transform(sample, options);
     expect(compiled.code).to.equal(expectation);
 
   } else {
-    let fn = () => compile(sample, options);
+    let fn = () => transform(sample, options);
     expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));
   }
 }
