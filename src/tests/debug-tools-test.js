@@ -3,8 +3,7 @@
 const DebugToolsPlugin = require('../index');
 const transform = require('babel-core').transform;
 const expect = require('chai').expect;
-const file = require('chai-files').file;
-const lstatSync = require('fs').lstatSync;
+const fs = require('fs');
 
 const presets = [["latest", {
   "es2015": false,
@@ -435,24 +434,22 @@ let cases = {
   },
 }
 
-function compile(source, transformOptions) {
-  return transform(source, transformOptions);
-}
-
 Object.keys(cases).forEach(caseName => {
   describe(caseName, () => {
     let ep = 0;
 
-    cases[caseName].fixtures.forEach(assertionName => {
-      if (cases[caseName].only) {
+    let testcase = cases[caseName];
+
+    testcase.fixtures.forEach(assertionName => {
+      if (testcase.only) {
         it.only(assertionName, () => {
-          test(caseName, cases, assertionName, ep);
+          test(testcase, assertionName, ep);
         });
-      } else if (cases[caseName].skip) {
+      } else if (testcase.skip) {
         it.skip(assertionName, () => {});
       } else {
         it(assertionName, () => {
-          test(caseName, cases, assertionName, ep);
+          test(testcase, assertionName, ep);
         });
       }
     });
@@ -460,25 +457,19 @@ Object.keys(cases).forEach(caseName => {
 });
 
 
-function test(caseName, cases, assertionName, ep) {
-  let sample = file(`./fixtures/${assertionName}/sample.js`).content;
-  let options = cases[caseName].transformOptions;
+function test(testcase, assertionName, ep) {
+  let sample = fs.readFileSync(`./fixtures/${assertionName}/sample.js`, 'utf-8');
+  let options = testcase.transformOptions;
   let expectationPath = `./fixtures/${assertionName}/expectation.js`;
-  let expectationExists = true;
-
-  try {
-    lstatSync(expectationPath);
-  } catch (e) {
-    expectationExists = false
-  }
+  let expectationExists = fs.existsSync(expectationPath);
 
   if (expectationExists) {
-    let expectation = file(`./fixtures/${assertionName}/expectation.js`).content;
-    let compiled = compile(sample, options);
+    let expectation = fs.readFileSync(expectationPath, 'utf-8');
+    let compiled = transform(sample, options);
     expect(compiled.code).to.equal(expectation);
 
   } else {
-    let fn = () => compile(sample, options);
-    expect(fn).to.throw(new RegExp(cases[caseName].errors[ep++]));
+    let fn = () => transform(sample, options);
+    expect(fn).to.throw(new RegExp(testcase.errors[ep++]));
   }
 }
