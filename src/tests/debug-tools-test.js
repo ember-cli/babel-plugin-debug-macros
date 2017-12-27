@@ -2,7 +2,6 @@
 
 const DebugToolsPlugin = require('../index');
 const transform = require('babel-core').transform;
-const expect = require('chai').expect;
 const fs = require('fs');
 
 const presets = [["latest", {
@@ -422,14 +421,14 @@ function transformTestHelper(options) {
       it(fixtureName, function() {
         let sample = fs.readFileSync(`./fixtures/${fixtureName}/sample.js`, 'utf-8');
         let expectation = fs.readFileSync(`./fixtures/${fixtureName}/expectation.js`, 'utf-8');
-        expect(transform(sample, options).code).to.equal(expectation);
+        expect(transform(sample, options).code).toEqual(expectation);
       });
     },
 
     generateErrorTest(fixtureName, error) {
       it(fixtureName, function() {
         let sample = fs.readFileSync(`./fixtures/${fixtureName}/sample.js`, 'utf-8');
-        expect(() => transform(sample, options)).to.throw(error);
+        expect(() => transform(sample, options)).toThrow(error);
       });
     },
   };
