@@ -45,7 +45,7 @@ function macros(babel) {
         }
       },
 
-      ExpressionStatement(path) {
+      CallExpression(path) {
         this.macroBuilder.build(path);
       }
     }

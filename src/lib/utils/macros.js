@@ -132,10 +132,8 @@ module.exports = class Macros {
    * Builds the expressions that the CallExpression will expand into.
    */
   build(path) {
-    let expression = path.node.expression;
-
-    if (this.builder.t.isCallExpression(expression) && this.localDebugBindings.some((b) => b.node.name === expression.callee.name)) {
-      let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
+    if (this.localDebugBindings.some((b) => b.node.name === path.node.callee.name)) {
+      let imported = path.scope.getBinding(path.node.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
     }
   }

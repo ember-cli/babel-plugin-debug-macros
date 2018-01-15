@@ -85,7 +85,7 @@ module.exports = class Builder {
     let options = _options || {};
 
     let t = this.t;
-    let expression = path.node.expression;
+    let expression = path.node;
     let callee = expression.callee;
     let args = expression.arguments;
 
