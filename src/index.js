@@ -3,6 +3,14 @@
 const Macros = require('./lib/utils/macros');
 const normalizeOptions = require('./lib/utils/normalize-options').normalizeOptions;
 
+const updateCallExpression = {
+  CallExpression(path) {
+    if (this.parent.node === path.parent) {
+      this.plugin.macroBuilder.build(path, path.node);
+    }
+  }
+};
+
 function macros(babel) {
   const t = babel.types;
 
@@ -45,8 +53,16 @@ function macros(babel) {
         }
       },
 
-      CallExpression(path) {
-        this.macroBuilder.build(path);
+      ExpressionStatement(path) {
+        this.macroBuilder.build(path, path.node.expression);
+      },
+
+      ArrowFunctionExpression(path) {
+        path.traverse(updateCallExpression, { parent: path, plugin: this });
+      },
+
+      ReturnStatement(path) {
+        path.traverse(updateCallExpression, { parent: path, plugin: this });
       }
     }
   };
