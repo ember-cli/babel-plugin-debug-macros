@@ -67,6 +67,50 @@ describe('Debug Macros', function(){
   h.generateTest('log-expansion');
 });
 
+describe('Debug Macros with return statement', function(){
+  let h = transformTestHelper({
+    presets,
+    plugins: [
+      [DebugToolsPlugin, {
+        debugTools: {
+          source: '@ember/debug-tools',
+          assertPredicateIndex: 0
+        },
+        envFlags: {
+          source: '@ember/env-flags',
+          flags: {
+            DEBUG: true
+          }
+        }
+      }]
+    ]
+  });
+
+  h.generateTest('debug-expansion-return');
+});
+
+describe('Debug Macros with arrow expression', function(){
+  let h = transformTestHelper({
+    presets,
+    plugins: [
+      [DebugToolsPlugin, {
+        debugTools: {
+          source: '@ember/debug-tools',
+          assertPredicateIndex: 0
+        },
+        envFlags: {
+          source: '@ember/env-flags',
+          flags: {
+            DEBUG: true
+          }
+        }
+      }]
+    ]
+  });
+
+  h.generateTest('debug-expansion-arrow');
+});
+
 describe('foreign debug imports', function() {
   let h = transformTestHelper({
     presets,

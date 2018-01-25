@@ -26,7 +26,7 @@ module.exports = class Builder {
    *
    * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
-  assert(path) {
+  assert(path, expression) {
     let predicate;
     if (this.assertPredicateIndex !== undefined) {
       predicate = (expression, args) => {
@@ -34,7 +34,7 @@ module.exports = class Builder {
       };
     }
 
-    this._createMacroExpression(path, {
+    this._createMacroExpression(path, expression, {
       predicate
     });
   }
@@ -56,8 +56,8 @@ module.exports = class Builder {
    *
    * ($DEBUG && $GLOBAL_NS.warn($MESSAGE));
    */
-  warn(path) {
-    this._createMacroExpression(path);
+  warn(path, expression) {
+    this._createMacroExpression(path, expression);
   }
 
   /**
@@ -77,15 +77,14 @@ module.exports = class Builder {
    *
    * ($DEBUG && $GLOBAL_NS.log($MESSAGE));
    */
-  log(path) {
-    this._createMacroExpression(path);
+  log(path, expression) {
+    this._createMacroExpression(path, expression);
   }
 
-  _createMacroExpression(path, _options) {
+  _createMacroExpression(path, expression, _options) {
     let options = _options || {};
 
     let t = this.t;
-    let expression = path.node.expression;
     let callee = expression.callee;
     let args = expression.arguments;
 
@@ -141,8 +140,8 @@ module.exports = class Builder {
    *
    * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    */
-  deprecate(path) {
-    this._createMacroExpression(path, {
+  deprecate(path, expression) {
+    this._createMacroExpression(path, expression, {
       predicate: (expression, args) => args[1],
 
       buildConsoleAPI: (expression, args) => {
