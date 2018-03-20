@@ -1,5 +1,4 @@
 import { warn, assert, deprecate } from '@ember/debug-tools';
-
 (true && warn('This is a warning'));
 (true && assert('Hahahaha', false));
 (true && !(true) && deprecate('This thing is donzo', true, {

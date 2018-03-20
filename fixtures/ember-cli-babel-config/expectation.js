@@ -1,5 +1,3 @@
-
-
 if (true) {
   doStuff();
 }

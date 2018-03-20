@@ -33,14 +33,15 @@ module.exports = class Macros {
   expand(path) {
     let debugBinding = path.scope.getBinding(DEBUG);
 
-    if (this._hasDebugModule(debugBinding)) {
-      debugBinding.path.parentPath.remove();
-    }
-
     this._inlineFeatureFlags(path);
     this._inlineSvelteFlags(path);
     this._inlineEnvFlags(path)
     this.builder.expandMacros(this.envFlags.DEBUG);
+
+    if (this._hasDebugModule(debugBinding)) {
+      debugBinding.path.parentPath.remove();
+    }
+
     this._cleanImports(path);
   }
 

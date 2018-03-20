@@ -1,13 +1,14 @@
 'use strict';
 
 const DebugToolsPlugin = require('../index');
-const transform = require('babel-core').transform;
+const transform = require('@babel/core').transform;
 const fs = require('fs');
 
-const presets = [["latest", {
-  "es2015": false,
-  "es2016": false,
-  "es2017": false
+const presets = [["@babel/preset-env", {
+  "targets": {
+    "browsers": ["> 5%"],
+  },
+  "modules": false
 }]];
 
 describe('Feature Flags', function() {

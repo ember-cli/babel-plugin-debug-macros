@@ -1,4 +1,3 @@
-
 import bar from 'something';
 
 if (bar()) {
