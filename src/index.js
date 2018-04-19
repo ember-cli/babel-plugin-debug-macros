@@ -1,7 +1,7 @@
 'use strict';
 
-const Macros = require('./lib/utils/macros');
-const normalizeOptions = require('./lib/utils/normalize-options').normalizeOptions;
+const Macros = require('./utils/macros');
+const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
 
 function macros(babel) {
   const t = babel.types;

@@ -1,6 +1,6 @@
 'use strict';
 
-const DebugToolsPlugin = require('../index');
+const DebugToolsPlugin = require('..');
 const fs = require('fs');
 
 function createTests(options) {
