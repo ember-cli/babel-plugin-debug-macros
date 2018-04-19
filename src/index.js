@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const Macros = require('./utils/macros');
 const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
 
@@ -53,7 +54,7 @@ function macros(babel) {
 }
 
 macros.baseDir = function() {
-  return dirname(__dirname);
+  return path.dirname(__dirname);
 }
 
 module.exports = macros;
