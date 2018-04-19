@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@babel/core": "7.0.0-beta.42",
-    "@babel/preset-env": "7.0.0-beta.42",
+    "@babel/core": "^7.0.0-beta.42",
+    "@babel/preset-env": "^7.0.0-beta.42",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "jest": "^21.0.0"
@@ -28,14 +28,14 @@
   "contributors": [
     "Chad Hietala <chadhietala@gmail.com>",
     "Kris Selden <kris.selden@gmail.com>",
-    "Robert Jackson <rwjblue@gmail.com>"
+    "Robert Jackson <me@rwjblue.com>"
   ],
   "license": "MIT",
   "dependencies": {
     "semver": "^5.3.0"
   },
   "peerDependencies": {
-    "@babel/core": "7.0.0-beta.42"
+    "@babel/core": "^7.0.0-beta.42"
   },
   "jest": {
     "testMatch": [
