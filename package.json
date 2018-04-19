@@ -7,7 +7,7 @@
     "jest": "^21.0.0"
   },
   "name": "babel-plugin-debug-macros",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "description": "Debug macros and feature flag stripping",
   "main": "src/index.js",
   "files": [
