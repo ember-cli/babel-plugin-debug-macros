@@ -15,10 +15,10 @@ function normalizeOptions(options) {
   let hasSvelteBuild = false;
 
   if (!Array.isArray(features)) {
-    features = [features]
+    features = [features];
   }
 
-  features = features.map((feature) => {
+  features = features.map(feature => {
     let featuresSource = feature.source;
     featureSources.push(featuresSource);
     let name = feature.name;
@@ -27,12 +27,15 @@ function normalizeOptions(options) {
     featuresMap[featuresSource] = {};
     svelteMap[featuresSource] = {};
 
-    Object.keys(feature.flags).forEach((flagName) => {
+    Object.keys(feature.flags).forEach(flagName => {
       let value = feature.flags[flagName];
 
       if (svelte !== undefined && typeof value === 'string' && svelte[name]) {
         hasSvelteBuild = true;
-        flags[flagName] = svelteMap[featuresSource][flagName] = satisfies(value, `>=${svelte[name]}`);
+        flags[flagName] = svelteMap[featuresSource][flagName] = satisfies(
+          value,
+          `>=${svelte[name]}`
+        );
       } else if (typeof value === 'boolean' || value === null) {
         flags[flagName] = featuresMap[featuresSource][flagName] = value;
       } else {
@@ -43,10 +46,9 @@ function normalizeOptions(options) {
     return {
       name,
       source: feature.source,
-      flags
-    }
+      flags,
+    };
   });
-
 
   if (!debugTools) {
     throw new Error('You must specify `debugTools.source`');
@@ -64,7 +66,7 @@ function normalizeOptions(options) {
       _envFlags = envFlags.flags;
     }
   } else {
-    throw new Error('You must specify envFlags.flags.DEBUG at minimum.')
+    throw new Error('You must specify envFlags.flags.DEBUG at minimum.');
   }
 
   return {
@@ -77,12 +79,12 @@ function normalizeOptions(options) {
     svelte,
     envFlags: {
       envFlagsImport,
-      flags: _envFlags
+      flags: _envFlags,
     },
     debugTools: {
       debugToolsImport,
-      assertPredicateIndex
-    }
+      assertPredicateIndex,
+    },
   };
 }
 
