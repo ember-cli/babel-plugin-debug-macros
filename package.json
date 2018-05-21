@@ -4,7 +4,12 @@
     "@babel/preset-env": "^7.0.0-beta.42",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "jest": "^21.0.0"
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-prettier": "^2.6.0",
+    "jest": "^21.0.0",
+    "prettier": "^1.12.1"
   },
   "name": "babel-plugin-debug-macros",
   "version": "0.2.0-beta.2",
@@ -41,5 +46,8 @@
     "testMatch": [
       "<rootDir>/tests/**/*-test.js"
     ]
+  },
+  "engines": {
+    "node": ">=4"
   }
 }

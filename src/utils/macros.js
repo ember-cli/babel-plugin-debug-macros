@@ -22,7 +22,7 @@ module.exports = class Macros {
     this.builder = new Builder(t, {
       module: this.debugHelpers.module,
       global: this.debugHelpers.global,
-      assertPredicateIndex: options.debugTools.assertPredicateIndex
+      assertPredicateIndex: options.debugTools.assertPredicateIndex,
     });
   }
 
@@ -35,7 +35,7 @@ module.exports = class Macros {
 
     this._inlineFeatureFlags(path);
     this._inlineSvelteFlags(path);
-    this._inlineEnvFlags(path)
+    this._inlineEnvFlags(path);
     this.builder.expandMacros(this.envFlags.DEBUG);
 
     if (this._hasDebugModule(debugBinding)) {
@@ -48,9 +48,11 @@ module.exports = class Macros {
   _inlineFeatureFlags(path) {
     let featuresMap = this.featuresMap;
 
-    if (this.envFlags.DEBUG) { return; }
-    Object.keys(featuresMap).forEach((source) => {
-      Object.keys(featuresMap[source]).forEach((flag) => {
+    if (this.envFlags.DEBUG) {
+      return;
+    }
+    Object.keys(featuresMap).forEach(source => {
+      Object.keys(featuresMap[source]).forEach(flag => {
         let flagValue = featuresMap[source][flag];
         let binding = path.scope.getBinding(flag);
 
@@ -71,13 +73,16 @@ module.exports = class Macros {
     let envFlags = this.envFlags;
 
     Object.keys(envFlags).forEach(flag => {
-       let binding = path.scope.getBinding(flag);
-       if (binding &&
-          binding.path.isImportSpecifier() &&
-          binding.path.parent.source.value === this.envFlagsSource) {
-
-         binding.referencePaths.forEach(p => p.replaceWith(this.builder.t.booleanLiteral(envFlags[flag])));
-       }
+      let binding = path.scope.getBinding(flag);
+      if (
+        binding &&
+        binding.path.isImportSpecifier() &&
+        binding.path.parent.source.value === this.envFlagsSource
+      ) {
+        binding.referencePaths.forEach(p =>
+          p.replaceWith(this.builder.t.booleanLiteral(envFlags[flag]))
+        );
+      }
     });
   }
 
@@ -87,19 +92,28 @@ module.exports = class Macros {
     let builder = this.builder;
 
     let sources = Object.keys(svelteMap);
-    sources.forEach((source) => {
-      Object.keys(svelteMap[source]).forEach((flag) => {
+    sources.forEach(source => {
+      Object.keys(svelteMap[source]).forEach(flag => {
         let binding = path.scope.getBinding(flag);
         if (binding !== undefined) {
-          binding.referencePaths.forEach((p) => {
+          binding.referencePaths.forEach(p => {
             let t = builder.t;
             if (envFlags.DEBUG) {
               if (svelteMap[source][flag] === false) {
-                if (!p.parentPath.isIfStatement()) { return; }
+                if (!p.parentPath.isIfStatement()) {
+                  return;
+                }
                 let consequent = p.parentPath.get('consequent');
-                consequent.unshiftContainer('body', t.throwStatement(
-                  t.newExpression(t.identifier('Error'), [t.stringLiteral(`You indicated you don't have any deprecations, however you are relying on ${flag}.`)])
-                ));
+                consequent.unshiftContainer(
+                  'body',
+                  t.throwStatement(
+                    t.newExpression(t.identifier('Error'), [
+                      t.stringLiteral(
+                        `You indicated you don't have any deprecations, however you are relying on ${flag}.`
+                      ),
+                    ])
+                  )
+                );
               }
             } else {
               if (p.parentPath.isIfStatement()) {
@@ -135,14 +149,17 @@ module.exports = class Macros {
   build(path) {
     let expression = path.node.expression;
 
-    if (this.builder.t.isCallExpression(expression) && this.localDebugBindings.some((b) => b.node.name === expression.callee.name)) {
+    if (
+      this.builder.t.isCallExpression(expression) &&
+      this.localDebugBindings.some(b => b.node.name === expression.callee.name)
+    ) {
       let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
     }
   }
 
   _collectImportBindings(specifiers, buffer) {
-    specifiers.forEach((specifier) => {
+    specifiers.forEach(specifier => {
       if (specifier.node.imported && SUPPORTED_MACROS.indexOf(specifier.node.imported.name) > -1) {
         buffer.push(specifier.get('local'));
       }
@@ -156,9 +173,11 @@ module.exports = class Macros {
   }
 
   _detectForeignFeatureFlag(specifiers, source) {
-    specifiers.forEach((specifier) => {
+    specifiers.forEach(specifier => {
       if (specifier.imported && this.featuresMap[source][specifier.imported.name] !== null) {
-        throw new Error(`Imported ${specifier.imported.name} from ${source} which is not a supported flag.`);
+        throw new Error(
+          `Imported ${specifier.imported.name} from ${source} which is not a supported flag.`
+        );
       }
     });
   }
@@ -186,16 +205,16 @@ module.exports = class Macros {
 
     if (!this.debugHelpers.module) {
       if (this.localDebugBindings.length > 0) {
-        this.localDebugBindings[0].parentPath.parentPath
+        this.localDebugBindings[0].parentPath.parentPath;
         let importPath = this.localDebugBindings[0].findParent(p => p.isImportDeclaration());
         let specifiers = importPath.get('specifiers');
 
         if (specifiers.length === this.localDebugBindings.length) {
           this.localDebugBindings[0].parentPath.parentPath.remove();
         } else {
-          this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
+          this.localDebugBindings.forEach(binding => binding.parentPath.remove());
         }
       }
     }
   }
-}
+};

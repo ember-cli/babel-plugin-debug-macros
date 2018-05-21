@@ -35,7 +35,7 @@ module.exports = class Builder {
     }
 
     this._createMacroExpression(path, {
-      predicate
+      predicate,
     });
   }
 
@@ -104,7 +104,6 @@ module.exports = class Builder {
       callExpression = this._createConsoleAPI(options.consoleAPI || callee, args);
     }
 
-    let identifiers = this._getIdentifiers(args);
     let prefixedIdentifiers = [];
 
     if (options.predicate) {
@@ -113,7 +112,10 @@ module.exports = class Builder {
       prefixedIdentifiers.push(negatedPredicate);
     }
 
-    this.expressions.push([path, this._buildLogicalExpressions(prefixedIdentifiers, callExpression)]);
+    this.expressions.push([
+      path,
+      this._buildLogicalExpressions(prefixedIdentifiers, callExpression),
+    ]);
   }
 
   /**
@@ -154,14 +156,14 @@ module.exports = class Builder {
       validate: (expression, args) => {
         let meta = args[2];
 
-        if (meta && meta.properties && !meta.properties.some( prop =>  prop.key.name === 'id')) {
+        if (meta && meta.properties && !meta.properties.some(prop => prop.key.name === 'id')) {
           throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
         }
 
-        if (meta && meta.properties && !meta.properties.some(prop =>  prop.key.name === 'until')) {
+        if (meta && meta.properties && !meta.properties.some(prop => prop.key.name === 'until')) {
           throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
         }
-      }
+      },
     });
   }
 
@@ -180,7 +182,7 @@ module.exports = class Builder {
   }
 
   _getIdentifiers(args) {
-    return args.filter((arg) => this.t.isIdentifier(arg));
+    return args.filter(arg => this.t.isIdentifier(arg));
   }
 
   _createGlobalExternalHelper(identifier, args, ns) {
@@ -196,22 +198,22 @@ module.exports = class Builder {
   _buildLogicalExpressions(identifiers, callExpression) {
     let t = this.t;
 
-    return (debugIdentifier) => {
+    return debugIdentifier => {
       identifiers.unshift(debugIdentifier);
       identifiers.push(callExpression);
       let logicalExpressions;
 
-        for (let i = 0; i < identifiers.length; i++) {
-          let left = identifiers[i];
-          let right = identifiers[i + 1];
-          if (!logicalExpressions) {
-            logicalExpressions = t.logicalExpression('&&', left, right);
-          } else if (right) {
-            logicalExpressions = t.logicalExpression('&&', logicalExpressions, right)
-          }
+      for (let i = 0; i < identifiers.length; i++) {
+        let left = identifiers[i];
+        let right = identifiers[i + 1];
+        if (!logicalExpressions) {
+          logicalExpressions = t.logicalExpression('&&', left, right);
+        } else if (right) {
+          logicalExpressions = t.logicalExpression('&&', logicalExpressions, right);
         }
+      }
 
       return logicalExpressions;
-    }
+    };
   }
-}
+};
