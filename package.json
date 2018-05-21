@@ -46,5 +46,8 @@
     "testMatch": [
       "<rootDir>/tests/**/*-test.js"
     ]
+  },
+  "engines": {
+    "node": ">=4"
   }
 }
