@@ -8,4 +8,5 @@ node_js:
 cache: yarn
 
 script:
+  - yarn eslint .
   - yarn test --coverage
