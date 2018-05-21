@@ -104,7 +104,6 @@ module.exports = class Builder {
       callExpression = this._createConsoleAPI(options.consoleAPI || callee, args);
     }
 
-    let identifiers = this._getIdentifiers(args);
     let prefixedIdentifiers = [];
 
     if (options.predicate) {

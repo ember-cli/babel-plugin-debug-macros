@@ -7,7 +7,6 @@ const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
 function macros(babel) {
   const t = babel.types;
 
-  let macroBuilder;
   let options;
 
   return {
@@ -24,11 +23,8 @@ function macros(babel) {
             if (item.isImportDeclaration()) {
               let importPath = item.node.source.value;
 
-              let featureSources = options.featureSources;
               let debugToolsImport = options.debugTools.debugToolsImport;
               let envFlagsImport = options.envFlags.envFlagsImport;
-
-              let isFeaturesImport = featureSources.indexOf(importPath) > -1;
 
               if (debugToolsImport && debugToolsImport === importPath) {
                 this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));

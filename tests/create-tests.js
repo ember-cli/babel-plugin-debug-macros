@@ -117,7 +117,7 @@ function createTests(options) {
                     let references = binding.referencePaths;
 
                     let replacements = [];
-                    for (let reference of references) {
+                    references.forEach(() => {
                       replacements.push(
                         t.variableDeclaration('var', [
                           t.variableDeclarator(
@@ -126,7 +126,7 @@ function createTests(options) {
                           ),
                         ])
                       );
-                    }
+                    });
 
                     path.remove();
                     importDeclarationPath.insertAfter(replacements);
