@@ -1,6 +1,8 @@
 export let PartialComponentManager;
 
-if (false) {
+if (false
+/* DEPRECATED_PARTIALS */
+) {
   PartialComponentManager = class {
     constructor() {
       this.isDone = true;
@@ -9,13 +11,17 @@ if (false) {
   };
 }
 
-if (false && someOtherThing()) {
+if (false
+/* DEPRECATED_PARTIALS */
+&& someOtherThing()) {
   doStuff();
 }
 
 export let ObjectController;
 
-if (true) {
+if (true
+/* DEPRECATED_CONTROLLERS */
+) {
   ObjectController = class {
     constructor() {
       this.isDoneAsWell = true;

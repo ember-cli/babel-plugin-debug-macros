@@ -6,7 +6,8 @@ const DEBUG = 'DEBUG';
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 
 module.exports = class Macros {
-  constructor(t, options) {
+  constructor(babel, options) {
+    this.babel = babel;
     this.localDebugBindings = [];
     this.envFlagBindings = [];
     this.hasEnvFlags = false;
@@ -19,7 +20,7 @@ module.exports = class Macros {
     this.svelteVersions = options.svelte;
     this.featureFlags = options.features || [];
     this.debugHelpers = options.externalizeHelpers || {};
-    this.builder = new Builder(t, {
+    this.builder = new Builder(babel.types, {
       module: this.debugHelpers.module,
       global: this.debugHelpers.global,
       assertPredicateIndex: options.debugTools.assertPredicateIndex,
@@ -88,43 +89,42 @@ module.exports = class Macros {
 
   _inlineSvelteFlags(path) {
     let svelteMap = this.svelteMap;
-    let envFlags = this.envFlags;
-    let builder = this.builder;
+    let t = this.babel.types;
+
+    function buildIdentifier(value, name) {
+      let replacement = t.booleanLiteral(value);
+
+      // when we only support babel@7 we should change this
+      // to `path.addComment` or `t.addComment`
+      let comment = {
+        type: 'CommentBlock',
+        value: ` ${name} `,
+        leading: false,
+        trailing: true,
+      };
+      replacement.trailingComments = [comment];
+
+      return replacement;
+    }
 
     let sources = Object.keys(svelteMap);
     sources.forEach(source => {
-      Object.keys(svelteMap[source]).forEach(flag => {
+      let flagsForSource = svelteMap[source];
+
+      for (let flag in flagsForSource) {
+        let flagValue = flagsForSource[flag];
+
         let binding = path.scope.getBinding(flag);
         if (binding !== undefined) {
           binding.referencePaths.forEach(p => {
-            let t = builder.t;
-            // in debug builds add an error after a conditional (to ensure if the
-            // specific branch is taken, an error is thrown)
-            if (envFlags.DEBUG && svelteMap[source][flag] === false) {
-              let parentIfStatement = p.find(p => p.isIfStatement());
-              if (parentIfStatement) {
-                let consequent = parentIfStatement.get('consequent');
-                consequent.unshiftContainer(
-                  'body',
-                  t.throwStatement(
-                    t.newExpression(t.identifier('Error'), [
-                      t.stringLiteral(
-                        `You indicated you don't have any deprecations, however you are relying on ${flag}.`
-                      ),
-                    ])
-                  )
-                );
-              }
-            } else if (envFlags.DEBUG === false) {
-              p.replaceWith(t.booleanLiteral(svelteMap[source][flag]));
-            }
+            let replacement = buildIdentifier(flagValue, flag);
+
+            p.replaceWith(replacement);
           });
 
-          if (!envFlags.DEBUG && binding) {
-            binding.path.remove();
-          }
+          binding.path.remove();
         }
-      });
+      }
     });
   }
 
@@ -183,19 +183,17 @@ module.exports = class Macros {
   _cleanImports(path) {
     let body = path.get('body');
 
-    if (!this.envFlags.DEBUG) {
-      for (let i = 0; i < body.length; i++) {
-        let decl = body[i];
+    for (let i = 0; i < body.length; i++) {
+      let decl = body[i];
 
-        if (this.builder.t.isImportDeclaration(decl)) {
-          let source = decl.node.source.value;
-          if (this.featureSources.indexOf(source) > -1) {
-            if (decl.node.specifiers.length > 0) {
-              this._detectForeignFeatureFlag(decl.node.specifiers, source);
-            } else {
-              decl.remove();
-              break;
-            }
+      if (this.builder.t.isImportDeclaration(decl)) {
+        let source = decl.node.source.value;
+        if (this.featureSources.indexOf(source) > -1) {
+          if (decl.node.specifiers.length > 0) {
+            this._detectForeignFeatureFlag(decl.node.specifiers, source);
+          } else {
+            decl.remove();
+            break;
           }
         }
       }

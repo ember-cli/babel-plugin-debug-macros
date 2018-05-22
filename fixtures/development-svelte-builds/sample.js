@@ -13,6 +13,14 @@ if (DEPRECATED_PARTIALS && someOtherThing()) {
   doStuff();
 }
 
+if (!DEPRECATED_PARTIALS && someOtherThing()) {
+  doStuff2();
+}
+
+if (DEPRECATED_PARTIALS === false && someOtherThing()) {
+  doStuff3();
+}
+
 export let ObjectController;
 if (DEPRECATED_CONTROLLERS) {
   ObjectController = class {
