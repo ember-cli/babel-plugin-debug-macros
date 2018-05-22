@@ -101,8 +101,9 @@ module.exports = class Macros {
             // in debug builds add an error after a conditional (to ensure if the
             // specific branch is taken, an error is thrown)
             if (envFlags.DEBUG && svelteMap[source][flag] === false) {
-              if (p.parentPath.isIfStatement()) {
-                let consequent = p.parentPath.get('consequent');
+              let parentIfStatement = p.find(p => p.isIfStatement());
+              if (parentIfStatement) {
+                let consequent = parentIfStatement.get('consequent');
                 consequent.unshiftContainer(
                   'body',
                   t.throwStatement(

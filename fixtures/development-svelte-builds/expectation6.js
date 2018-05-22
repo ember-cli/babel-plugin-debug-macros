@@ -12,6 +12,8 @@ if (DEPRECATED_PARTIALS) {
 }
 
 if (DEPRECATED_PARTIALS && someOtherThing()) {
+  throw new Error('You indicated you don\'t have any deprecations, however you are relying on DEPRECATED_PARTIALS.');
+
   doStuff();
 }
 
