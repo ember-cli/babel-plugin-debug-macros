@@ -9,6 +9,10 @@ if (false) {
   };
 }
 
+if (false && someOtherThing()) {
+  doStuff();
+}
+
 export let ObjectController;
 
 if (true) {
