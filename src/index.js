@@ -5,8 +5,6 @@ const Macros = require('./utils/macros');
 const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
 
 function macros(babel) {
-  const t = babel.types;
-
   let options;
 
   return {
@@ -15,7 +13,7 @@ function macros(babel) {
       Program: {
         enter(path, state) {
           options = normalizeOptions(state.opts);
-          this.macroBuilder = new Macros(t, options);
+          this.macroBuilder = new Macros(babel, options);
 
           let body = path.get('body');
 
