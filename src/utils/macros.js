@@ -98,11 +98,10 @@ module.exports = class Macros {
         if (binding !== undefined) {
           binding.referencePaths.forEach(p => {
             let t = builder.t;
-            if (envFlags.DEBUG) {
-              if (svelteMap[source][flag] === false) {
-                if (!p.parentPath.isIfStatement()) {
-                  return;
-                }
+            // in debug builds add an error after a conditional (to ensure if the
+            // specific branch is taken, an error is thrown)
+            if (envFlags.DEBUG && svelteMap[source][flag] === false) {
+              if (p.parentPath.isIfStatement()) {
                 let consequent = p.parentPath.get('consequent');
                 consequent.unshiftContainer(
                   'body',
@@ -115,10 +114,8 @@ module.exports = class Macros {
                   )
                 );
               }
-            } else {
-              if (p.parentPath.isIfStatement()) {
-                p.replaceWith(t.booleanLiteral(svelteMap[source][flag]));
-              }
+            } else if (envFlags.DEBUG === false) {
+              p.replaceWith(t.booleanLiteral(svelteMap[source][flag]));
             }
           });
 
