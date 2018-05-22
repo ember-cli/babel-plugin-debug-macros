@@ -1,6 +1,6 @@
 'use strict';
 
-const gte = require('semver').gte;
+const gt = require('semver').gt;
 
 function normalizeOptions(options) {
   let features = options.features || [];
@@ -32,7 +32,7 @@ function normalizeOptions(options) {
 
       if (svelte !== undefined && typeof value === 'string' && svelte[name]) {
         hasSvelteBuild = true;
-        flags[flagName] = svelteMap[featuresSource][flagName] = gte(value, svelte[name]);
+        flags[flagName] = svelteMap[featuresSource][flagName] = gt(value, svelte[name]);
       } else if (typeof value === 'boolean' || value === null) {
         flags[flagName] = featuresMap[featuresSource][flagName] = value;
       } else {
