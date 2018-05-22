@@ -172,7 +172,13 @@ module.exports = class Macros {
 
   _detectForeignFeatureFlag(specifiers, source) {
     specifiers.forEach(specifier => {
-      if (specifier.imported && this.featuresMap[source][specifier.imported.name] !== null) {
+      if (!specifier.imported) {
+        return;
+      }
+
+      let isKnownFeature = specifier.imported.name in this.featuresMap[source];
+
+      if (!isKnownFeature) {
         throw new Error(
           `Imported ${specifier.imported.name} from ${source} which is not a supported flag.`
         );
