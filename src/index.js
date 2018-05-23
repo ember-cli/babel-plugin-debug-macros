@@ -5,11 +5,69 @@ const Macros = require('./utils/macros');
 const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
 
 function macros(babel) {
+  let t = babel.types;
   let options;
+
+  function buildIdentifier(value, name) {
+    let replacement = t.booleanLiteral(value);
+
+    // when we only support babel@7 we should change this
+    // to `path.addComment` or `t.addComment`
+    let comment = {
+      type: 'CommentBlock',
+      value: ` ${name} `,
+      leading: false,
+      trailing: true,
+    };
+    replacement.trailingComments = [comment];
+
+    return replacement;
+  }
 
   return {
     name: 'babel-feature-flags-and-debug-macros',
     visitor: {
+      ImportSpecifier(path) {
+        let importPath = path.parent.source.value;
+        let flagsForImport = options.flags[importPath];
+
+        if (flagsForImport) {
+          let flagName = path.node.imported.name;
+          let localBindingName = path.node.local.name;
+
+          if (!(flagName in flagsForImport)) {
+            throw new Error(
+              `Imported ${flagName} from ${importPath} which is not a supported flag.`
+            );
+          }
+
+          let flagValue = flagsForImport[flagName];
+          if (flagValue === null) {
+            return;
+          }
+
+          let binding = path.scope.getBinding(localBindingName);
+
+          binding.referencePaths.forEach(p => {
+            p.replaceWith(buildIdentifier(flagValue, flagName));
+          });
+
+          path.remove();
+        }
+      },
+
+      ImportDeclaration: {
+        exit(path) {
+          let importPath = path.node.source.value;
+          let flagsForImport = options.flags[importPath];
+
+          // remove flag source imports when no specifiers are left
+          if (flagsForImport && path.get('specifiers').length === 0) {
+            path.remove();
+          }
+        },
+      },
+
       Program: {
         enter(path, state) {
           options = normalizeOptions(state.opts);
@@ -25,10 +83,6 @@ function macros(babel) {
 
               if (debugToolsImport && debugToolsImport === importPath) {
                 this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
-              }
-
-              if (importPath in options.flags) {
-                this.macroBuilder.collectFlagSpecifiers(item.get('specifiers'));
               }
             }
           });
