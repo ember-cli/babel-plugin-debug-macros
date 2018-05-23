@@ -2,23 +2,15 @@
 
 const Builder = require('./builder');
 
-const DEBUG = 'DEBUG';
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 
 module.exports = class Macros {
   constructor(babel, options) {
     this.babel = babel;
     this.localDebugBindings = [];
-    this.envFlagBindings = [];
-    this.hasEnvFlags = false;
-    this.envFlagsSource = options.envFlags.envFlagsImport;
-    this.importedDebugTools = false;
-    this.envFlags = options.envFlags.flags;
-    this.featureSources = options.featureSources;
-    this.featuresMap = options.featuresMap;
-    this.svelteMap = options.svelteMap;
-    this.svelteVersions = options.svelte;
-    this.featureFlags = options.features || [];
+    this.flagBindings = [];
+    this.flags = options.flags;
+
     this.debugHelpers = options.externalizeHelpers || {};
     this.builder = new Builder(babel.types, {
       module: this.debugHelpers.module,
@@ -32,63 +24,12 @@ module.exports = class Macros {
    * adds the debug binding if missing from the env-flags module.
    */
   expand(path) {
-    let debugBinding = path.scope.getBinding(DEBUG);
-
-    this._inlineFeatureFlags(path);
-    this._inlineSvelteFlags(path);
-    this._inlineEnvFlags(path);
-    this.builder.expandMacros(this.envFlags.DEBUG);
-
-    if (this._hasDebugModule(debugBinding)) {
-      debugBinding.path.parentPath.remove();
-    }
-
+    this._inlineFlags(path);
+    //this.builder.expandMacros(this.envFlags.DEBUG);
     this._cleanImports(path);
   }
 
-  _inlineFeatureFlags(path) {
-    let featuresMap = this.featuresMap;
-
-    if (this.envFlags.DEBUG) {
-      return;
-    }
-    Object.keys(featuresMap).forEach(source => {
-      Object.keys(featuresMap[source]).forEach(flag => {
-        let flagValue = featuresMap[source][flag];
-        let binding = path.scope.getBinding(flag);
-
-        if (binding && flagValue !== null) {
-          binding.referencePaths.forEach(referencePath => {
-            referencePath.replaceWith(this.builder.t.booleanLiteral(flagValue));
-          });
-
-          if (binding.path.parentPath.isImportDeclaration()) {
-            binding.path.remove();
-          }
-        }
-      });
-    });
-  }
-
-  _inlineEnvFlags(path) {
-    let envFlags = this.envFlags;
-
-    Object.keys(envFlags).forEach(flag => {
-      let binding = path.scope.getBinding(flag);
-      if (
-        binding &&
-        binding.path.isImportSpecifier() &&
-        binding.path.parent.source.value === this.envFlagsSource
-      ) {
-        binding.referencePaths.forEach(p =>
-          p.replaceWith(this.builder.t.booleanLiteral(envFlags[flag]))
-        );
-      }
-    });
-  }
-
-  _inlineSvelteFlags(path) {
-    let svelteMap = this.svelteMap;
+  _inlineFlags(path) {
     let t = this.babel.types;
 
     function buildIdentifier(value, name) {
@@ -107,9 +48,8 @@ module.exports = class Macros {
       return replacement;
     }
 
-    let sources = Object.keys(svelteMap);
-    sources.forEach(source => {
-      let flagsForSource = svelteMap[source];
+    for (let source in this.flags) {
+      let flagsForSource = this.flags[source];
 
       for (let flag in flagsForSource) {
         let flagValue = flagsForSource[flag];
@@ -125,20 +65,18 @@ module.exports = class Macros {
           binding.path.remove();
         }
       }
-    });
+    }
   }
 
   /**
    * Collects the import bindings for the debug tools.
    */
   collectDebugToolsSpecifiers(specifiers) {
-    this.importedDebugTools = true;
     this._collectImportBindings(specifiers, this.localDebugBindings);
   }
 
-  collectEnvFlagSpecifiers(specifiers) {
-    this.hasEnvFlags = true;
-    this._collectImportBindings(specifiers, this.envFlagBindings);
+  collectFlagSpecifiers(specifiers) {
+    this._collectImportBindings(specifiers, this.flagBindings);
   }
 
   /**
@@ -164,19 +102,13 @@ module.exports = class Macros {
     });
   }
 
-  _hasDebugModule(debugBinding) {
-    let fromModule = debugBinding && debugBinding.kind === 'module';
-    let moduleName = fromModule && debugBinding.path.parent.source.value;
-    return moduleName === this.envFlagsSource;
-  }
-
   _detectForeignFeatureFlag(specifiers, source) {
     specifiers.forEach(specifier => {
       if (!specifier.imported) {
         return;
       }
 
-      let isKnownFeature = specifier.imported.name in this.featuresMap[source];
+      let isKnownFeature = specifier.imported.name in this.flags[source];
 
       if (!isKnownFeature) {
         throw new Error(
@@ -194,7 +126,7 @@ module.exports = class Macros {
 
       if (this.builder.t.isImportDeclaration(decl)) {
         let source = decl.node.source.value;
-        if (this.featureSources.indexOf(source) > -1) {
+        if (this.flags[source]) {
           if (decl.node.specifiers.length > 0) {
             this._detectForeignFeatureFlag(decl.node.specifiers, source);
           } else {

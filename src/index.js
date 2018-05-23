@@ -22,13 +22,13 @@ function macros(babel) {
               let importPath = item.node.source.value;
 
               let debugToolsImport = options.debugTools.debugToolsImport;
-              let envFlagsImport = options.envFlags.envFlagsImport;
 
               if (debugToolsImport && debugToolsImport === importPath) {
                 this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
               }
-              if (envFlagsImport && envFlagsImport === importPath) {
-                this.macroBuilder.collectEnvFlagSpecifiers(item.get('specifiers'));
+
+              if (importPath in options.flags) {
+                this.macroBuilder.collectFlagSpecifiers(item.get('specifiers'));
               }
             }
           });
