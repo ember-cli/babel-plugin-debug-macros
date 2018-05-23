@@ -3,6 +3,44 @@
 const normalizeOptions = require('../src/utils/normalize-options').normalizeOptions;
 
 describe('normalizeOptions', function() {
+  it('converts "old style" options into the newer style (with deprecation)', function() {
+    let actual = normalizeOptions({
+      envFlags: {
+        source: '@ember/env-flags',
+        flags: {
+          DEBUG: false,
+        },
+      },
+      debugTools: {
+        source: '@ember/debug-tools',
+      },
+      features: {
+        name: 'ember-source',
+        source: '@ember/features',
+        flags: {
+          FEATURE_A: true,
+          FEATURE_B: null,
+        },
+      },
+    });
+
+    let expected = {
+      debugTools: { assertPredicateIndex: undefined, debugToolsImport: '@ember/debug-tools' },
+      flags: {
+        '@ember/env-flags': {
+          DEBUG: false,
+        },
+        '@ember/features': {
+          FEATURE_A: true,
+          FEATURE_B: null,
+        },
+      },
+      externalizeHelpers: undefined,
+    };
+
+    expect(actual).toEqual(expected);
+  });
+
   it('sets flag to false when svelte version matches the flag version', function() {
     let actual = normalizeOptions({
       debugTools: {

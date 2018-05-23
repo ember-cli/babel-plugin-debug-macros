@@ -54,6 +54,47 @@ function parseFlags(options) {
     }
   });
 
+  let legacyEnvFlags = options.envFlags;
+  if (legacyEnvFlags) {
+    let source = legacyEnvFlags.source;
+    combinedFlags[source] = combinedFlags[source] || {};
+
+    for (let flagName in legacyEnvFlags.flags) {
+      let flagValue = legacyEnvFlags.flags[flagName];
+      combinedFlags[source][flagName] = evaluateFlagValue(options, null, flagName, flagValue);
+    }
+  }
+
+  let legacyFeatures = options.features;
+  if (legacyFeatures) {
+    if (!Array.isArray(legacyFeatures)) {
+      legacyFeatures = [legacyFeatures];
+    }
+
+    legacyFeatures.forEach(flagsDefinition => {
+      let source = flagsDefinition.source;
+      let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
+
+      for (let flagName in flagsDefinition.flags) {
+        let flagValue = flagsDefinition.flags[flagName];
+
+        flagsForSource[flagName] = evaluateFlagValue(
+          options,
+          flagsDefinition.name,
+          flagName,
+          flagValue
+        );
+      }
+    });
+  }
+
+  if (legacyFeatures || legacyEnvFlags) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'babel-plugin-debug-macros configuration API has changed, please update your configuration'
+    );
+  }
+
   return combinedFlags;
 }
 
