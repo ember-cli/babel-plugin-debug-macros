@@ -36,6 +36,7 @@ function createTests(options) {
               },
             ],
             debugTools: {
+              isDebug: false,
               source: '@ember/debug-tools',
             },
           },
@@ -58,6 +59,7 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
               assertPredicateIndex: 0,
             },
@@ -89,6 +91,7 @@ function createTests(options) {
               global: 'Ember',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
               assertPredicateIndex: 0,
             },
@@ -147,6 +150,7 @@ function createTests(options) {
               global: '__debugHelpers__',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
             flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
@@ -173,6 +177,7 @@ function createTests(options) {
               global: 'Ember',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug',
               assertPredicateIndex: 1,
             },
@@ -201,6 +206,7 @@ function createTests(options) {
               global: 'Ember',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug',
               assertPredicateIndex: 1,
             },
@@ -224,6 +230,7 @@ function createTests(options) {
               module: true,
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
             flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
@@ -243,6 +250,7 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
             flags: [
@@ -285,6 +293,7 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
             flags: [{ source: '@ember/env-flags', flags: { DEBUG: true, TESTING: false } }],
@@ -305,6 +314,7 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
             flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
@@ -325,6 +335,7 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: false,
               source: '@ember/debug-tools',
             },
             flags: [
@@ -353,6 +364,7 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: false,
               source: '@ember/debug-tools',
             },
             flags: [
@@ -392,6 +404,7 @@ function createTests(options) {
               },
             ],
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
           },

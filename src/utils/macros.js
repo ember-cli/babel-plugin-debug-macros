@@ -14,6 +14,7 @@ module.exports = class Macros {
       module: this.debugHelpers.module,
       global: this.debugHelpers.global,
       assertPredicateIndex: options.debugTools.assertPredicateIndex,
+      isDebug: options.debugTools.isDebug,
     });
   }
 
@@ -22,8 +23,7 @@ module.exports = class Macros {
    * adds the debug binding if missing from the env-flags module.
    */
   expand(path) {
-    // TODO: fix determination of "debug" or not
-    this.builder.expandMacros(true);
+    this.builder.expandMacros();
 
     this._cleanImports(path);
   }

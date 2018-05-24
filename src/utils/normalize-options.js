@@ -9,10 +9,20 @@ function parseDebugTools(options) {
     throw new Error('You must specify `debugTools.source`');
   }
 
+  let isDebug = debugTools.isDebug;
   let debugToolsImport = debugTools.source;
   let assertPredicateIndex = debugTools.assertPredicateIndex;
 
+  if (options.envFlags && isDebug === undefined) {
+    isDebug = options.envFlags.flags.DEBUG;
+  }
+
+  if (isDebug === undefined) {
+    throw new Error('You must specify `debugTools.isDebug`');
+  }
+
   return {
+    isDebug,
     debugToolsImport,
     assertPredicateIndex,
   };

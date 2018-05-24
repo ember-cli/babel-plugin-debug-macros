@@ -34,7 +34,11 @@ describe('normalizeOptions', function() {
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: '@ember/debug-tools' },
+      debugTools: {
+        isDebug: false,
+        assertPredicateIndex: undefined,
+        debugToolsImport: '@ember/debug-tools',
+      },
       flags: {
         '@ember/env-flags': {
           DEBUG: false,
@@ -57,6 +61,7 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
+        isDebug: true,
       },
       flags: [
         { name: 'ember-source', source: '@glimmer/env', flags: { DEBUG: true } },
@@ -75,7 +80,7 @@ describe('normalizeOptions', function() {
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
       flags: {
         '@glimmer/env': {
           DEBUG: true,
@@ -99,6 +104,7 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
+        isDebug: true,
       },
       svelte: { foo: '1.2.0' },
       flags: [
@@ -108,7 +114,7 @@ describe('normalizeOptions', function() {
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
       flags: {
         'foo/features': { ABC: false },
         whatever: { DEBUG: true },
@@ -124,6 +130,7 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
+        isDebug: true,
       },
       svelte: { foo: '1.0.0' },
       flags: [
@@ -133,7 +140,7 @@ describe('normalizeOptions', function() {
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
       flags: {
         'foo/features': { ABC: true },
         whatever: { DEBUG: true },
@@ -149,6 +156,7 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
+        isDebug: true,
       },
       svelte: { foo: '1.2.0' },
       flags: [
@@ -158,7 +166,7 @@ describe('normalizeOptions', function() {
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
       flags: {
         'foo/features': { ABC: false },
         whatever: { DEBUG: true },

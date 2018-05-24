@@ -6,6 +6,7 @@ module.exports = class Builder {
     this.module = options.module;
     this.global = options.global;
     this.assertPredicateIndex = options.assertPredicateIndex;
+    this.isDebug = options.isDebug;
     this.expressions = [];
   }
 
@@ -170,9 +171,9 @@ module.exports = class Builder {
   /**
    * Performs the actually expansion of macros
    */
-  expandMacros(debugFlag) {
+  expandMacros() {
     let t = this.t;
-    let flag = t.booleanLiteral(debugFlag);
+    let flag = t.booleanLiteral(this.isDebug);
     for (let i = 0; i < this.expressions.length; i++) {
       let expression = this.expressions[i];
       let exp = expression[0];
