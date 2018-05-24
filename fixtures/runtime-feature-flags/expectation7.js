@@ -1,6 +1,8 @@
 import { FEATURE_B } from '@ember/features';
 
-if (true) {
+if (true
+/* FEATURE_A */
+) {
   console.log('woot');
 }
 

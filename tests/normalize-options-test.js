@@ -3,30 +3,98 @@
 const normalizeOptions = require('../src/utils/normalize-options').normalizeOptions;
 
 describe('normalizeOptions', function() {
+  let originalConsole = Object.assign({}, console);
+
+  afterEach(function() {
+    Object.assign(console, originalConsole);
+  });
+
+  it('converts "old style" options into the newer style (with deprecation)', function() {
+    let warnings = [];
+    console.warn = warning => warnings.push(warning); // eslint-disable-line
+
+    let actual = normalizeOptions({
+      envFlags: {
+        source: '@ember/env-flags',
+        flags: {
+          DEBUG: false,
+        },
+      },
+      debugTools: {
+        source: '@ember/debug-tools',
+      },
+      features: {
+        name: 'ember-source',
+        source: '@ember/features',
+        flags: {
+          FEATURE_A: true,
+          FEATURE_B: null,
+        },
+      },
+    });
+
+    let expected = {
+      debugTools: {
+        isDebug: false,
+        assertPredicateIndex: undefined,
+        debugToolsImport: '@ember/debug-tools',
+      },
+      flags: {
+        '@ember/env-flags': {
+          DEBUG: false,
+        },
+        '@ember/features': {
+          FEATURE_A: true,
+          FEATURE_B: null,
+        },
+      },
+      externalizeHelpers: undefined,
+    };
+
+    expect(actual).toEqual(expected);
+    expect(warnings).toEqual([
+      'babel-plugin-debug-macros configuration API has changed, please update your configuration',
+    ]);
+  });
+
   it('sets flag to false when svelte version matches the flag version', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
+        isDebug: true,
       },
-      envFlags: {
-        flags: {
-          DEBUG: true,
+      flags: [
+        { name: 'ember-source', source: '@glimmer/env', flags: { DEBUG: true } },
+        {
+          name: 'ember-source',
+          source: '@ember/deprecated-features',
+          flags: { PARTIALS: '1.2.0' },
         },
-      },
-      svelte: { foo: '1.2.0' },
-      features: [{ name: 'foo', source: 'foo/features', flags: { ABC: '1.2.0' } }],
+        {
+          name: 'ember-source',
+          source: '@ember/canary-features',
+          flags: { TRACKED: null, GETTERS: true },
+        },
+      ],
+      svelte: { 'ember-source': '1.2.0' },
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
-      envFlags: { envFlagsImport: undefined, flags: { DEBUG: true } },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      flags: {
+        '@glimmer/env': {
+          DEBUG: true,
+        },
+        '@ember/deprecated-features': {
+          PARTIALS: false,
+        },
+        '@ember/canary-features': {
+          TRACKED: null,
+          GETTERS: true,
+        },
+      },
       externalizeHelpers: undefined,
-      featureSources: ['foo/features'],
-      features: [{ flags: { ABC: false }, name: 'foo', source: 'foo/features' }],
-      featuresMap: { 'foo/features': {} },
-      hasSvelteBuild: true,
-      svelte: { foo: '1.2.0' },
-      svelteMap: { 'foo/features': { ABC: false } },
+      svelte: { 'ember-source': '1.2.0' },
     };
 
     expect(actual).toEqual(expected);
@@ -36,26 +104,23 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
-      },
-      envFlags: {
-        flags: {
-          DEBUG: true,
-        },
+        isDebug: true,
       },
       svelte: { foo: '1.2.0' },
-      features: [{ name: 'foo', source: 'foo/features', flags: { ABC: '1.1.0' } }],
+      flags: [
+        { name: 'foo', source: 'foo/features', flags: { ABC: '1.1.0' } },
+        { source: 'whatever', flags: { DEBUG: true } },
+      ],
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
-      envFlags: { envFlagsImport: undefined, flags: { DEBUG: true } },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      flags: {
+        'foo/features': { ABC: false },
+        whatever: { DEBUG: true },
+      },
       externalizeHelpers: undefined,
-      featureSources: ['foo/features'],
-      features: [{ flags: { ABC: false }, name: 'foo', source: 'foo/features' }],
-      featuresMap: { 'foo/features': {} },
-      hasSvelteBuild: true,
       svelte: { foo: '1.2.0' },
-      svelteMap: { 'foo/features': { ABC: false } },
     };
 
     expect(actual).toEqual(expected);
@@ -65,26 +130,23 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
-      },
-      envFlags: {
-        flags: {
-          DEBUG: true,
-        },
+        isDebug: true,
       },
       svelte: { foo: '1.0.0' },
-      features: [{ name: 'foo', source: 'foo/features', flags: { ABC: '1.1.0' } }],
+      flags: [
+        { name: 'foo', source: 'foo/features', flags: { ABC: '1.1.0' } },
+        { source: 'whatever', flags: { DEBUG: true } },
+      ],
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
-      envFlags: { envFlagsImport: undefined, flags: { DEBUG: true } },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      flags: {
+        'foo/features': { ABC: true },
+        whatever: { DEBUG: true },
+      },
       externalizeHelpers: undefined,
-      featureSources: ['foo/features'],
-      features: [{ flags: { ABC: true }, name: 'foo', source: 'foo/features' }],
-      featuresMap: { 'foo/features': {} },
-      hasSvelteBuild: true,
       svelte: { foo: '1.0.0' },
-      svelteMap: { 'foo/features': { ABC: true } },
     };
 
     expect(actual).toEqual(expected);
@@ -94,26 +156,23 @@ describe('normalizeOptions', function() {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
-      },
-      envFlags: {
-        flags: {
-          DEBUG: true,
-        },
+        isDebug: true,
       },
       svelte: { foo: '1.2.0' },
-      features: [{ name: 'foo', source: 'foo/features', flags: { ABC: '1.1.0-beta.1' } }],
+      flags: [
+        { name: 'foo', source: 'foo/features', flags: { ABC: '1.1.0-beta.1' } },
+        { source: 'whatever', flags: { DEBUG: true } },
+      ],
     });
 
     let expected = {
-      debugTools: { assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
-      envFlags: { envFlagsImport: undefined, flags: { DEBUG: true } },
+      debugTools: { isDebug: true, assertPredicateIndex: undefined, debugToolsImport: 'whatever' },
+      flags: {
+        'foo/features': { ABC: false },
+        whatever: { DEBUG: true },
+      },
       externalizeHelpers: undefined,
-      featureSources: ['foo/features'],
-      features: [{ flags: { ABC: false }, name: 'foo', source: 'foo/features' }],
-      featuresMap: { 'foo/features': {} },
-      hasSvelteBuild: true,
       svelte: { foo: '1.2.0' },
-      svelteMap: { 'foo/features': { ABC: false } },
     };
 
     expect(actual).toEqual(expected);

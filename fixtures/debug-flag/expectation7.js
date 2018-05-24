@@ -1,3 +1,5 @@
-if (true) {
+if (true
+/* DEBUG */
+) {
   console.log('woot');
 }

@@ -2,86 +2,126 @@
 
 const gt = require('semver').gt;
 
-function normalizeOptions(options) {
-  let features = options.features || [];
-  let debugTools = options.debugTools;
-  let envFlags = options.envFlags;
-  let externalizeHelpers = options.externalizeHelpers;
-  let svelte = options.svelte;
-
-  let featureSources = [];
-  let featuresMap = {};
-  let svelteMap = {};
-  let hasSvelteBuild = false;
-
-  if (!Array.isArray(features)) {
-    features = [features];
-  }
-
-  features = features.map(feature => {
-    let featuresSource = feature.source;
-    featureSources.push(featuresSource);
-    let name = feature.name;
-
-    let flags = {};
-    featuresMap[featuresSource] = {};
-    svelteMap[featuresSource] = {};
-
-    Object.keys(feature.flags).forEach(flagName => {
-      let value = feature.flags[flagName];
-
-      if (svelte !== undefined && typeof value === 'string' && svelte[name]) {
-        hasSvelteBuild = true;
-        flags[flagName] = svelteMap[featuresSource][flagName] = gt(value, svelte[name]);
-      } else if (typeof value === 'boolean' || value === null) {
-        flags[flagName] = featuresMap[featuresSource][flagName] = value;
-      } else {
-        flags[flagName] = featuresMap[featuresSource][flagName] = true;
-      }
-    });
-
-    return {
-      name,
-      source: feature.source,
-      flags,
-    };
-  });
+function parseDebugTools(options) {
+  let debugTools = options.debugTools || {};
 
   if (!debugTools) {
     throw new Error('You must specify `debugTools.source`');
   }
 
+  let isDebug = debugTools.isDebug;
   let debugToolsImport = debugTools.source;
   let assertPredicateIndex = debugTools.assertPredicateIndex;
 
-  let envFlagsImport;
-  let _envFlags = {};
+  if (options.envFlags && isDebug === undefined) {
+    isDebug = options.envFlags.flags.DEBUG;
+  }
 
-  if (envFlags) {
-    envFlagsImport = envFlags.source;
-    if (envFlags.flags) {
-      _envFlags = envFlags.flags;
-    }
-  } else {
-    throw new Error('You must specify envFlags.flags.DEBUG at minimum.');
+  if (isDebug === undefined) {
+    throw new Error('You must specify `debugTools.isDebug`');
   }
 
   return {
-    featureSources,
+    isDebug,
+    debugToolsImport,
+    assertPredicateIndex,
+  };
+}
+
+function evaluateFlagValue(options, name, flagName, flagValue) {
+  let svelte = options.svelte;
+
+  if (typeof flagValue === 'string') {
+    if (svelte && svelte[name]) {
+      return gt(flagValue, svelte[name]);
+    } else {
+      return null;
+    }
+  } else if (typeof flagValue === 'boolean' || flagValue === null) {
+    return flagValue;
+  } else {
+    throw new Error(`Invalid value specified (${flagValue}) for ${flagName} by ${name}`);
+  }
+}
+
+function parseFlags(options) {
+  let flagsProvided = options.flags || [];
+
+  let combinedFlags = {};
+  flagsProvided.forEach(flagsDefinition => {
+    let source = flagsDefinition.source;
+    let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
+
+    for (let flagName in flagsDefinition.flags) {
+      let flagValue = flagsDefinition.flags[flagName];
+
+      flagsForSource[flagName] = evaluateFlagValue(
+        options,
+        flagsDefinition.name,
+        flagName,
+        flagValue
+      );
+    }
+  });
+
+  let legacyEnvFlags = options.envFlags;
+  if (legacyEnvFlags) {
+    let source = legacyEnvFlags.source;
+    combinedFlags[source] = combinedFlags[source] || {};
+
+    for (let flagName in legacyEnvFlags.flags) {
+      let flagValue = legacyEnvFlags.flags[flagName];
+      combinedFlags[source][flagName] = evaluateFlagValue(options, null, flagName, flagValue);
+    }
+  }
+
+  let legacyFeatures = options.features;
+  if (legacyFeatures) {
+    if (!Array.isArray(legacyFeatures)) {
+      legacyFeatures = [legacyFeatures];
+    }
+
+    legacyFeatures.forEach(flagsDefinition => {
+      let source = flagsDefinition.source;
+      let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
+
+      for (let flagName in flagsDefinition.flags) {
+        let flagValue = flagsDefinition.flags[flagName];
+
+        flagsForSource[flagName] = evaluateFlagValue(
+          options,
+          flagsDefinition.name,
+          flagName,
+          flagValue
+        );
+      }
+    });
+  }
+
+  if (legacyFeatures || legacyEnvFlags) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'babel-plugin-debug-macros configuration API has changed, please update your configuration'
+    );
+  }
+
+  return combinedFlags;
+}
+
+function normalizeOptions(options) {
+  let features = options.features || [];
+  let externalizeHelpers = options.externalizeHelpers;
+  let svelte = options.svelte;
+
+  if (!Array.isArray(features)) {
+    features = [features];
+  }
+
+  return {
     externalizeHelpers,
-    features,
-    featuresMap,
-    svelteMap,
-    hasSvelteBuild,
+    flags: parseFlags(options),
     svelte,
-    envFlags: {
-      envFlagsImport,
-      flags: _envFlags,
-    },
-    debugTools: {
-      debugToolsImport,
-      assertPredicateIndex,
-    },
+    debugTools: parseDebugTools(options),
   };
 }
 

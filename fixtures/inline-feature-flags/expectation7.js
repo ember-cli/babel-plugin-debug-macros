@@ -1,17 +1,27 @@
 let a;
 
-if (false) {
+if (false
+/* FEATURE_A */
+) {
   a = () => console.log('hello');
-} else if (true) {
+} else if (true
+/* FEATURE_B */
+) {
   a = () => console.log('bye');
 }
 
-if (!false) {
+if (!false
+/* FEATURE_A */
+) {
   console.log('stuff');
 }
 
-a = false ? 'hello' : 'bye';
+a = false
+/* FEATURE_A */
+? 'hello' : 'bye';
 
-if (false && window.foo && window.bar) {
+if (false
+/* FEATURE_A */
+&& window.foo && window.bar) {
   console.log('wheeee');
 }

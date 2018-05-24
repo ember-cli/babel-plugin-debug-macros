@@ -2,11 +2,16 @@
 
 const DebugToolsPlugin = require('..');
 const fs = require('fs');
+const CONSOLE = Object.assign({}, console);
 
 function createTests(options) {
   const babelVersion = options.babelVersion;
   const presets = options.presets;
   const transform = options.transform;
+
+  afterEach(function() {
+    Object.assign(console, CONSOLE);
+  });
 
   describe('Feature Flags', function() {
     const h = transformTestHelper({
@@ -15,18 +20,14 @@ function createTests(options) {
         [
           DebugToolsPlugin,
           {
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: false,
-              },
-            },
-            debugTools: {
-              source: '@ember/debug-tools',
-            },
-            features: [
+            flags: [
               {
-                name: 'ember-source',
+                source: '@ember/env-flags',
+                flags: {
+                  DEBUG: false,
+                },
+              },
+              {
                 source: '@ember/features',
                 flags: {
                   FEATURE_A: false,
@@ -34,6 +35,10 @@ function createTests(options) {
                 },
               },
             ],
+            debugTools: {
+              isDebug: false,
+              source: '@ember/debug-tools',
+            },
           },
         ],
       ],
@@ -54,15 +59,11 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
               assertPredicateIndex: 0,
             },
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
-              },
-            },
+            flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
           },
         ],
       ],
@@ -90,15 +91,11 @@ function createTests(options) {
               global: 'Ember',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
               assertPredicateIndex: 0,
             },
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
-              },
-            },
+            flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
           },
         ],
 
@@ -153,10 +150,39 @@ function createTests(options) {
               global: '__debugHelpers__',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
+            flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
+          },
+        ],
+      ],
+    });
+
+    h.generateTest('global-external-helpers');
+  });
+
+  describe('ember-cli-babel default configuration (legacy config API)', function() {
+    beforeEach(function() {
+      console.warn = () => {}; // eslint-disable-line
+    });
+
+    let h = transformTestHelper({
+      presets,
+      plugins: [
+        [
+          DebugToolsPlugin,
+          {
+            externalizeHelpers: {
+              global: 'Ember',
+            },
+            debugTools: {
+              isDebug: true,
+              source: '@ember/debug',
+              assertPredicateIndex: 1,
+            },
             envFlags: {
-              source: '@ember/env-flags',
+              source: '@glimmer/env',
               flags: {
                 DEBUG: true,
               },
@@ -166,7 +192,7 @@ function createTests(options) {
       ],
     });
 
-    h.generateTest('global-external-helpers');
+    h.generateTest('ember-cli-babel-config');
   });
 
   describe('ember-cli-babel default configuration', function() {
@@ -180,15 +206,11 @@ function createTests(options) {
               global: 'Ember',
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug',
               assertPredicateIndex: 1,
             },
-            envFlags: {
-              source: '@glimmer/env',
-              flags: {
-                DEBUG: true,
-              },
-            },
+            flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
           },
         ],
       ],
@@ -208,14 +230,10 @@ function createTests(options) {
               module: true,
             },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
-              },
-            },
+            flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
           },
         ],
       ],
@@ -224,7 +242,7 @@ function createTests(options) {
     h.generateTest('retain-module-external-helpers');
   });
 
-  describe('Development Svelte Builds', function() {
+  describe('Svelte Builds', function() {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -232,20 +250,11 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
-              },
-            },
-
-            svelte: {
-              'ember-source': '2.15.0',
-            },
-
-            features: [
+            flags: [
+              { source: '@ember/env-flags', flags: { DEBUG: true } },
               {
                 name: 'my-app',
                 source: 'my-app/features',
@@ -264,60 +273,16 @@ function createTests(options) {
                 },
               },
             ],
+
+            svelte: {
+              'ember-source': '2.15.0',
+            },
           },
         ],
       ],
     });
 
     h.generateTest('development-svelte-builds');
-  });
-
-  describe('Production Svelte Builds', function() {
-    let h = transformTestHelper({
-      presets,
-      plugins: [
-        [
-          DebugToolsPlugin,
-          {
-            debugTools: {
-              source: '@ember/debug-tools',
-            },
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: false,
-              },
-            },
-
-            svelte: {
-              'ember-source': '2.15.0',
-            },
-
-            features: [
-              {
-                name: 'my-app',
-                source: 'my-app/features',
-                flags: {
-                  FEATURE_A: false,
-                  FEATURE_B: true,
-                },
-              },
-              // Note this going to have to be concated in by each lib
-              {
-                name: 'ember-source',
-                source: '@ember/features',
-                flags: {
-                  DEPRECATED_PARTIALS: '2.14.0',
-                  DEPRECATED_CONTROLLERS: '2.16.0',
-                },
-              },
-            ],
-          },
-        ],
-      ],
-    });
-
-    h.generateTest('production-svelte-builds');
   });
 
   describe('Inline Env Flags', function() {
@@ -327,17 +292,11 @@ function createTests(options) {
         [
           DebugToolsPlugin,
           {
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
-                TESTING: false,
-              },
-            },
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
-            features: [],
+            flags: [{ source: '@ember/env-flags', flags: { DEBUG: true, TESTING: false } }],
           },
         ],
       ],
@@ -355,14 +314,10 @@ function createTests(options) {
           DebugToolsPlugin,
           {
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
             },
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
-              },
-            },
+            flags: [{ source: '@ember/env-flags', flags: { DEBUG: true } }],
           },
         ],
       ],
@@ -379,23 +334,20 @@ function createTests(options) {
         [
           DebugToolsPlugin,
           {
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: false,
-              },
-            },
             debugTools: {
+              isDebug: false,
               source: '@ember/debug-tools',
             },
-            features: {
-              name: 'ember-source',
-              source: '@ember/features',
-              flags: {
-                FEATURE_A: true,
-                FEATURE_B: null,
+            flags: [
+              { source: '@ember/env-flags', flags: { DEBUG: false } },
+              {
+                source: '@ember/features',
+                flags: {
+                  FEATURE_A: true,
+                  FEATURE_B: null,
+                },
               },
-            },
+            ],
           },
         ],
       ],
@@ -411,23 +363,20 @@ function createTests(options) {
         [
           DebugToolsPlugin,
           {
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: false,
-              },
-            },
             debugTools: {
+              isDebug: false,
               source: '@ember/debug-tools',
             },
-            features: {
-              name: 'ember-source',
-              source: '@ember/features',
-              flags: {
-                FEATURE_A: true,
-                FEATURE_B: null,
+            flags: [
+              { source: '@ember/env-flags', flags: { DEBUG: false } },
+              {
+                source: '@ember/features',
+                flags: {
+                  FEATURE_A: true,
+                  FEATURE_B: null,
+                },
               },
-            },
+            ],
           },
         ],
       ],
@@ -443,22 +392,20 @@ function createTests(options) {
         [
           DebugToolsPlugin,
           {
-            envFlags: {
-              source: '@ember/env-flags',
-              flags: {
-                DEBUG: true,
+            flags: [
+              { source: '@ember/env-flags', flags: { DEBUG: true } },
+              {
+                name: 'ember-source',
+                source: '@ember/features',
+                flags: {
+                  FOO_BAR: false,
+                  WIDGET_WOO: false,
+                },
               },
-            },
+            ],
             debugTools: {
+              isDebug: true,
               source: '@ember/debug-tools',
-            },
-            features: {
-              name: 'ember-source',
-              source: '@ember/features',
-              flags: {
-                FOO_BAR: false,
-                WIDGET_WOO: false,
-              },
             },
           },
         ],
