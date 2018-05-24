@@ -53,6 +53,7 @@ function macros(babel) {
           });
 
           path.remove();
+          path.scope.removeOwnBinding(localBindingName);
         }
       },
 
