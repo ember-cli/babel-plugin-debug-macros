@@ -3,7 +3,16 @@
 const normalizeOptions = require('../src/utils/normalize-options').normalizeOptions;
 
 describe('normalizeOptions', function() {
+  let originalConsole = Object.assign({}, console);
+
+  afterEach(function() {
+    Object.assign(console, originalConsole);
+  });
+
   it('converts "old style" options into the newer style (with deprecation)', function() {
+    let warnings = [];
+    console.warn = warning => warnings.push(warning); // eslint-disable-line
+
     let actual = normalizeOptions({
       envFlags: {
         source: '@ember/env-flags',
@@ -39,6 +48,9 @@ describe('normalizeOptions', function() {
     };
 
     expect(actual).toEqual(expected);
+    expect(warnings).toEqual([
+      'babel-plugin-debug-macros configuration API has changed, please update your configuration',
+    ]);
   });
 
   it('sets flag to false when svelte version matches the flag version', function() {

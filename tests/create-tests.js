@@ -2,11 +2,16 @@
 
 const DebugToolsPlugin = require('..');
 const fs = require('fs');
+const CONSOLE = Object.assign({}, console);
 
 function createTests(options) {
   const babelVersion = options.babelVersion;
   const presets = options.presets;
   const transform = options.transform;
+
+  afterEach(function() {
+    Object.assign(console, CONSOLE);
+  });
 
   describe('Feature Flags', function() {
     const h = transformTestHelper({
@@ -154,6 +159,10 @@ function createTests(options) {
   });
 
   describe('ember-cli-babel default configuration (legacy config API)', function() {
+    beforeEach(function() {
+      console.warn = () => {}; // eslint-disable-line
+    });
+
     let h = transformTestHelper({
       presets,
       plugins: [
