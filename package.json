@@ -12,7 +12,7 @@
     "prettier": "^1.12.1"
   },
   "name": "babel-plugin-debug-macros",
-  "version": "0.2.0-beta.5",
+  "version": "0.2.0-beta.6",
   "description": "Debug macros and feature flag stripping",
   "main": "src/index.js",
   "files": [
