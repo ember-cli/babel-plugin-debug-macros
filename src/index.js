@@ -83,7 +83,11 @@ function macros(babel) {
               let debugToolsImport = options.debugTools.debugToolsImport;
 
               if (debugToolsImport && debugToolsImport === importPath) {
-                this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
+                if (!item.node.specifiers.length) {
+                  item.remove();
+                } else {
+                  this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
+                }
               }
             }
           });
