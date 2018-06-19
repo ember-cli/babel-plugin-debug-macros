@@ -32,9 +32,17 @@ function macros(babel) {
               let isFeaturesImport = featureSources.indexOf(importPath) > -1;
 
               if (debugToolsImport && debugToolsImport === importPath) {
-                this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
+                if (!item.node.specifiers.length) {
+                  item.remove();
+                } else {
+                  this.macroBuilder.collectDebugToolsSpecifiers(item.get('specifiers'));
+                }
               } if (envFlagsImport && envFlagsImport === importPath) {
-                this.macroBuilder.collectEnvFlagSpecifiers(item.get('specifiers'));
+                if (!item.node.specifiers.length) {
+                  item.remove();
+                } else {
+                  this.macroBuilder.collectEnvFlagSpecifiers(item.get('specifiers'));
+                }
               }
             }
           });

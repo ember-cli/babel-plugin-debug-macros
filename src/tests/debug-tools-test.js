@@ -342,6 +342,28 @@ let cases = {
     ]
   },
 
+  'Removes Imports Without Specifiers': {
+    transformOptions: {
+      presets,
+      plugins: [
+        [DebugToolsPlugin, {
+          debugTools: {
+            source: '@ember/debug-tools'
+          },
+          envFlags: {
+            source: '@glimmer/env',
+            flags: {
+              DEBUG: true
+            }
+          }
+        }]
+      ]
+    },
+    fixtures: [
+      'removes-imports-without-specifiers'
+    ]
+  },
+
   'Runtime Feature Flags': {
     transformOptions: {
       presets,
