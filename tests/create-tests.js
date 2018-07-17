@@ -327,6 +327,26 @@ function createTests(options) {
     h.generateTest('does-not-modify-non-imported-flags');
   });
 
+  describe('Removes Imports Without Specifiers', function() {
+    let h = transformTestHelper({
+      presets,
+      plugins: [
+        [
+          DebugToolsPlugin,
+          {
+            debugTools: {
+              isDebug: true,
+              source: '@ember/debug-tools',
+            },
+            flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
+          },
+        ],
+      ],
+    });
+
+    h.generateTest('removes-imports-without-specifiers');
+  });
+
   describe('Runtime Feature Flags', function() {
     let h = transformTestHelper({
       presets,
