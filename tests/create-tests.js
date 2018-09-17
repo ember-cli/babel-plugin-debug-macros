@@ -180,6 +180,7 @@ function createTests(options) {
               isDebug: true,
               source: '@ember/debug',
               assertPredicateIndex: 1,
+              warnPredicateIndex: 1,
             },
             envFlags: {
               source: '@glimmer/env',
@@ -209,6 +210,7 @@ function createTests(options) {
               isDebug: true,
               source: '@ember/debug',
               assertPredicateIndex: 1,
+              warnPredicateIndex: 1,
             },
             flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
           },

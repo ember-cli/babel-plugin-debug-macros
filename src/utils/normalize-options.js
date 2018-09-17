@@ -12,6 +12,7 @@ function parseDebugTools(options) {
   let isDebug = debugTools.isDebug;
   let debugToolsImport = debugTools.source;
   let assertPredicateIndex = debugTools.assertPredicateIndex;
+  let warnPredicateIndex = debugTools.warnPredicateIndex;
 
   if (options.envFlags && isDebug === undefined) {
     isDebug = options.envFlags.flags.DEBUG;
@@ -25,6 +26,7 @@ function parseDebugTools(options) {
     isDebug,
     debugToolsImport,
     assertPredicateIndex,
+    warnPredicateIndex,
   };
 }
 

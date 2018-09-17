@@ -5,6 +5,7 @@ if (DEBUG) {
   doStuff();
 }
 
+warn('This is a warning', ()=> true);
 warn('This is a warning');
 
 assert('Hahahaha', foo);

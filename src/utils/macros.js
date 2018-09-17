@@ -14,6 +14,7 @@ module.exports = class Macros {
       module: this.debugHelpers.module,
       global: this.debugHelpers.global,
       assertPredicateIndex: options.debugTools.assertPredicateIndex,
+      warnPredicateIndex: options.debugTools.warnPredicateIndex,
       isDebug: options.debugTools.isDebug,
     });
   }

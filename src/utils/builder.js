@@ -6,6 +6,7 @@ module.exports = class Builder {
     this.module = options.module;
     this.global = options.global;
     this.assertPredicateIndex = options.assertPredicateIndex;
+    this.warnPredicateIndex = options.warnPredicateIndex;
     this.isDebug = options.isDebug;
     this.expressions = [];
   }
@@ -58,7 +59,16 @@ module.exports = class Builder {
    * ($DEBUG && $GLOBAL_NS.warn($MESSAGE));
    */
   warn(path) {
-    this._createMacroExpression(path);
+    let predicate;
+    if (this.warnPredicateIndex !== undefined) {
+      predicate = (expression, args) => {
+        return args.length === 1 ? false : args[this.warnPredicateIndex];
+      };
+    }
+
+    this._createMacroExpression(path, {
+      predicate,
+    });
   }
 
   /**
@@ -106,7 +116,6 @@ module.exports = class Builder {
     }
 
     let prefixedIdentifiers = [];
-
     if (options.predicate) {
       let predicate = options.predicate(expression, args) || t.identifier('false');
       let negatedPredicate = t.unaryExpression('!', t.parenthesizedExpression(predicate));
