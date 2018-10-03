@@ -6,7 +6,6 @@ const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
 
 function macros(babel) {
   let t = babel.types;
-  let options;
 
   function buildIdentifier(value, name) {
     let replacement = t.booleanLiteral(value);
@@ -27,9 +26,9 @@ function macros(babel) {
   return {
     name: 'babel-feature-flags-and-debug-macros',
     visitor: {
-      ImportSpecifier(path) {
+      ImportSpecifier(path, state) {
         let importPath = path.parent.source.value;
-        let flagsForImport = options.flags[importPath];
+        let flagsForImport = state.opts.flags[importPath];
 
         if (flagsForImport) {
           let flagName = path.node.imported.name;
@@ -58,9 +57,9 @@ function macros(babel) {
       },
 
       ImportDeclaration: {
-        exit(path) {
+        exit(path, state) {
           let importPath = path.node.source.value;
-          let flagsForImport = options.flags[importPath];
+          let flagsForImport = state.opts.flags[importPath];
 
           // remove flag source imports when no specifiers are left
           if (flagsForImport && path.get('specifiers').length === 0) {
@@ -71,8 +70,8 @@ function macros(babel) {
 
       Program: {
         enter(path, state) {
-          options = normalizeOptions(state.opts);
-          this.macroBuilder = new Macros(babel, options);
+          state.opts = normalizeOptions(state.opts);
+          this.macroBuilder = new Macros(babel, state.opts);
 
           let body = path.get('body');
 
@@ -80,7 +79,7 @@ function macros(babel) {
             if (item.isImportDeclaration()) {
               let importPath = item.node.source.value;
 
-              let debugToolsImport = options.debugTools.debugToolsImport;
+              let debugToolsImport = state.opts.debugTools.debugToolsImport;
 
               if (debugToolsImport && debugToolsImport === importPath) {
                 if (!item.node.specifiers.length) {
