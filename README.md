@@ -53,7 +53,7 @@ options.
 
 Flags and features are inlined into the consuming module so that something like UglifyJS will DCE them when they are unreachable.
 
-## Simple environment and fetaure flags
+## Simple environment and feature flags
 
 ```javascript
 import { DEBUG } from '@ember/env-flags';
