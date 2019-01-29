@@ -9,6 +9,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-prettier": "^2.6.0",
     "jest": "^21.0.0",
+    "lerna-changelog": "^0.8.2",
     "prettier": "^1.12.1"
   },
   "name": "babel-plugin-debug-macros",
@@ -24,6 +25,7 @@
     "url": "https://github.com/chadhietala/babel-debug-macros"
   },
   "scripts": {
+    "changelog": "lerna-changelog",
     "test": "jest"
   },
   "keywords": [
