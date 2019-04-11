@@ -9,6 +9,23 @@ describe('normalizeOptions', function() {
     Object.assign(console, originalConsole);
   });
 
+  it('does not require the `debugTools` options', function() {
+    let actual = normalizeOptions({});
+
+    let expected = {
+      debugTools: {
+        debugToolsImport: '',
+        assertPredicateIndex: undefined,
+        isDebug: false,
+      },
+      externalizeHelpers: undefined,
+      flags: {},
+      svelte: undefined,
+    };
+
+    expect(actual).toEqual(expected);
+  });
+
   it('converts "old style" options into the newer style (with deprecation)', function() {
     let warnings = [];
     console.warn = warning => warnings.push(warning); // eslint-disable-line
