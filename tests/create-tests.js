@@ -80,6 +80,15 @@ function createTests(options) {
     h.generateTest('log-expansion');
   });
 
+  describe('Debug macros idempotnency', function() {
+    let h = transformTestHelper({
+      presets,
+      plugins: [[DebugToolsPlugin]],
+    });
+
+    h.generateTest('missing-debug-tools-options');
+  });
+
   describe('foreign debug imports', function() {
     let h = transformTestHelper({
       presets,
