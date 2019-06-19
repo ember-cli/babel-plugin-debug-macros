@@ -57,7 +57,6 @@ module.exports = class Macros {
   _cleanImports() {
     if (!this.debugHelpers.module) {
       if (this.localDebugBindings.length > 0) {
-        this.localDebugBindings[0].parentPath.parentPath;
         let importPath = this.localDebugBindings[0].findParent(p => p.isImportDeclaration());
         let specifiers = importPath.get('specifiers');
 
