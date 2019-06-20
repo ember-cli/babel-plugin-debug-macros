@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.2 (2019-06-20)
+
+#### :bug: Bug Fix
+* [#79](https://github.com/ember-cli/babel-plugin-debug-macros/pull/79) [BUGFIX] if our ancestor import declaration is removed short-circuit … ([@stefanpenner](https://github.com/stefanpenner))
+
+#### Committers: 1
+- Stefan Penner ([@stefanpenner](https://github.com/stefanpenner))
+
 ## v0.3.1 (2019-04-11)
 
 #### :rocket: Enhancement
