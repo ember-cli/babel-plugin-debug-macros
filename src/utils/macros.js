@@ -13,7 +13,7 @@ module.exports = class Macros {
     this.builder = new Builder(babel.types, {
       module: this.debugHelpers.module,
       global: this.debugHelpers.global,
-      assertPredicateIndex: options.debugTools.assertPredicateIndex,
+      assertPredicateIndex: options.debugTools && options.debugTools.assertPredicateIndex,
       isDebug: options.debugTools.isDebug,
     });
   }
@@ -58,6 +58,10 @@ module.exports = class Macros {
     if (!this.debugHelpers.module) {
       if (this.localDebugBindings.length > 0) {
         let importPath = this.localDebugBindings[0].findParent(p => p.isImportDeclaration());
+        if (importPath === null) {
+          // import declaration in question seems to have already been removed
+          return;
+        }
         let specifiers = importPath.get('specifiers');
 
         if (specifiers.length === this.localDebugBindings.length) {
