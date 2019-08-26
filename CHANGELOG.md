@@ -1,3 +1,11 @@
+## v0.3.3 (2019-08-26)
+
+#### :bug: Bug Fix
+* [#80](https://github.com/ember-cli/babel-plugin-debug-macros/pull/80) Fix bug when key attribute is a literal for debug macros (`deprecate`, `assert`, `warn`) ([@martony38](https://github.com/martony38))
+
+#### Committers: 1
+- Laurent Sehabiague ([@martony38](https://github.com/martony38))
+
 # Changelog
 
 ## v0.3.2 (2019-06-20)
