@@ -157,11 +157,19 @@ module.exports = class Builder {
       validate: (expression, args) => {
         let meta = args[2];
 
-        if (meta && meta.properties && !meta.properties.some(prop => prop.key.name === 'id')) {
+        if (
+          meta &&
+          meta.properties &&
+          !meta.properties.some(prop => prop.key.name === 'id' || prop.key.value === 'id')
+        ) {
           throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
         }
 
-        if (meta && meta.properties && !meta.properties.some(prop => prop.key.name === 'until')) {
+        if (
+          meta &&
+          meta.properties &&
+          !meta.properties.some(prop => prop.key.name === 'until' || prop.key.value === 'until')
+        ) {
           throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
         }
       },
