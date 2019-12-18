@@ -30,7 +30,7 @@ describe('normalizeOptions', function() {
     let warnings = [];
     console.warn = warning => warnings.push(warning); // eslint-disable-line
 
-    let actual = normalizeOptions({
+    let options = {
       envFlags: {
         source: '@ember/env-flags',
         flags: {
@@ -48,8 +48,9 @@ describe('normalizeOptions', function() {
           FEATURE_B: null,
         },
       },
-    });
-
+    };
+    let stringifiedOptions = JSON.stringify(options, null, 2);
+    let actual = normalizeOptions(options);
     let expected = {
       debugTools: {
         isDebug: false,
@@ -70,7 +71,7 @@ describe('normalizeOptions', function() {
 
     expect(actual).toEqual(expected);
     expect(warnings).toEqual([
-      'babel-plugin-debug-macros configuration API has changed, please update your configuration',
+      `[babel-plugin-debug-macros]: passed v1 configuration, converting to v2.  Legacy configuration passed:\n${stringifiedOptions}`,
     ]);
   });
 
