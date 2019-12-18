@@ -95,10 +95,13 @@ function parseFlags(options) {
   }
 
   if (legacyFeatures || legacyEnvFlags) {
+    let msg = `[babel-plugin-debug-macros]: passed v1 configuration, converting to v2.  Legacy configuration passed:\n${JSON.stringify(
+      options,
+      null,
+      2
+    )}`;
     // eslint-disable-next-line no-console
-    console.warn(
-      'babel-plugin-debug-macros configuration API has changed, please update your configuration'
-    );
+    console.warn(msg);
   }
 
   return combinedFlags;
