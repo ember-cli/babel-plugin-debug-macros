@@ -34,7 +34,7 @@ module.exports = class Macros {
   collectDebugToolsSpecifiers(specifiers) {
     specifiers.forEach(specifier => {
       if (specifier.node.imported && SUPPORTED_MACROS.indexOf(specifier.node.imported.name) > -1) {
-        this.localDebugBindings.push(specifier.get('local'));
+        this.localDebugBindings.push(specifier);
       }
     });
   }
@@ -47,7 +47,7 @@ module.exports = class Macros {
 
     if (
       this.builder.t.isCallExpression(expression) &&
-      this.localDebugBindings.some(b => b.node.name === expression.callee.name)
+      this.localDebugBindings.some(b => b.get('imported').node.name === expression.callee.name)
     ) {
       let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
       this.builder[`${imported}`](path);
@@ -65,9 +65,11 @@ module.exports = class Macros {
         let specifiers = importPath.get('specifiers');
 
         if (specifiers.length === this.localDebugBindings.length) {
-          this.localDebugBindings[0].parentPath.parentPath.remove();
+          importPath.remove();
+        } else if (specifiers.length === 1) {
+          importPath.remove();
         } else {
-          this.localDebugBindings.forEach(binding => binding.parentPath.remove());
+          this.localDebugBindings.forEach(binding => binding.get('local').parentPath.remove());
         }
       }
     }
