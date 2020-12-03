@@ -47,9 +47,10 @@ module.exports = class Macros {
 
     if (
       this.builder.t.isCallExpression(expression) &&
-      this.localDebugBindings.some(b => b.get('imported').node.name === expression.callee.name)
+      this.localDebugBindings.some(b => b.get('local').node.name === expression.callee.name)
     ) {
       let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
+      // The builder needs to be made aware of the the local name of the ImportSpecifier
       this.builder[`${imported}`](path);
     }
   }
@@ -62,11 +63,10 @@ module.exports = class Macros {
           // import declaration in question seems to have already been removed
           return;
         }
+
         let specifiers = importPath.get('specifiers');
 
         if (specifiers.length === this.localDebugBindings.length) {
-          importPath.remove();
-        } else if (specifiers.length === 1) {
           importPath.remove();
         } else {
           this.localDebugBindings.forEach(binding => binding.get('local').parentPath.remove());
