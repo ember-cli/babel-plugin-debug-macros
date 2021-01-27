@@ -164,14 +164,6 @@ module.exports = class Builder {
         ) {
           throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
         }
-
-        if (
-          meta &&
-          meta.properties &&
-          !meta.properties.some(prop => prop.key.name === 'until' || prop.key.value === 'until')
-        ) {
-          throw new ReferenceError(`deprecate's meta information requires an "until" field.`);
-        }
       },
     });
   }
