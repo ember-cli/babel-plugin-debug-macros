@@ -22,5 +22,4 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn install --ignore-engines
-    - run: yarn eslint .
     - run: yarn test
