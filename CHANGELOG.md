@@ -1,3 +1,22 @@
+## v0.3.4 (2021-01-27)
+
+#### :rocket: Enhancement
+* [#83](https://github.com/ember-cli/babel-plugin-debug-macros/pull/83) Remove validation check for deprecation `until` ([@pzuraq](https://github.com/pzuraq))
+
+#### :bug: Bug Fix
+* [#81](https://github.com/ember-cli/babel-plugin-debug-macros/pull/81) Improve v1 API warning ([@hjdivad](https://github.com/hjdivad))
+
+#### :house: Internal
+* [#86](https://github.com/ember-cli/babel-plugin-debug-macros/pull/86) Update release automation setup ([@rwjblue](https://github.com/rwjblue))
+* [#85](https://github.com/ember-cli/babel-plugin-debug-macros/pull/85) Update to ensure `npm test` runs linting. ([@rwjblue](https://github.com/rwjblue))
+* [#84](https://github.com/ember-cli/babel-plugin-debug-macros/pull/84) Setup GitHub Actions. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 3
+- Chris Garrett ([@pzuraq](https://github.com/pzuraq))
+- David J. Hamilton ([@hjdivad](https://github.com/hjdivad))
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v0.3.3 (2019-08-26)
 
 #### :bug: Bug Fix
