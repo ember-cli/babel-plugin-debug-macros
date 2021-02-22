@@ -74,7 +74,14 @@ module.exports = class Macros {
           importPath.remove();
         } else {
           this.localDebugBindings.forEach(binding => {
-            binding.get('local').parentPath.remove();
+            let specifier = binding.get('local').parentPath;
+            let importPath = specifier.parentPath;
+
+            if (importPath.get('specifiers').length === 1) {
+              importPath.remove();
+            } else {
+              specifier.remove();
+            }
           });
         }
       }
