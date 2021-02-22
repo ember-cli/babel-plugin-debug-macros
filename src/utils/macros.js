@@ -49,9 +49,13 @@ module.exports = class Macros {
       this.builder.t.isCallExpression(expression) &&
       this.localDebugBindings.some(b => b.get('local').node.name === expression.callee.name)
     ) {
-      let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
+      let specifier = path.scope.getBinding(expression.callee.name).path.node;
+      let imported = specifier.imported.name;
       // The builder needs to be made aware of the the local name of the ImportSpecifier
-      this.builder[`${imported}`](path);
+      this.builder[`${imported}`](path, {
+        localName: specifier.local.name,
+        importedName: imported,
+      });
     }
   }
 
@@ -69,7 +73,9 @@ module.exports = class Macros {
         if (specifiers.length === this.localDebugBindings.length) {
           importPath.remove();
         } else {
-          this.localDebugBindings.forEach(binding => binding.get('local').parentPath.remove());
+          this.localDebugBindings.forEach(binding => {
+            binding.get('local').parentPath.remove();
+          });
         }
       }
     }
