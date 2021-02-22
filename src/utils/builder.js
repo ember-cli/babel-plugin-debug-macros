@@ -35,10 +35,15 @@ module.exports = class Builder {
       };
     }
 
-    this._createMacroExpression(path, {
-      predicate,
-      ...options,
-    });
+    this._createMacroExpression(
+      path,
+      Object.assign(
+        {
+          predicate,
+        },
+        options
+      )
+    );
   }
 
   /**
@@ -104,7 +109,9 @@ module.exports = class Builder {
       callExpression = options.buildConsoleAPI(expression, args);
     } else {
       callExpression = this._createConsoleAPI(
-        options.consoleAPI || (options.importedName && t.identifier(options.importedName)) || callee,
+        options.consoleAPI ||
+          (options.importedName && t.identifier(options.importedName)) ||
+          callee,
         args
       );
     }
