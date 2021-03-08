@@ -1,4 +1,4 @@
-import { warn, assert, deprecate } from '@ember/debug';
+import { warn, assert, deprecate, warn as debugWarn, assert as debugAssert, deprecate as debugDeprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 if (DEBUG) {
@@ -15,3 +15,17 @@ deprecate('This thing is donzo', true, {
   until: '4.0.0',
   url: 'http://example.com'
 });
+
+// renamed imports
+debugWarn('This is a warning');
+
+debugAssert('Hahahaha', foo);
+debugAssert('without predicate');
+
+debugDeprecate('This thing is donzo', true, {
+  id: 'donzo',
+  until: '4.0.0',
+  url: 'http://example.com'
+});
+
+
