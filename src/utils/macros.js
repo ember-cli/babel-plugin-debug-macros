@@ -34,7 +34,7 @@ module.exports = class Macros {
   collectDebugToolsSpecifiers(specifiers) {
     specifiers.forEach(specifier => {
       if (specifier.node.imported && SUPPORTED_MACROS.indexOf(specifier.node.imported.name) > -1) {
-        this.localDebugBindings.push(specifier.get('local'));
+        this.localDebugBindings.push(specifier);
       }
     });
   }
@@ -47,10 +47,15 @@ module.exports = class Macros {
 
     if (
       this.builder.t.isCallExpression(expression) &&
-      this.localDebugBindings.some(b => b.node.name === expression.callee.name)
+      this.localDebugBindings.some(b => b.get('local').node.name === expression.callee.name)
     ) {
-      let imported = path.scope.getBinding(expression.callee.name).path.node.imported.name;
-      this.builder[`${imported}`](path);
+      let specifier = path.scope.getBinding(expression.callee.name).path.node;
+      let imported = specifier.imported.name;
+      // The builder needs to be made aware of the the local name of the ImportSpecifier
+      this.builder[`${imported}`](path, {
+        localName: specifier.local.name,
+        importedName: imported,
+      });
     }
   }
 
@@ -62,12 +67,22 @@ module.exports = class Macros {
           // import declaration in question seems to have already been removed
           return;
         }
+
         let specifiers = importPath.get('specifiers');
 
         if (specifiers.length === this.localDebugBindings.length) {
-          this.localDebugBindings[0].parentPath.parentPath.remove();
+          importPath.remove();
         } else {
-          this.localDebugBindings.forEach(binding => binding.parentPath.remove());
+          this.localDebugBindings.forEach(binding => {
+            let specifier = binding.get('local').parentPath;
+            let importPath = specifier.parentPath;
+
+            if (importPath.get('specifiers').length === 1) {
+              importPath.remove();
+            } else {
+              specifier.remove();
+            }
+          });
         }
       }
     }

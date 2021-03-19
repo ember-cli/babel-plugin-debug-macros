@@ -483,7 +483,7 @@ function createTests(options) {
             `./fixtures/${fixtureName}/expectation${babelVersion}.js`,
             'utf-8'
           );
-          expect(transform(sample, options).code).toEqual(expectation);
+          expect(transform(sample, options).code.trim()).toEqual(expectation.trim());
         });
       },
 
