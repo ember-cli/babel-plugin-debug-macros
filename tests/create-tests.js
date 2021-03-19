@@ -171,61 +171,91 @@ function createTests(options) {
     h.generateTest('global-external-helpers');
   });
 
-  describe('ember-cli-babel default configuration (legacy config API)', function() {
-    beforeEach(function() {
-      console.warn = () => {}; // eslint-disable-line
-    });
+  describe('ember-cli-babel configuration', function() {
+    describe('Ember < 3.27', function() {
+      describe('legacy config API', function() {
+        beforeEach(function() {
+          console.warn = () => {}; // eslint-disable-line
+        });
 
-    let h = transformTestHelper({
-      presets,
-      plugins: [
-        [
-          DebugToolsPlugin,
-          {
-            externalizeHelpers: {
-              global: 'Ember',
-            },
-            debugTools: {
-              isDebug: true,
-              source: '@ember/debug',
-              assertPredicateIndex: 1,
-            },
-            envFlags: {
-              source: '@glimmer/env',
-              flags: {
-                DEBUG: true,
+        let h = transformTestHelper({
+          presets,
+          plugins: [
+            [
+              DebugToolsPlugin,
+              {
+                externalizeHelpers: {
+                  global: 'Ember',
+                },
+                debugTools: {
+                  isDebug: true,
+                  source: '@ember/debug',
+                  assertPredicateIndex: 1,
+                },
+                envFlags: {
+                  source: '@glimmer/env',
+                  flags: {
+                    DEBUG: true,
+                  },
+                },
               },
-            },
-          },
-        ],
-      ],
+            ],
+          ],
+        });
+
+        h.generateTest('ember-cli-babel-config-pre-3-27');
+      });
+
+      describe('default configuration', function() {
+        let h = transformTestHelper({
+          presets,
+          plugins: [
+            [
+              DebugToolsPlugin,
+              {
+                externalizeHelpers: {
+                  global: 'Ember',
+                },
+                debugTools: {
+                  isDebug: true,
+                  source: '@ember/debug',
+                  assertPredicateIndex: 1,
+                },
+                flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
+              },
+            ],
+          ],
+        });
+
+        h.generateTest('ember-cli-babel-config-pre-3-27');
+      });
     });
 
-    h.generateTest('ember-cli-babel-config');
-  });
+    describe('Ember >= 3.27', function() {
+      describe('default configuration', function() {
+        let h = transformTestHelper({
+          presets,
+          plugins: [
+            [
+              DebugToolsPlugin,
+              {
+                externalizeHelpers: {
+                  module: '@ember/debug',
+                },
+                debugTools: {
+                  isDebug: true,
+                  source: '@ember/debug',
+                  assertPredicateIndex: 1,
+                },
+                flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
+              },
+            ],
+          ],
+        });
 
-  describe('ember-cli-babel default configuration', function() {
-    let h = transformTestHelper({
-      presets,
-      plugins: [
-        [
-          DebugToolsPlugin,
-          {
-            externalizeHelpers: {
-              global: 'Ember',
-            },
-            debugTools: {
-              isDebug: true,
-              source: '@ember/debug',
-              assertPredicateIndex: 1,
-            },
-            flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
-          },
-        ],
-      ],
+        h.generateTest('ember-cli-babel-config');
+      });
     });
-
-    h.generateTest('ember-cli-babel-config');
   });
 
   describe('Retain Module External Test Helpers', function() {
