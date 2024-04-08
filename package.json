@@ -38,6 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
+    "@eslint/js": "^9.0.0",
     "@release-it-plugins/lerna-changelog": "^6.1.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
@@ -57,7 +58,7 @@
     "@babel/core": "^7.0.0"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=18"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
