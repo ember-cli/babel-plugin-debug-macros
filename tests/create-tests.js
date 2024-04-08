@@ -3,6 +3,7 @@
 const DebugToolsPlugin = require('..');
 const fs = require('fs');
 const CONSOLE = Object.assign({}, console);
+require('code-equality-assertions/jest');
 
 function createTests(options) {
   const babelVersion = options.babelVersion;
@@ -483,7 +484,7 @@ function createTests(options) {
             `./fixtures/${fixtureName}/expectation${babelVersion}.js`,
             'utf-8'
           );
-          expect(transform(sample, options).code).toEqual(expectation);
+          expect(transform(sample, options).code).toEqualCode(expectation);
         });
       },
 

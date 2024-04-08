@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const macros = require('../src/index.js');
 const { transformSync } = require('@babel/core');
-import { expect } from 'chai';
+import { expect, describe, it } from 'chai';
 
 describe('utils/macros.js', function () {
   it('does not fail if an import intended to be removed has already been removed', function () {

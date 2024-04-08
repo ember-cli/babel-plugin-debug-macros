@@ -1,8 +1,6 @@
 import { warn, assert, deprecate } from '@ember/debug';
 
-if (true
-/* DEBUG */
-) {
+if (true/* DEBUG */) {
   doStuff();
 }
 

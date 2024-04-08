@@ -31,6 +31,9 @@ devDependencies:
   chai:
     specifier: ^5.1.0
     version: 5.1.0
+  code-equality-assertions:
+    specifier: ^0.9.0
+    version: 0.9.0
   eslint:
     specifier: ^9.0.0
     version: 9.0.0
@@ -3096,6 +3099,27 @@ packages:
   /co@4.6.0:
     resolution: {integrity: sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==}
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
+    dev: true
+
+  /code-equality-assertions@0.9.0:
+    resolution: {integrity: sha512-8t2+ZiCU9TIr/78TyVSEFii9khSic293zVCfndsG7bOymAsdDFmN1GSwjRdyQxz7+tHE+biUvt08Qlx4Xvfuxw==}
+    peerDependencies:
+      '@types/jest': '2'
+      '@types/qunit': '2'
+      qunit: '2'
+    peerDependenciesMeta:
+      '@types/jest':
+        optional: true
+      '@types/qunit':
+        optional: true
+      qunit:
+        optional: true
+    dependencies:
+      '@babel/core': 7.24.4
+      diff: 5.2.0
+      prettier: 2.8.8
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /collect-v8-coverage@1.0.2:
@@ -6384,6 +6408,12 @@ packages:
     engines: {node: '>=6.0.0'}
     dependencies:
       fast-diff: 1.3.0
+    dev: true
+
+  /prettier@2.8.8:
+    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
     dev: true
 
   /prettier@3.2.5:
