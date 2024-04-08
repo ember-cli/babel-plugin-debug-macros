@@ -18,7 +18,6 @@ export default [
     rules: {
       'prettier/prettier': 'error',
     },
-    ignores: ['/fixtures/'],
   },
   {
     files: ['tests/**/*.js'],
@@ -27,5 +26,8 @@ export default [
         ...globals.jest,
       },
     },
+  },
+  {
+    ignores: ['fixtures/**'],
   },
 ];
