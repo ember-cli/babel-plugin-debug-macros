@@ -44,7 +44,7 @@ function parseFlags(options) {
   let flagsProvided = options.flags || [];
 
   let combinedFlags = {};
-  flagsProvided.forEach(flagsDefinition => {
+  flagsProvided.forEach((flagsDefinition) => {
     let source = flagsDefinition.source;
     let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
 
@@ -77,7 +77,7 @@ function parseFlags(options) {
       legacyFeatures = [legacyFeatures];
     }
 
-    legacyFeatures.forEach(flagsDefinition => {
+    legacyFeatures.forEach((flagsDefinition) => {
       let source = flagsDefinition.source;
       let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
 
@@ -100,7 +100,7 @@ function parseFlags(options) {
       null,
       2
     )}`;
-    // eslint-disable-next-line no-console
+
     console.warn(msg);
   }
 

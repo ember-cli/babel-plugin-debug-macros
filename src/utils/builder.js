@@ -160,7 +160,7 @@ module.exports = class Builder {
         if (
           meta &&
           meta.properties &&
-          !meta.properties.some(prop => prop.key.name === 'id' || prop.key.value === 'id')
+          !meta.properties.some((prop) => prop.key.name === 'id' || prop.key.value === 'id')
         ) {
           throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
         }
@@ -183,7 +183,7 @@ module.exports = class Builder {
   }
 
   _getIdentifiers(args) {
-    return args.filter(arg => this.t.isIdentifier(arg));
+    return args.filter((arg) => this.t.isIdentifier(arg));
   }
 
   _createGlobalExternalHelper(identifier, args, ns) {
@@ -199,7 +199,7 @@ module.exports = class Builder {
   _buildLogicalExpressions(identifiers, callExpression) {
     let t = this.t;
 
-    return debugIdentifier => {
+    return (debugIdentifier) => {
       identifiers.unshift(debugIdentifier);
       identifiers.push(callExpression);
       let logicalExpressions;
