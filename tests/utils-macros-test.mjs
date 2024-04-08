@@ -1,8 +1,11 @@
 'use strict';
 
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 const macros = require('../src/index.js');
 const { transformSync } = require('@babel/core');
-const { expect } = require('chai');
+import { expect } from 'chai';
 
 describe('utils/macros.js', function () {
   it('does not fail if an import intended to be removed has already been removed', function () {
