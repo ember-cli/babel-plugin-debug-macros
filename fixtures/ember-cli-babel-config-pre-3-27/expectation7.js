@@ -1,6 +1,4 @@
-if (true
-/* DEBUG */
-) {
+if (true/* DEBUG */) {
   doStuff();
 }
 

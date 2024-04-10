@@ -1,11 +1,14 @@
 'use strict';
 
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 const macros = require('../src/index.js');
 const { transformSync } = require('@babel/core');
-const { expect } = require('chai');
+import { expect, describe, it } from 'chai';
 
-describe('utils/macros.js', function() {
-  it('does not fail if an import intended to be removed has already been removed', function() {
+describe('utils/macros.js', function () {
+  it('does not fail if an import intended to be removed has already been removed', function () {
     const { code } = transformSync(`import { warn } from '@ember/debug-tools'`, {
       plugins: [
         {
@@ -13,7 +16,7 @@ describe('utils/macros.js', function() {
           visitor: {
             Program: {
               exit(path) {
-                path.get('body').forEach(item => {
+                path.get('body').forEach((item) => {
                   if (item.isImportDeclaration()) {
                     item.remove();
                   }

@@ -2,14 +2,14 @@
 
 const normalizeOptions = require('../src/utils/normalize-options').normalizeOptions;
 
-describe('normalizeOptions', function() {
+describe('normalizeOptions', function () {
   let originalConsole = Object.assign({}, console);
 
-  afterEach(function() {
+  afterEach(function () {
     Object.assign(console, originalConsole);
   });
 
-  it('does not require the `debugTools` options', function() {
+  it('does not require the `debugTools` options', function () {
     let actual = normalizeOptions({});
 
     let expected = {
@@ -26,7 +26,7 @@ describe('normalizeOptions', function() {
     expect(actual).toEqual(expected);
   });
 
-  it('converts "old style" options into the newer style (with deprecation)', function() {
+  it('converts "old style" options into the newer style (with deprecation)', function () {
     let warnings = [];
     console.warn = warning => warnings.push(warning); // eslint-disable-line
 
@@ -75,7 +75,7 @@ describe('normalizeOptions', function() {
     ]);
   });
 
-  it('sets flag to false when svelte version matches the flag version', function() {
+  it('sets flag to false when svelte version matches the flag version', function () {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
@@ -118,7 +118,7 @@ describe('normalizeOptions', function() {
     expect(actual).toEqual(expected);
   });
 
-  it('sets flag to false when svelte version is higher than flag version', function() {
+  it('sets flag to false when svelte version is higher than flag version', function () {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
@@ -144,7 +144,7 @@ describe('normalizeOptions', function() {
     expect(actual).toEqual(expected);
   });
 
-  it('sets flag to true when svelte version is lower than flag version', function() {
+  it('sets flag to true when svelte version is lower than flag version', function () {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',
@@ -170,7 +170,7 @@ describe('normalizeOptions', function() {
     expect(actual).toEqual(expected);
   });
 
-  it('sets flag to true when svelte version is a beta version higher than flag version', function() {
+  it('sets flag to true when svelte version is a beta version higher than flag version', function () {
     let actual = normalizeOptions({
       debugTools: {
         source: 'whatever',

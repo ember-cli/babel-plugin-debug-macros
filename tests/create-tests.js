@@ -3,17 +3,18 @@
 const DebugToolsPlugin = require('..');
 const fs = require('fs');
 const CONSOLE = Object.assign({}, console);
+require('code-equality-assertions/jest');
 
 function createTests(options) {
   const babelVersion = options.babelVersion;
   const presets = options.presets;
   const transform = options.transform;
 
-  afterEach(function() {
+  afterEach(function () {
     Object.assign(console, CONSOLE);
   });
 
-  describe('Feature Flags', function() {
+  describe('Feature Flags', function () {
     const h = transformTestHelper({
       presets,
       plugins: [
@@ -51,7 +52,7 @@ function createTests(options) {
     );
   });
 
-  describe('Debug Macros', function() {
+  describe('Debug Macros', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -80,7 +81,7 @@ function createTests(options) {
     h.generateTest('log-expansion');
   });
 
-  describe('Debug macros idempotnency', function() {
+  describe('Debug macros idempotnency', function () {
     let h = transformTestHelper({
       presets,
       plugins: [[DebugToolsPlugin]],
@@ -89,7 +90,7 @@ function createTests(options) {
     h.generateTest('missing-debug-tools-options');
   });
 
-  describe('foreign debug imports', function() {
+  describe('foreign debug imports', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -109,7 +110,7 @@ function createTests(options) {
         ],
 
         [
-          function(babel) {
+          function (babel) {
             let t = babel.types;
 
             return {
@@ -118,7 +119,7 @@ function createTests(options) {
                 ImportSpecifier(path) {
                   let importedName = path.node.imported.name;
                   if (importedName === 'inspect') {
-                    let importDeclarationPath = path.findParent(p => p.isImportDeclaration());
+                    let importDeclarationPath = path.findParent((p) => p.isImportDeclaration());
                     let binding = path.scope.getBinding(importedName);
                     let references = binding.referencePaths;
 
@@ -148,7 +149,7 @@ function createTests(options) {
     h.generateTest('shared-debug-module');
   });
 
-  describe('Global External Test Helpers', function() {
+  describe('Global External Test Helpers', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -171,11 +172,11 @@ function createTests(options) {
     h.generateTest('global-external-helpers');
   });
 
-  describe('ember-cli-babel configuration', function() {
-    describe('Ember < 3.27', function() {
-      describe('legacy config API', function() {
-        beforeEach(function() {
-          console.warn = () => {}; // eslint-disable-line
+  describe('ember-cli-babel configuration', function () {
+    describe('Ember < 3.27', function () {
+      describe('legacy config API', function () {
+        beforeEach(function () {
+          console.warn = () => {};
         });
 
         let h = transformTestHelper({
@@ -206,7 +207,7 @@ function createTests(options) {
         h.generateTest('ember-cli-babel-config-pre-3-27');
       });
 
-      describe('default configuration', function() {
+      describe('default configuration', function () {
         let h = transformTestHelper({
           presets,
           plugins: [
@@ -231,8 +232,8 @@ function createTests(options) {
       });
     });
 
-    describe('Ember >= 3.27', function() {
-      describe('default configuration', function() {
+    describe('Ember >= 3.27', function () {
+      describe('default configuration', function () {
         let h = transformTestHelper({
           presets,
           plugins: [
@@ -258,7 +259,7 @@ function createTests(options) {
     });
   });
 
-  describe('Retain Module External Test Helpers', function() {
+  describe('Retain Module External Test Helpers', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -281,7 +282,7 @@ function createTests(options) {
     h.generateTest('retain-module-external-helpers');
   });
 
-  describe('Svelte Builds', function() {
+  describe('Svelte Builds', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -324,7 +325,7 @@ function createTests(options) {
     h.generateTest('development-svelte-builds');
   });
 
-  describe('Inline Env Flags', function() {
+  describe('Inline Env Flags', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -345,7 +346,7 @@ function createTests(options) {
     h.generateTest('debug-flag');
   });
 
-  describe('Retains non-macro types', function() {
+  describe('Retains non-macro types', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -366,7 +367,7 @@ function createTests(options) {
     h.generateTest('does-not-modify-non-imported-flags');
   });
 
-  describe('Removes Imports Without Specifiers', function() {
+  describe('Removes Imports Without Specifiers', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -386,7 +387,7 @@ function createTests(options) {
     h.generateTest('removes-imports-without-specifiers');
   });
 
-  describe('Runtime Feature Flags', function() {
+  describe('Runtime Feature Flags', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -415,7 +416,7 @@ function createTests(options) {
     h.generateTest('runtime-feature-flags');
   });
 
-  describe('Runtime default export features', function() {
+  describe('Runtime default export features', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -444,7 +445,7 @@ function createTests(options) {
     h.generateTest('default-export-features');
   });
 
-  describe('Retains runtime feature flag definitions', function() {
+  describe('Retains runtime feature flag definitions', function () {
     let h = transformTestHelper({
       presets,
       plugins: [
@@ -477,18 +478,18 @@ function createTests(options) {
   function transformTestHelper(options) {
     return {
       generateTest(fixtureName) {
-        it(fixtureName, function() {
+        it(fixtureName, function () {
           let sample = fs.readFileSync(`./fixtures/${fixtureName}/sample.js`, 'utf-8');
           let expectation = fs.readFileSync(
             `./fixtures/${fixtureName}/expectation${babelVersion}.js`,
             'utf-8'
           );
-          expect(transform(sample, options).code).toEqual(expectation);
+          expect(transform(sample, options).code).toEqualCode(expectation);
         });
       },
 
       generateErrorTest(fixtureName, error) {
-        it(fixtureName, function() {
+        it(fixtureName, function () {
           let sample = fs.readFileSync(`./fixtures/${fixtureName}/sample.js`, 'utf-8');
           expect(() => transform(sample, options)).toThrow(error);
         });

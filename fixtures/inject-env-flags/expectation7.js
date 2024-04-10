@@ -1,15 +1,11 @@
 let testing;
 
-if (false
-/* TESTING */
-) {
+if (false/* TESTING */) {
   testing = 'WOOT';
 }
 
 let debug;
 
-if (true
-/* DEBUG */
-) {
+if (true/* DEBUG */) {
   debug = 'DEBUG';
 }

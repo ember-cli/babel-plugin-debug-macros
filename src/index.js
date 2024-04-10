@@ -47,7 +47,7 @@ function macros(babel) {
 
           let binding = path.scope.getBinding(localBindingName);
 
-          binding.referencePaths.forEach(p => {
+          binding.referencePaths.forEach((p) => {
             p.replaceWith(buildIdentifier(flagValue, flagName));
           });
 
@@ -75,7 +75,7 @@ function macros(babel) {
 
           let body = path.get('body');
 
-          body.forEach(item => {
+          body.forEach((item) => {
             if (item.isImportDeclaration()) {
               let importPath = item.node.source.value;
 
@@ -104,7 +104,7 @@ function macros(babel) {
   };
 }
 
-macros.baseDir = function() {
+macros.baseDir = function () {
   return path.dirname(__dirname);
 };
 
