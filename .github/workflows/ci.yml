@@ -24,6 +24,8 @@ jobs:
         cache: pnpm
     - run: pnpm install
     - run: pnpm lint
+    # TODO 
+    # - run: pnpm tsc
 
   build:
     runs-on: ubuntu-latest
@@ -45,4 +47,5 @@ jobs:
         node-version:  ${{ matrix.node-version }}
         cache: pnpm
     - run: pnpm install
+    - run: pnpm tsc
     - run: pnpm test
