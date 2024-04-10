@@ -1,4 +1,4 @@
-import createTests from './create-tests';
+import createTests from './create-tests.js';
 import { transform } from '@babel/core';
 
 const presets = [

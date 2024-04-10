@@ -1,4 +1,4 @@
-import { normalizeOptions } from '../src/utils/normalize-options';
+import { normalizeOptions } from '../src/utils/normalize-options.js';
 
 describe('normalizeOptions', function () {
   let originalConsole = Object.assign({}, console);

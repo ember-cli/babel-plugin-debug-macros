@@ -61,7 +61,7 @@ function parseFlags(options) {
   return combinedFlags;
 }
 
-function normalizeOptions(options) {
+export function normalizeOptions(options) {
   let features = options.features || [];
   let externalizeHelpers = options.externalizeHelpers;
   let svelte = options.svelte;
@@ -78,6 +78,4 @@ function normalizeOptions(options) {
   };
 }
 
-module.exports = {
-  normalizeOptions,
-};
+

@@ -1,4 +1,4 @@
-import DebugToolsPlugin from '../src/index';
+import DebugToolsPlugin from '../src/index.js';
 
 describe('baseDir', function () {
   it('returns directory with package.json', function () {

@@ -1,10 +1,19 @@
-import DebugToolsPlugin from '../src/index';
+import DebugToolsPlugin from '../src/index.js';
 import fs from 'fs';
 import 'code-equality-assertions/jest';
+import { type TransformOptions, transform } from '@babel/core';
+import * as Babel from '@babel/core';
+import { types as t } from '@babel/core';
 
 const CONSOLE = Object.assign({}, console);
 
-function createTests(options) {
+export interface Options {
+  presets: TransformOptions['presets'];
+  babelVersion: 7;
+  transform: typeof transform;
+}
+
+export default function createTests(options: Options) {
   const babelVersion = options.babelVersion;
   const presets = options.presets;
   const transform = options.transform;
@@ -109,20 +118,22 @@ function createTests(options) {
         ],
 
         [
-          function (babel) {
+          function (babel: typeof Babel): Babel.PluginObj {
             let t = babel.types;
 
             return {
               name: 'import-remover',
               visitor: {
                 ImportSpecifier(path) {
-                  let importedName = path.node.imported.name;
+                  let importedName = babel.types.isIdentifier(path.node.imported)
+                    ? path.node.imported.name
+                    : path.node.imported.value;
                   if (importedName === 'inspect') {
                     let importDeclarationPath = path.findParent((p) => p.isImportDeclaration());
-                    let binding = path.scope.getBinding(importedName);
+                    let binding = path.scope.getBinding(importedName)!;
                     let references = binding.referencePaths;
 
-                    let replacements = [];
+                    let replacements: t.VariableDeclaration[] = [];
                     references.forEach(() => {
                       replacements.push(
                         t.variableDeclaration('var', [
@@ -135,7 +146,7 @@ function createTests(options) {
                     });
 
                     path.remove();
-                    importDeclarationPath.insertAfter(replacements);
+                    importDeclarationPath!.insertAfter(replacements);
                   }
                 },
               },
@@ -439,20 +450,20 @@ function createTests(options) {
     h.generateTest('retains-runtime-definitions');
   });
 
-  function transformTestHelper(options) {
+  function transformTestHelper(options: TransformOptions) {
     return {
-      generateTest(fixtureName) {
+      generateTest(fixtureName: string) {
         it(fixtureName, function () {
           let sample = fs.readFileSync(`./fixtures/${fixtureName}/sample.js`, 'utf-8');
           let expectation = fs.readFileSync(
             `./fixtures/${fixtureName}/expectation${babelVersion}.js`,
             'utf-8'
           );
-          expect(transform(sample, options).code).toEqualCode(expectation);
+          expect(transform(sample, options)!.code).toEqualCode(expectation);
         });
       },
 
-      generateErrorTest(fixtureName, error) {
+      generateErrorTest(fixtureName: string, error: string) {
         it(fixtureName, function () {
           let sample = fs.readFileSync(`./fixtures/${fixtureName}/sample.js`, 'utf-8');
           expect(() => transform(sample, options)).toThrow(error);
@@ -461,5 +472,3 @@ function createTests(options) {
     };
   }
 }
-
-module.exports = createTests;

@@ -31,7 +31,7 @@ describe('utils/macros.js', function () {
         ],
       ],
       filename: 'some-file.js',
-    });
+    })!;
 
     expect(code).to.eql('');
   });
