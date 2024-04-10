@@ -1,6 +1,6 @@
 import { gt } from 'semver';
 
-function parseDebugTools(options) {
+function parseDebugTools(options: any): NormalizedOptions["debugTools"] {
   let debugTools = options.debugTools || {
     isDebug: false,
     source: '',
@@ -61,7 +61,14 @@ function parseFlags(options) {
   return combinedFlags;
 }
 
-export function normalizeOptions(options) {
+export interface NormalizedOptions {
+  externalizeHelpers: unknown;
+  flags: unknown;
+  svelte: unknown;
+  debugTools: unknown;
+}
+
+export function normalizeOptions(options: any): NormalizedOptions {
   let features = options.features || [];
   let externalizeHelpers = options.externalizeHelpers;
   let svelte = options.svelte;
