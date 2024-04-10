@@ -57,7 +57,7 @@
     "@babel/core": "^7.0.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=16"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
