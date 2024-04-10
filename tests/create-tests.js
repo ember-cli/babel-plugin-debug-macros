@@ -173,63 +173,28 @@ function createTests(options) {
   });
 
   describe('ember-cli-babel configuration', function () {
-    describe('Ember < 3.27', function () {
-      describe('legacy config API', function () {
-        beforeEach(function () {
-          console.warn = () => {};
-        });
-
-        let h = transformTestHelper({
-          presets,
-          plugins: [
-            [
-              DebugToolsPlugin,
-              {
-                externalizeHelpers: {
-                  global: 'Ember',
-                },
-                debugTools: {
-                  isDebug: true,
-                  source: '@ember/debug',
-                  assertPredicateIndex: 1,
-                },
-                envFlags: {
-                  source: '@glimmer/env',
-                  flags: {
-                    DEBUG: true,
-                  },
-                },
+    describe('default configuration', function () {
+      let h = transformTestHelper({
+        presets,
+        plugins: [
+          [
+            DebugToolsPlugin,
+            {
+              externalizeHelpers: {
+                global: 'Ember',
               },
-            ],
+              debugTools: {
+                isDebug: true,
+                source: '@ember/debug',
+                assertPredicateIndex: 1,
+              },
+              flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
+            },
           ],
-        });
-
-        h.generateTest('ember-cli-babel-config-pre-3-27');
+        ],
       });
 
-      describe('default configuration', function () {
-        let h = transformTestHelper({
-          presets,
-          plugins: [
-            [
-              DebugToolsPlugin,
-              {
-                externalizeHelpers: {
-                  global: 'Ember',
-                },
-                debugTools: {
-                  isDebug: true,
-                  source: '@ember/debug',
-                  assertPredicateIndex: 1,
-                },
-                flags: [{ source: '@glimmer/env', flags: { DEBUG: true } }],
-              },
-            ],
-          ],
-        });
-
-        h.generateTest('ember-cli-babel-config-pre-3-27');
-      });
+      h.generateTest('ember-cli-babel-config-pre-3-27');
     });
 
     describe('Ember >= 3.27', function () {

@@ -26,55 +26,6 @@ describe('normalizeOptions', function () {
     expect(actual).toEqual(expected);
   });
 
-  it('converts "old style" options into the newer style (with deprecation)', function () {
-    let warnings = [];
-    console.warn = warning => warnings.push(warning); // eslint-disable-line
-
-    let options = {
-      envFlags: {
-        source: '@ember/env-flags',
-        flags: {
-          DEBUG: false,
-        },
-      },
-      debugTools: {
-        source: '@ember/debug-tools',
-      },
-      features: {
-        name: 'ember-source',
-        source: '@ember/features',
-        flags: {
-          FEATURE_A: true,
-          FEATURE_B: null,
-        },
-      },
-    };
-    let stringifiedOptions = JSON.stringify(options, null, 2);
-    let actual = normalizeOptions(options);
-    let expected = {
-      debugTools: {
-        isDebug: false,
-        assertPredicateIndex: undefined,
-        debugToolsImport: '@ember/debug-tools',
-      },
-      flags: {
-        '@ember/env-flags': {
-          DEBUG: false,
-        },
-        '@ember/features': {
-          FEATURE_A: true,
-          FEATURE_B: null,
-        },
-      },
-      externalizeHelpers: undefined,
-    };
-
-    expect(actual).toEqual(expected);
-    expect(warnings).toEqual([
-      `[babel-plugin-debug-macros]: passed v1 configuration, converting to v2.  Legacy configuration passed:\n${stringifiedOptions}`,
-    ]);
-  });
-
   it('sets flag to false when svelte version matches the flag version', function () {
     let actual = normalizeOptions({
       debugTools: {
