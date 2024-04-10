@@ -1,10 +1,8 @@
-'use strict';
+import path from 'path';
+import Macros from './utils/macros';
+import { normalizeOptions } from './utils/normalize-options';
 
-const path = require('path');
-const Macros = require('./utils/macros');
-const normalizeOptions = require('./utils/normalize-options').normalizeOptions;
-
-function macros(babel) {
+export default function macros(babel) {
   let t = babel.types;
 
   function buildIdentifier(value, name) {
@@ -105,7 +103,7 @@ function macros(babel) {
 }
 
 macros.baseDir = function () {
-  return path.dirname(__dirname);
+  return path.resolve(__dirname, '..', '..');
 };
 
-module.exports = macros;
+

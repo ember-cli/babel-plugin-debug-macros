@@ -1,10 +1,8 @@
-'use strict';
-
-const Builder = require('./builder');
+import Builder from './builder';
 
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 
-module.exports = class Macros {
+export default class Macros {
   constructor(babel, options) {
     this.babel = babel;
     this.localDebugBindings = [];

@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = class Builder {
+export default class Builder {
   constructor(t, options) {
     this.t = t;
     this.module = options.module;

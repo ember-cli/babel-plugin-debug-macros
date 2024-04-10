@@ -1,6 +1,4 @@
-'use strict';
-
-const gt = require('semver').gt;
+import { gt } from 'semver';
 
 function parseDebugTools(options) {
   let debugTools = options.debugTools || {

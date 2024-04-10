@@ -16,10 +16,9 @@
     "Kris Selden <kris.selden@gmail.com>",
     "Robert Jackson <me@rwjblue.com>"
   ],
-  "main": "src/index.js",
+  "main": "dist/src/index.js",
   "files": [
-    "src/",
-    "!src/tests"
+    "dist/src/"
   ],
   "scripts": {
     "changelog": "lerna-changelog",
@@ -28,7 +27,7 @@
   },
   "jest": {
     "testMatch": [
-      "<rootDir>/tests/**/*-test.js"
+      "<rootDir>/dist/tests/**/*-test.js"
     ]
   },
   "dependencies": {
@@ -40,6 +39,9 @@
     "@babel/preset-env": "^7.24.4",
     "@eslint/js": "^9.0.0",
     "@release-it-plugins/lerna-changelog": "^6.1.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.7",
+    "@types/semver": "^7.5.8",
     "chai": "^4.0.0",
     "code-equality-assertions": "^0.9.0",
     "eslint": "^9.0.0",

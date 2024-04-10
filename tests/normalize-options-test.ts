@@ -1,6 +1,4 @@
-'use strict';
-
-const normalizeOptions = require('../src/utils/normalize-options').normalizeOptions;
+import { normalizeOptions } from '../src/utils/normalize-options';
 
 describe('normalizeOptions', function () {
   let originalConsole = Object.assign({}, console);

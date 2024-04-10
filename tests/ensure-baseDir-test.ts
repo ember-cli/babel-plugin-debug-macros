@@ -1,6 +1,4 @@
-'use strict';
-
-const DebugToolsPlugin = require('..');
+import DebugToolsPlugin from '../src/index';
 
 describe('baseDir', function () {
   it('returns directory with package.json', function () {

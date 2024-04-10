@@ -1,9 +1,8 @@
-'use strict';
+import DebugToolsPlugin from '../src/index';
+import fs from 'fs';
+import 'code-equality-assertions/jest';
 
-const DebugToolsPlugin = require('..');
-const fs = require('fs');
 const CONSOLE = Object.assign({}, console);
-require('code-equality-assertions/jest');
 
 function createTests(options) {
   const babelVersion = options.babelVersion;
