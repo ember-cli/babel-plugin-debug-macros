@@ -72,7 +72,6 @@ export interface NormalizedOptions {
     global?: string;
   };
   flags: Record<string, Record<string, boolean | null>>;
-  svelte: unknown;
   debugTools: {
     isDebug: boolean;
     debugToolsImport: string;
@@ -98,7 +97,6 @@ export function normalizeOptions(options: UserOptions): NormalizedOptions {
   return {
     externalizeHelpers: options.externalizeHelpers,
     flags: parseFlags(options),
-    svelte: options.svelte,
     debugTools: parseDebugTools(options),
   };
 }

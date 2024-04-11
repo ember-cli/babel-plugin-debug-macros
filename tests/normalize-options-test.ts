@@ -61,7 +61,6 @@ describe('normalizeOptions', function () {
         },
       },
       externalizeHelpers: undefined,
-      svelte: { 'ember-source': '1.2.0' },
     };
 
     expect(actual).toEqual(expected);
@@ -87,7 +86,6 @@ describe('normalizeOptions', function () {
         whatever: { DEBUG: true },
       },
       externalizeHelpers: undefined,
-      svelte: { foo: '1.2.0' },
     };
 
     expect(actual).toEqual(expected);
@@ -113,7 +111,6 @@ describe('normalizeOptions', function () {
         whatever: { DEBUG: true },
       },
       externalizeHelpers: undefined,
-      svelte: { foo: '1.0.0' },
     };
 
     expect(actual).toEqual(expected);
@@ -139,7 +136,6 @@ describe('normalizeOptions', function () {
         whatever: { DEBUG: true },
       },
       externalizeHelpers: undefined,
-      svelte: { foo: '1.2.0' },
     };
 
     expect(actual).toEqual(expected);
