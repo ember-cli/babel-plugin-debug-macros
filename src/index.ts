@@ -91,8 +91,8 @@ export default function macros(babel: typeof Babel): Babel.PluginObj<State> {
           });
         },
 
-        exit(path) {
-          this.macroBuilder.expand(path);
+        exit() {
+          this.macroBuilder.expand();
         },
       },
 

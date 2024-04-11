@@ -1,11 +1,44 @@
+import type * as Babel from '@babel/core';
+import type { types as t } from '@babel/core';
+import type { NodePath } from '@babel/core';
+import { CallIdentifierExpression, CallStatementPath } from './babel-type-helpers';
+
+export interface Options {
+  module: boolean | undefined;
+  global: string | undefined;
+  assertPredicateIndex: number | undefined;
+  isDebug: boolean;
+}
+
+interface MacroExpressionOpts {
+  validate?: (expression: CallIdentifierExpression, args: t.CallExpression['arguments']) => void;
+  buildConsoleAPI?: (
+    expression: CallIdentifierExpression,
+    args: t.CallExpression['arguments']
+  ) => t.CallExpression;
+  consoleAPI?: t.Identifier;
+  predicate?: (
+    expression: CallIdentifierExpression,
+    args: t.CallExpression['arguments']
+  ) => t.CallExpression['arguments'][number] | undefined;
+}
+
 export default class Builder {
-  constructor(t, options) {
-    this.t = t;
+  private module: boolean | undefined;
+  private global: string | undefined;
+  private assertPredicateIndex: number | undefined;
+  private isDebug: boolean;
+
+  private expressions: [CallStatementPath, (debugIdentifier: t.Expression) => t.Expression][] = [];
+
+  constructor(
+    readonly t: typeof Babel.types,
+    options: Options
+  ) {
     this.module = options.module;
     this.global = options.global;
     this.assertPredicateIndex = options.assertPredicateIndex;
     this.isDebug = options.isDebug;
-    this.expressions = [];
   }
 
   /**
@@ -25,11 +58,12 @@ export default class Builder {
    *
    * ($DEBUG && $GLOBAL_NS.assert($PREDICATE, $MESSAGE));
    */
-  assert(path) {
-    let predicate;
-    if (this.assertPredicateIndex !== undefined) {
+  assert(path: CallStatementPath) {
+    let predicate: MacroExpressionOpts['predicate'];
+    const index = this.assertPredicateIndex;
+    if (index !== undefined) {
       predicate = (expression, args) => {
-        return args[this.assertPredicateIndex];
+        return args[index];
       };
     }
 
@@ -55,7 +89,7 @@ export default class Builder {
    *
    * ($DEBUG && $GLOBAL_NS.warn($MESSAGE));
    */
-  warn(path) {
+  warn(path: CallStatementPath) {
     this._createMacroExpression(path);
   }
 
@@ -76,13 +110,11 @@ export default class Builder {
    *
    * ($DEBUG && $GLOBAL_NS.log($MESSAGE));
    */
-  log(path) {
+  log(path: CallStatementPath) {
     this._createMacroExpression(path);
   }
 
-  _createMacroExpression(path, _options) {
-    let options = _options || {};
-
+  _createMacroExpression(path: CallStatementPath, options: MacroExpressionOpts = {}) {
     let t = this.t;
     let expression = path.node.expression;
     let callee = expression.callee;
@@ -103,10 +135,13 @@ export default class Builder {
       callExpression = this._createConsoleAPI(options.consoleAPI || callee, args);
     }
 
-    let prefixedIdentifiers = [];
+    let prefixedIdentifiers: t.Expression[] = [];
 
     if (options.predicate) {
       let predicate = options.predicate(expression, args) || t.identifier('false');
+      if (!this.t.isExpression(predicate)) {
+        throw new Error(`bug: this doesn't support ${predicate.type}`);
+      }
       let negatedPredicate = t.unaryExpression('!', t.parenthesizedExpression(predicate));
       prefixedIdentifiers.push(negatedPredicate);
     }
@@ -142,7 +177,7 @@ export default class Builder {
    *
    * ($DEBUG && $PREDICATE && $GLOBAL_NS.deprecate($MESSAGE, $PREDICATE, { $ID, $URL, $UNTIL }));
    */
-  deprecate(path) {
+  deprecate(path: CallStatementPath) {
     this._createMacroExpression(path, {
       predicate: (expression, args) => args[1],
 
@@ -157,8 +192,14 @@ export default class Builder {
 
         if (
           meta &&
+          this.t.isObjectExpression(meta) &&
           meta.properties &&
-          !meta.properties.some((prop) => prop.key.name === 'id' || prop.key.value === 'id')
+          !meta.properties.some(
+            (prop) =>
+              this.t.isObjectProperty(prop) &&
+              ((this.t.isIdentifier(prop.key) && prop.key.name === 'id') ||
+                (this.t.isStringLiteral(prop.key) && prop.key.value === 'id'))
+          )
         ) {
           throw new ReferenceError(`deprecate's meta information requires an "id" field.`);
         }
@@ -180,24 +221,27 @@ export default class Builder {
     }
   }
 
-  _getIdentifiers(args) {
-    return args.filter((arg) => this.t.isIdentifier(arg));
-  }
-
-  _createGlobalExternalHelper(identifier, args, ns) {
+  _createGlobalExternalHelper(
+    identifier: t.Identifier,
+    args: t.CallExpression['arguments'],
+    ns: string
+  ) {
     let t = this.t;
     return t.callExpression(t.memberExpression(t.identifier(ns), identifier), args);
   }
 
-  _createConsoleAPI(identifier, args) {
+  _createConsoleAPI(identifier: t.Identifier, args: t.CallExpression['arguments']) {
     let t = this.t;
     return t.callExpression(t.memberExpression(t.identifier('console'), identifier), args);
   }
 
-  _buildLogicalExpressions(identifiers, callExpression) {
+  _buildLogicalExpressions(
+    identifiers: t.Expression[],
+    callExpression: t.Expression
+  ): (debugIdentifier: t.Expression) => t.Expression {
     let t = this.t;
 
-    return (debugIdentifier) => {
+    return (debugIdentifier: t.Expression) => {
       identifiers.unshift(debugIdentifier);
       identifiers.push(callExpression);
       let logicalExpressions;
@@ -212,7 +256,7 @@ export default class Builder {
         }
       }
 
-      return logicalExpressions;
+      return logicalExpressions!;
     };
   }
-};
+}
