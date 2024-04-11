@@ -5,13 +5,15 @@ import type { NormalizedOptions } from './normalize-options';
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 
 export default class Macros {
-  constructor(babel: typeof Babel, options: NormalizedOptions) {
-    this.localDebugBindings = [];
+  private debugHelpers: NormalizedOptions["externalizeHelpers"];
+  private localDebugBindings: unknown[] = [];
+  private builder: Builder;
 
-    this.debugHelpers = options.externalizeHelpers || {};
+  constructor(babel: typeof Babel, options: NormalizedOptions) {
+    this.debugHelpers = options.externalizeHelpers;
     this.builder = new Builder(babel.types, {
-      module: this.debugHelpers.module,
-      global: this.debugHelpers.global,
+      module: this.debugHelpers?.module,
+      global: this.debugHelpers?.global,
       assertPredicateIndex: options.debugTools && options.debugTools.assertPredicateIndex,
       isDebug: options.debugTools.isDebug,
     });
@@ -54,7 +56,7 @@ export default class Macros {
   }
 
   _cleanImports() {
-    if (!this.debugHelpers.module) {
+    if (!this.debugHelpers?.module) {
       if (this.localDebugBindings.length > 0) {
         let importPath = this.localDebugBindings[0].findParent((p) => p.isImportDeclaration());
         if (importPath === null) {

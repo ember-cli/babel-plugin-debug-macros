@@ -67,7 +67,7 @@ function parseFlags(options: UserOptions): Record<string, Record<string, boolean
 }
 
 export interface NormalizedOptions {
-  externalizeHelpers: {
+  externalizeHelpers?: {
     module?: boolean;
     global?: string;
   };
@@ -96,7 +96,7 @@ export interface UserOptions {
 
 export function normalizeOptions(options: UserOptions): NormalizedOptions {
   return {
-    externalizeHelpers: options.externalizeHelpers ?? {},
+    externalizeHelpers: options.externalizeHelpers,
     flags: parseFlags(options),
     svelte: options.svelte,
     debugTools: parseDebugTools(options),
