@@ -1,4 +1,13 @@
 
+
+## v1.0.0-alpha.1 (2024-04-11)
+
+#### :bug: Bug Fix
+* [#95](https://github.com/ember-cli/babel-plugin-debug-macros/pull/95) Don't expose typescript's esm/cjs interop from the entrypoint ([@ef4](https://github.com/ef4))
+
+#### Committers: 1
+- Edward Faulkner ([@ef4](https://github.com/ef4))
+
 ## v1.0.0-alpha.0 (2024-04-11)
 
 #### :boom: Breaking Change
