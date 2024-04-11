@@ -1,8 +1,6 @@
-'use strict';
-
-const macros = require('../src/index.js');
-const { transformSync } = require('@babel/core');
-const { expect } = require('chai');
+import macros from '../src/index.js';
+import { transformSync } from '@babel/core';
+import { expect } from 'chai';
 
 describe('utils/macros.js', function () {
   it('does not fail if an import intended to be removed has already been removed', function () {
@@ -33,7 +31,7 @@ describe('utils/macros.js', function () {
         ],
       ],
       filename: 'some-file.js',
-    });
+    })!;
 
     expect(code).to.eql('');
   });

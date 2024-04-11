@@ -1,32 +1,24 @@
-'use strict';
-
-import type * as Babel from '@babel/core';
-import type { NodePath, types as t } from '@babel/core';
 import Builder from './builder';
-import { NormalizedOptions } from './normalize-options';
+import type * as Babel from '@babel/core';
+import type { types as t } from '@babel/core';
+
+import type { NormalizedOptions } from './normalize-options';
+import type { NodePath } from '@babel/core';
+import { isCallStatementPath, name } from './babel-type-helpers';
 
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
-type Macro = 'assert' | 'deprecate' | 'warn' | 'log';
+type SupportedMacro = 'assert' | 'deprecate' | 'warn' | 'log';
 
 export default class Macros {
+  private debugHelpers: NormalizedOptions['externalizeHelpers'];
+  private localDebugBindings: NodePath<t.Identifier>[] = [];
   private builder: Builder;
-  private localDebugBindings: Map<string, Macro> = new Map();
-  private module = false;
 
   constructor(babel: typeof Babel, options: NormalizedOptions) {
-    let global: string | undefined;
-    if (options.externalizeHelpers) {
-      if ('module' in options.externalizeHelpers) {
-        this.module = Boolean(options.externalizeHelpers.module);
-      }
-      if ('global' in options.externalizeHelpers) {
-        global = options.externalizeHelpers.global;
-      }
-    }
-
+    this.debugHelpers = options.externalizeHelpers;
     this.builder = new Builder(babel.types, {
-      module: this.module,
-      global,
+      module: this.debugHelpers?.module,
+      global: this.debugHelpers?.global,
       assertPredicateIndex: options.debugTools && options.debugTools.assertPredicateIndex,
       isDebug: options.debugTools.isDebug,
     });
@@ -36,10 +28,10 @@ export default class Macros {
    * Injects the either the env-flags module with the debug binding or
    * adds the debug binding if missing from the env-flags module.
    */
-  expand(path: NodePath<t.Program>) {
+  expand() {
     this.builder.expandMacros();
 
-    this._cleanImports(path);
+    this._cleanImports();
   }
 
   /**
@@ -52,13 +44,10 @@ export default class Macros {
   ) {
     specifiers.forEach((specifier) => {
       if (
-        specifier.isImportSpecifier() &&
+        specifier.node.type === 'ImportSpecifier' &&
         SUPPORTED_MACROS.indexOf(name(specifier.node.imported)) > -1
       ) {
-        this.localDebugBindings.set(
-          specifier.get('local').node.name,
-          name(specifier.node.imported) as Macro
-        );
+        this.localDebugBindings.push(specifier.get('local'));
       }
     });
   }
@@ -67,49 +56,33 @@ export default class Macros {
    * Builds the expressions that the CallExpression will expand into.
    */
   build(path: NodePath<t.ExpressionStatement>) {
-    const expression = path.node.expression;
-    if (!this.builder.t.isCallExpression(expression)) {
+    if (!isCallStatementPath(path)) {
       return;
     }
-    const callee = expression.callee;
-    if (!this.builder.t.isIdentifier(callee)) {
-      return;
-    }
-
-    let imported = this.localDebugBindings.get(callee.name);
-
-    if (imported != null) {
+    if (this.localDebugBindings.some((b) => b.node.name === path.node.expression.callee.name)) {
+      let imported = name(
+        (path.scope.getBinding(path.node.expression.callee.name)!.path.node as t.ImportSpecifier).imported
+      ) as SupportedMacro;
       this.builder[`${imported}`](path);
     }
   }
 
-  _cleanImports(path: NodePath<t.Program>) {
-    if (this.module) {
-      return;
-    }
-    for (let item of path.get('body')) {
-      if (item.isImportDeclaration()) {
-        
+  _cleanImports() {
+    if (!this.debugHelpers?.module) {
+      if (this.localDebugBindings.length > 0) {
+        let importPath = this.localDebugBindings[0].findParent((p) => p.isImportDeclaration()) as NodePath<t.ImportDeclaration> | null;
+        if (importPath === null) {
+          // import declaration in question seems to have already been removed
+          return;
+        }
+        let specifiers = importPath.get('specifiers');
+
+        if (specifiers.length === this.localDebugBindings.length) {
+          this.localDebugBindings[0].parentPath.parentPath!.remove();
+        } else {
+          this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
+        }
       }
     }
-    let importPath = this.localDebugBindings[0].findParent((p) => p.isImportDeclaration());
-    if (importPath === null) {
-      // import declaration in question seems to have already been removed
-      return;
-    }
-    let specifiers = importPath.get('specifiers');
-    if (specifiers.length === this.localDebugBindings.length) {
-      this.localDebugBindings[0].parentPath.parentPath.remove();
-    } else {
-      this.localDebugBindings.forEach((binding) => binding.parentPath.remove());
-    }
-  }
-}
-
-function name(value: t.Identifier | t.StringLiteral): string {
-  if (value.type === 'Identifier') {
-    return value.name;
-  } else {
-    return value.value;
   }
 }

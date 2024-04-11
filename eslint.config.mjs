@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import prettier from 'eslint-plugin-prettier/recommended';
 import node from 'eslint-plugin-n';
 import globals from 'globals';
+import tsParser from '@typescript-eslint/parser';
 
 export default [
   js.configs.recommended,
@@ -9,6 +10,7 @@ export default [
   node.configs['flat/recommended-module'],
   {
     languageOptions: {
+      parser: tsParser,
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
@@ -20,7 +22,7 @@ export default [
     },
   },
   {
-    files: ['tests/**/*.js'],
+    files: ['tests/**/*.ts'],
     languageOptions: {
       globals: {
         ...globals.jest,
@@ -28,6 +30,6 @@ export default [
     },
   },
   {
-    ignores: ['fixtures/**'],
+    ignores: ['fixtures/**', 'dist/**'],
   },
 ];

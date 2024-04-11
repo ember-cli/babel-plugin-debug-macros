@@ -1,7 +1,5 @@
-'use strict';
-
-const createTests = require('./create-tests');
-const transform = require('@babel/core').transform;
+import createTests from './create-tests.js';
+import { transform } from '@babel/core';
 
 const presets = [
   [
