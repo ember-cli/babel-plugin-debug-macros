@@ -1,3 +1,19 @@
+
+## v1.0.0-alpha.0 (2024-04-11)
+
+#### :boom: Breaking Change
+* [#94](https://github.com/ember-cli/babel-plugin-debug-macros/pull/94) Drop deprecated config format ([@ef4](https://github.com/ef4))
+* [#91](https://github.com/ember-cli/babel-plugin-debug-macros/pull/91) Drop support Node < 16 and babel < 7 ([@ef4](https://github.com/ef4))
+
+#### :house: Internal
+* [#92](https://github.com/ember-cli/babel-plugin-debug-macros/pull/92) TS conversion ([@ef4](https://github.com/ef4))
+* [#93](https://github.com/ember-cli/babel-plugin-debug-macros/pull/93) re-add utils-macros-test ([@ef4](https://github.com/ef4))
+* [#88](https://github.com/ember-cli/babel-plugin-debug-macros/pull/88) Add tests for Ember 3.27+ modules based API. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 2
+- Edward Faulkner ([@ef4](https://github.com/ef4))
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
 ## v0.3.4 (2021-01-27)
 
 #### :rocket: Enhancement

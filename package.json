@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-debug-macros",
-  "version": "0.3.4",
+  "version": "1.0.0-alpha.0",
   "description": "Debug macros and feature flag stripping",
   "keywords": [
     "babel",
