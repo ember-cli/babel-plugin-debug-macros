@@ -24,7 +24,8 @@
   "scripts": {
     "changelog": "lerna-changelog",
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "tsc"
   },
   "jest": {
     "testMatch": [
