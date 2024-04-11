@@ -1,23 +1,20 @@
 import path from 'path';
 import Macros from './utils/macros';
-import { normalizeOptions } from './utils/normalize-options';
+import { UserOptions, NormalizedOptions, normalizeOptions } from './utils/normalize-options';
+import * as Babel from '@babel/core';
+import type { types as t } from '@babel/core';
 
-export default function macros(babel) {
+interface State {
+  opts: NormalizedOptions;
+  macroBuilder: Macros;
+}
+
+export default function macros(babel: typeof Babel): Babel.PluginObj<State> {
   let t = babel.types;
 
-  function buildIdentifier(value, name) {
+  function buildIdentifier(value: boolean, name: string) {
     let replacement = t.booleanLiteral(value);
-
-    // when we only support babel@7 we should change this
-    // to `path.addComment` or `t.addComment`
-    let comment = {
-      type: 'CommentBlock',
-      value: ` ${name} `,
-      leading: false,
-      trailing: true,
-    };
-    replacement.trailingComments = [comment];
-
+    t.addComment(replacement, 'trailing', ` ${name} `);
     return replacement;
   }
 
@@ -25,11 +22,13 @@ export default function macros(babel) {
     name: 'babel-feature-flags-and-debug-macros',
     visitor: {
       ImportSpecifier(path, state) {
-        let importPath = path.parent.source.value;
+        let importPath = (path.parent as t.ImportDeclaration).source.value;
         let flagsForImport = state.opts.flags[importPath];
 
         if (flagsForImport) {
-          let flagName = path.node.imported.name;
+          let flagName = t.isIdentifier(path.node.imported)
+            ? path.node.imported.name
+            : path.node.imported.value;
           let localBindingName = path.node.local.name;
 
           if (!(flagName in flagsForImport)) {
@@ -43,7 +42,7 @@ export default function macros(babel) {
             return;
           }
 
-          let binding = path.scope.getBinding(localBindingName);
+          let binding = path.scope.getBinding(localBindingName)!;
 
           binding.referencePaths.forEach((p) => {
             p.replaceWith(buildIdentifier(flagValue, flagName));
@@ -68,7 +67,9 @@ export default function macros(babel) {
 
       Program: {
         enter(path, state) {
-          state.opts = normalizeOptions(state.opts);
+          // most of our plugin declares state.opts as already being normalized.
+          // This is the spot where we force it become so.
+          state.opts = normalizeOptions(state.opts as unknown as UserOptions);
           this.macroBuilder = new Macros(babel, state.opts);
 
           let body = path.get('body');
@@ -105,5 +106,3 @@ export default function macros(babel) {
 macros.baseDir = function () {
   return path.resolve(__dirname, '..', '..');
 };
-
-

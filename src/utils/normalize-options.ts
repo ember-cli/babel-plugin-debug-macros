@@ -1,6 +1,10 @@
 import { gt } from 'semver';
 
-function parseDebugTools(options: any): NormalizedOptions["debugTools"] {
+function parseDebugTools(options: UserOptions): {
+  isDebug: boolean;
+  debugToolsImport: string;
+  assertPredicateIndex: number | undefined;
+} {
   let debugTools = options.debugTools || {
     isDebug: false,
     source: '',
@@ -11,10 +15,6 @@ function parseDebugTools(options: any): NormalizedOptions["debugTools"] {
   let debugToolsImport = debugTools.source;
   let assertPredicateIndex = debugTools.assertPredicateIndex;
 
-  if (options.envFlags && isDebug === undefined) {
-    isDebug = options.envFlags.flags.DEBUG;
-  }
-
   return {
     isDebug,
     debugToolsImport,
@@ -22,10 +22,15 @@ function parseDebugTools(options: any): NormalizedOptions["debugTools"] {
   };
 }
 
-function evaluateFlagValue(options, name, flagName, flagValue) {
+function evaluateFlagValue(
+  options: UserOptions,
+  name: string | undefined,
+  flagName: string,
+  flagValue: string | boolean | null
+): boolean | null {
   let svelte = options.svelte;
 
-  if (typeof flagValue === 'string') {
+  if (typeof flagValue === 'string' && name) {
     if (svelte && svelte[name]) {
       return gt(flagValue, svelte[name]);
     } else {
@@ -38,10 +43,10 @@ function evaluateFlagValue(options, name, flagName, flagValue) {
   }
 }
 
-function parseFlags(options) {
+function parseFlags(options: UserOptions): Record<string, Record<string, boolean | null>> {
   let flagsProvided = options.flags || [];
 
-  let combinedFlags = {};
+  let combinedFlags: Record<string, Record<string, boolean | null>> = {};
   flagsProvided.forEach((flagsDefinition) => {
     let source = flagsDefinition.source;
     let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
@@ -62,27 +67,38 @@ function parseFlags(options) {
 }
 
 export interface NormalizedOptions {
-  externalizeHelpers: unknown;
-  flags: unknown;
+  externalizeHelpers: {
+    module?: boolean;
+    global?: string;
+  };
+  flags: Record<string, Record<string, boolean | null>>;
   svelte: unknown;
-  debugTools: unknown;
-}
-
-export function normalizeOptions(options: any): NormalizedOptions {
-  let features = options.features || [];
-  let externalizeHelpers = options.externalizeHelpers;
-  let svelte = options.svelte;
-
-  if (!Array.isArray(features)) {
-    features = [features];
-  }
-
-  return {
-    externalizeHelpers,
-    flags: parseFlags(options),
-    svelte,
-    debugTools: parseDebugTools(options),
+  debugTools: {
+    isDebug: boolean;
+    debugToolsImport: string;
+    assertPredicateIndex: number | undefined;
   };
 }
 
+export interface UserOptions {
+  externalizeHelpers?: {
+    module?: boolean;
+    global?: string;
+  };
+  svelte?: Record<string, string>;
+  flags?: { source: string; name?: string; flags: Record<string, boolean | string | null> }[];
+  debugTools?: {
+    isDebug: boolean;
+    source: string;
+    assertPredicateIndex?: number;
+  };
+}
 
+export function normalizeOptions(options: UserOptions): NormalizedOptions {
+  return {
+    externalizeHelpers: options.externalizeHelpers ?? {},
+    flags: parseFlags(options),
+    svelte: options.svelte,
+    debugTools: parseDebugTools(options),
+  };
+}

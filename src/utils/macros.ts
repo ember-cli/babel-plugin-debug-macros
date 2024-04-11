@@ -1,10 +1,11 @@
 import Builder from './builder';
+import type * as Babel from '@babel/core';
+import type { NormalizedOptions } from './normalize-options';
 
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 
 export default class Macros {
-  constructor(babel, options) {
-    this.babel = babel;
+  constructor(babel: typeof Babel, options: NormalizedOptions) {
     this.localDebugBindings = [];
 
     this.debugHelpers = options.externalizeHelpers || {};
