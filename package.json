@@ -16,8 +16,9 @@
     "Kris Selden <kris.selden@gmail.com>",
     "Robert Jackson <me@rwjblue.com>"
   ],
-  "main": "dist/src/index.js",
+  "main": "index.js",
   "files": [
+    "index.js",
     "dist/src/"
   ],
   "scripts": {

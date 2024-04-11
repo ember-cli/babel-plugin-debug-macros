@@ -30,6 +30,6 @@ export default [
     },
   },
   {
-    ignores: ['fixtures/**', 'dist/**'],
+    ignores: ['fixtures/**', 'dist/**', 'index.js'],
   },
 ];
