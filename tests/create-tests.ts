@@ -4,6 +4,7 @@ import 'code-equality-assertions/jest';
 import { type TransformOptions, transform } from '@babel/core';
 import * as Babel from '@babel/core';
 import { types as t } from '@babel/core';
+import { UserOptions } from '../src/utils/normalize-options.js';
 
 const CONSOLE = Object.assign({}, console);
 
@@ -216,7 +217,7 @@ export default function createTests(options: Options) {
               DebugToolsPlugin,
               {
                 externalizeHelpers: {
-                  module: '@ember/debug',
+                  module: true,
                 },
                 debugTools: {
                   isDebug: true,
@@ -450,7 +451,45 @@ export default function createTests(options: Options) {
     h.generateTest('retains-runtime-definitions');
   });
 
-  function transformTestHelper(options: TransformOptions) {
+  describe('@embroider/macros target', function () {
+    let h = transformTestHelper({
+      plugins: [
+        [
+          DebugToolsPlugin,
+          {
+            debugTools: {
+              source: '@ember/debug',
+              assertPredicateIndex: 1,
+              isDebug: '@embroider/macros',
+            },
+            externalizeHelpers: {
+              module: true,
+            },
+            flags: [
+              {
+                source: '@glimmer/env',
+                flags: {
+                  DEBUG: '@embroider/macros',
+                },
+              },
+            ],
+          },
+        ],
+      ],
+    });
+
+    h.generateTest('embroider-macros/assert');
+    h.generateTest('embroider-macros/deprecate');
+    h.generateTest('embroider-macros/glimmer-env');
+  });
+
+  // This says: the first plugin must be our own plugin. It allows us to
+  // typecheck the options.
+  type OurTransformOptions = Omit<TransformOptions, 'plugins'> & {
+    plugins: [[unknown, UserOptions?], ...NonNullable<TransformOptions['plugins']>];
+  };
+
+  function transformTestHelper(options: OurTransformOptions) {
     return {
       generateTest(fixtureName: string) {
         it(fixtureName, function () {

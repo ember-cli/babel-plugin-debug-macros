@@ -1,13 +1,13 @@
 import type * as Babel from '@babel/core';
-import type { types as t } from '@babel/core';
-import type { NodePath } from '@babel/core';
+import type { NodePath, types as t } from '@babel/core';
 import { CallIdentifierExpression, CallStatementPath } from './babel-type-helpers';
+import { ImportUtil } from 'babel-import-util';
 
 export interface Options {
   module: boolean | undefined;
   global: string | undefined;
   assertPredicateIndex: number | undefined;
-  isDebug: boolean;
+  isDebug: boolean | "@embroider/macros";
 }
 
 interface MacroExpressionOpts {
@@ -27,18 +27,21 @@ export default class Builder {
   private module: boolean | undefined;
   private global: string | undefined;
   private assertPredicateIndex: number | undefined;
-  private isDebug: boolean;
+  private isDebug: boolean | '@embroider/macros';
+  private util: ImportUtil;
 
   private expressions: [CallStatementPath, (debugIdentifier: t.Expression) => t.Expression][] = [];
 
   constructor(
     readonly t: typeof Babel.types,
+    util: ImportUtil,
     options: Options
   ) {
     this.module = options.module;
     this.global = options.global;
     this.assertPredicateIndex = options.assertPredicateIndex;
     this.isDebug = options.isDebug;
+    this.util = util;
   }
 
   /**
@@ -212,12 +215,24 @@ export default class Builder {
    */
   expandMacros() {
     let t = this.t;
-    let flag = t.booleanLiteral(this.isDebug);
     for (let i = 0; i < this.expressions.length; i++) {
       let expression = this.expressions[i];
       let exp = expression[0];
+      let flag = this._debugExpression(exp);
       let logicalExp = expression[1];
       exp.replaceWith(t.parenthesizedExpression(logicalExp(flag)));
+      exp.scope.crawl();
+    }
+  }
+
+  _debugExpression(target: NodePath) {
+    if (typeof this.isDebug === 'boolean') {
+      return this.t.booleanLiteral(this.isDebug);
+    } else {
+      return this.t.callExpression(
+        this.util.import(target, '@embroider/macros', 'isDevelopingApp'),
+        []
+      );
     }
   }
 

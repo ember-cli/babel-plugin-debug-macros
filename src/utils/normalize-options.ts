@@ -1,7 +1,7 @@
 import { gt } from 'semver';
 
 function parseDebugTools(options: UserOptions): {
-  isDebug: boolean;
+  isDebug: boolean | '@embroider/macros';
   debugToolsImport: string;
   assertPredicateIndex: number | undefined;
 } {
@@ -26,8 +26,8 @@ function evaluateFlagValue(
   options: UserOptions,
   name: string | undefined,
   flagName: string,
-  flagValue: string | boolean | null
-): boolean | null {
+  flagValue: string | boolean | null | "@embroider/macros"
+): boolean | null | "@embroider/macros" {
   let svelte = options.svelte;
 
   if (typeof flagValue === 'string' && name) {
@@ -38,15 +38,19 @@ function evaluateFlagValue(
     }
   } else if (typeof flagValue === 'boolean' || flagValue === null) {
     return flagValue;
+  } else if (flagValue === '@embroider/macros') {
+    return flagValue;
   } else {
     throw new Error(`Invalid value specified (${flagValue}) for ${flagName} by ${name}`);
   }
 }
 
-function parseFlags(options: UserOptions): Record<string, Record<string, boolean | null>> {
+function parseFlags(
+  options: UserOptions
+): Record<string, Record<string, boolean | null | '@embroider/macros'>> {
   let flagsProvided = options.flags || [];
 
-  let combinedFlags: Record<string, Record<string, boolean | null>> = {};
+  let combinedFlags: Record<string, Record<string, boolean | null | '@embroider/macros'>> = {};
   flagsProvided.forEach((flagsDefinition) => {
     let source = flagsDefinition.source;
     let flagsForSource = (combinedFlags[source] = combinedFlags[source] || {});
@@ -71,9 +75,9 @@ export interface NormalizedOptions {
     module?: boolean;
     global?: string;
   };
-  flags: Record<string, Record<string, boolean | null>>;
+  flags: Record<string, Record<string, boolean | null | '@embroider/macros'>>;
   debugTools: {
-    isDebug: boolean;
+    isDebug: boolean | '@embroider/macros';
     debugToolsImport: string;
     assertPredicateIndex: number | undefined;
   };
@@ -85,9 +89,13 @@ export interface UserOptions {
     global?: string;
   };
   svelte?: Record<string, string>;
-  flags?: { source: string; name?: string; flags: Record<string, boolean | string | null> }[];
+  flags?: {
+    source: string;
+    name?: string;
+    flags: Record<string, boolean | string | null | '@embroider/macros'>;
+  }[];
   debugTools?: {
-    isDebug: boolean;
+    isDebug: boolean | '@embroider/macros';
     source: string;
     assertPredicateIndex?: number;
   };

@@ -33,6 +33,7 @@
     ]
   },
   "dependencies": {
+    "babel-import-util": "^2.0.2",
     "semver": "^7.6.0"
   },
   "devDependencies": {

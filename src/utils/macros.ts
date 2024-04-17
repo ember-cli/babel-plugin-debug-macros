@@ -5,6 +5,8 @@ import type { types as t } from '@babel/core';
 import type { NormalizedOptions } from './normalize-options';
 import type { NodePath } from '@babel/core';
 import { isCallStatementPath, name } from './babel-type-helpers';
+import type { ImportUtil } from 'babel-import-util';
+
 
 const SUPPORTED_MACROS = ['assert', 'deprecate', 'warn', 'log'];
 type SupportedMacro = 'assert' | 'deprecate' | 'warn' | 'log';
@@ -14,9 +16,9 @@ export default class Macros {
   private localDebugBindings: NodePath<t.Identifier>[] = [];
   private builder: Builder;
 
-  constructor(babel: typeof Babel, options: NormalizedOptions) {
+  constructor(babel: typeof Babel, options: NormalizedOptions, util: ImportUtil) {
     this.debugHelpers = options.externalizeHelpers;
-    this.builder = new Builder(babel.types, {
+    this.builder = new Builder(babel.types, util, {
       module: this.debugHelpers?.module,
       global: this.debugHelpers?.global,
       assertPredicateIndex: options.debugTools && options.debugTools.assertPredicateIndex,
@@ -61,7 +63,8 @@ export default class Macros {
     }
     if (this.localDebugBindings.some((b) => b.node.name === path.node.expression.callee.name)) {
       let imported = name(
-        (path.scope.getBinding(path.node.expression.callee.name)!.path.node as t.ImportSpecifier).imported
+        (path.scope.getBinding(path.node.expression.callee.name)!.path.node as t.ImportSpecifier)
+          .imported
       ) as SupportedMacro;
       this.builder[`${imported}`](path);
     }
@@ -70,7 +73,9 @@ export default class Macros {
   _cleanImports() {
     if (!this.debugHelpers?.module) {
       if (this.localDebugBindings.length > 0) {
-        let importPath = this.localDebugBindings[0].findParent((p) => p.isImportDeclaration()) as NodePath<t.ImportDeclaration> | null;
+        let importPath = this.localDebugBindings[0].findParent((p) =>
+          p.isImportDeclaration()
+        ) as NodePath<t.ImportDeclaration> | null;
         if (importPath === null) {
           // import declaration in question seems to have already been removed
           return;
