@@ -3,10 +3,12 @@ import Macros from './utils/macros';
 import { UserOptions, NormalizedOptions, normalizeOptions } from './utils/normalize-options';
 import * as Babel from '@babel/core';
 import type { types as t } from '@babel/core';
+import { ImportUtil } from 'babel-import-util';
 
 interface State {
   opts: NormalizedOptions;
   macroBuilder: Macros;
+  util: ImportUtil;
 }
 
 export default function macros(babel: typeof Babel): Babel.PluginObj<State> {
@@ -45,7 +47,12 @@ export default function macros(babel: typeof Babel): Babel.PluginObj<State> {
           let binding = path.scope.getBinding(localBindingName)!;
 
           binding.referencePaths.forEach((p) => {
-            p.replaceWith(buildIdentifier(flagValue, flagName));
+            if (flagValue === '@embroider/macros') {
+              p.replaceWith(t.callExpression(state.util.import(p, "@embroider/macros", "isDevelopingApp"), []))
+              p.scope.crawl();
+            } else {
+              p.replaceWith(buildIdentifier(flagValue, flagName));
+            }
           });
 
           path.remove();
@@ -70,7 +77,8 @@ export default function macros(babel: typeof Babel): Babel.PluginObj<State> {
           // most of our plugin declares state.opts as already being normalized.
           // This is the spot where we force it become so.
           state.opts = normalizeOptions(state.opts as unknown as UserOptions);
-          this.macroBuilder = new Macros(babel, state.opts);
+          state.util = new ImportUtil(t, path)
+          this.macroBuilder = new Macros(babel, state.opts, state.util);
 
           let body = path.get('body');
 
