@@ -1,5 +1,14 @@
 
 
+
+## v1.0.0-alpha.2 (2024-04-17)
+
+#### :rocket: Enhancement
+* [#96](https://github.com/ember-cli/babel-plugin-debug-macros/pull/96) Add a mode that converts to @embroider/macros ([@ef4](https://github.com/ef4))
+
+#### Committers: 1
+- Edward Faulkner ([@ef4](https://github.com/ef4))
+
 ## v1.0.0-alpha.1 (2024-04-11)
 
 #### :bug: Bug Fix
