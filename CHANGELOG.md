@@ -3,6 +3,23 @@
 
 ## v1.0.0 (2024-04-27)
 
+#### :boom: Breaking Change
+* [#94](https://github.com/ember-cli/babel-plugin-debug-macros/pull/94) Drop deprecated config format ([@ef4](https://github.com/ef4))
+* [#91](https://github.com/ember-cli/babel-plugin-debug-macros/pull/91) Drop support Node < 16 and babel < 7 ([@ef4](https://github.com/ef4))
+
+#### :rocket: Enhancement
+* [#96](https://github.com/ember-cli/babel-plugin-debug-macros/pull/96) Add a mode that converts to @embroider/macros ([@ef4](https://github.com/ef4))
+* [#95](https://github.com/ember-cli/babel-plugin-debug-macros/pull/95) Don't expose typescript's esm/cjs interop from the entrypoint ([@ef4](https://github.com/ef4))
+
+#### :house: Internal
+* [#92](https://github.com/ember-cli/babel-plugin-debug-macros/pull/92) TS conversion ([@ef4](https://github.com/ef4))
+* [#93](https://github.com/ember-cli/babel-plugin-debug-macros/pull/93) re-add utils-macros-test ([@ef4](https://github.com/ef4))
+* [#88](https://github.com/ember-cli/babel-plugin-debug-macros/pull/88) Add tests for Ember 3.27+ modules based API. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 2
+- Edward Faulkner ([@ef4](https://github.com/ef4))
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
 ## v1.0.0-alpha.2 (2024-04-17)
 
 #### :rocket: Enhancement
