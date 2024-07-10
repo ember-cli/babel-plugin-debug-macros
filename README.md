@@ -14,7 +14,7 @@ options.
 ```js
 {
   plugins: [
-    ['babel-debug-macros', {
+    ['babel-plugin-debug-macros', {
       // @optional
       debugTools: {
         isDebug: true,
