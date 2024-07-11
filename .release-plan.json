@@ -2,13 +2,9 @@
   "solution": {
     "babel-plugin-debug-macros": {
       "impact": "patch",
-      "oldVersion": "1.0.0",
-      "newVersion": "1.0.1",
+      "oldVersion": "1.0.1",
+      "newVersion": "1.0.2",
       "constraints": [
-        {
-          "impact": "patch",
-          "reason": "Appears in changelog section :memo: Documentation"
-        },
         {
           "impact": "patch",
           "reason": "Appears in changelog section :house: Internal"
@@ -17,5 +13,5 @@
       "pkgJSONPath": "./package.json"
     }
   },
-  "description": "## Release (2024-07-11)\n\nbabel-plugin-debug-macros 1.0.1 (patch)\n\n#### :memo: Documentation\n* `babel-plugin-debug-macros`\n  * [#97](https://github.com/ember-cli/babel-plugin-debug-macros/pull/97) docs(README.md)/ Fix a typo in the name of the plugin ([@BlueCutOfficial](https://github.com/BlueCutOfficial))\n\n#### :house: Internal\n* `babel-plugin-debug-macros`\n  * [#100](https://github.com/ember-cli/babel-plugin-debug-macros/pull/100) remove security warnings from github ([@mansona](https://github.com/mansona))\n  * [#98](https://github.com/ember-cli/babel-plugin-debug-macros/pull/98) start using release-plan ([@mansona](https://github.com/mansona))\n\n#### Committers: 2\n- Chris Manson ([@mansona](https://github.com/mansona))\n- Marine Dunstetter ([@BlueCutOfficial](https://github.com/BlueCutOfficial))\n"
+  "description": "## Release (2024-07-11)\n\nbabel-plugin-debug-macros 1.0.2 (patch)\n\n#### :house: Internal\n* `babel-plugin-debug-macros`\n  * [#101](https://github.com/ember-cli/babel-plugin-debug-macros/pull/101) fix repo link ([@mansona](https://github.com/mansona))\n\n#### Committers: 1\n- Chris Manson ([@mansona](https://github.com/mansona))\n"
 }
