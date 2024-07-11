@@ -1,5 +1,22 @@
 # Changelog
 
+## Release (2024-07-11)
+
+babel-plugin-debug-macros 1.0.1 (patch)
+
+#### :memo: Documentation
+* `babel-plugin-debug-macros`
+  * [#97](https://github.com/ember-cli/babel-plugin-debug-macros/pull/97) docs(README.md)/ Fix a typo in the name of the plugin ([@BlueCutOfficial](https://github.com/BlueCutOfficial))
+
+#### :house: Internal
+* `babel-plugin-debug-macros`
+  * [#100](https://github.com/ember-cli/babel-plugin-debug-macros/pull/100) remove security warnings from github ([@mansona](https://github.com/mansona))
+  * [#98](https://github.com/ember-cli/babel-plugin-debug-macros/pull/98) start using release-plan ([@mansona](https://github.com/mansona))
+
+#### Committers: 2
+- Chris Manson ([@mansona](https://github.com/mansona))
+- Marine Dunstetter ([@BlueCutOfficial](https://github.com/BlueCutOfficial))
+
 
 
 
