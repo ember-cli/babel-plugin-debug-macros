@@ -2,6 +2,17 @@
 
 ## Release (2024-07-11)
 
+babel-plugin-debug-macros 1.0.2 (patch)
+
+#### :house: Internal
+* `babel-plugin-debug-macros`
+  * [#101](https://github.com/ember-cli/babel-plugin-debug-macros/pull/101) fix repo link ([@mansona](https://github.com/mansona))
+
+#### Committers: 1
+- Chris Manson ([@mansona](https://github.com/mansona))
+
+## Release (2024-07-11)
+
 babel-plugin-debug-macros 1.0.1 (patch)
 
 #### :memo: Documentation
