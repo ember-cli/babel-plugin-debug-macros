@@ -31,8 +31,6 @@ export default class Macros {
    * adds the debug binding if missing from the env-flags module.
    */
   expand() {
-    this.builder.expandMacros();
-
     this._cleanImports();
   }
 

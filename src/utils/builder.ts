@@ -30,8 +30,6 @@ export default class Builder {
   private isDebug: boolean | '@embroider/macros';
   private util: ImportUtil;
 
-  private expressions: [CallStatementPath, (debugIdentifier: t.Expression) => t.Expression][] = [];
-
   constructor(
     readonly t: typeof Babel.types,
     util: ImportUtil,
@@ -149,10 +147,10 @@ export default class Builder {
       prefixedIdentifiers.push(negatedPredicate);
     }
 
-    this.expressions.push([
+    this.expandMacro(
       path,
       this._buildLogicalExpressions(prefixedIdentifiers, callExpression),
-    ]);
+    );
   }
 
   /**
@@ -211,18 +209,12 @@ export default class Builder {
   }
 
   /**
-   * Performs the actually expansion of macros
+   * Performs the actually expansion of macro
    */
-  expandMacros() {
-    let t = this.t;
-    for (let i = 0; i < this.expressions.length; i++) {
-      let expression = this.expressions[i];
-      let exp = expression[0];
-      let flag = this._debugExpression(exp);
-      let logicalExp = expression[1];
-      exp.replaceWith(t.parenthesizedExpression(logicalExp(flag)));
-      exp.scope.crawl();
-    }
+  expandMacro(exp: CallStatementPath, logicalExp: (debugIdentifier: t.Expression) => t.Expression) {
+    const flag = this._debugExpression(exp);
+    exp.replaceWith(this.t.parenthesizedExpression(logicalExp(flag)));
+    exp.scope.crawl();
   }
 
   _debugExpression(target: NodePath) {
