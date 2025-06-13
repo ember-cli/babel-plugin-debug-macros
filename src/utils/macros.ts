@@ -27,14 +27,6 @@ export default class Macros {
   }
 
   /**
-   * Injects the either the env-flags module with the debug binding or
-   * adds the debug binding if missing from the env-flags module.
-   */
-  expand() {
-    this._cleanImports();
-  }
-
-  /**
    * Collects the import bindings for the debug tools.
    */
   collectDebugToolsSpecifiers(
@@ -53,7 +45,7 @@ export default class Macros {
   }
 
   /**
-   * Builds the expressions that the CallExpression will expand into.
+   * Expands the given expression, if it is simple CallExpression statement for the debug tools.
    */
   build(path: NodePath<t.ExpressionStatement>) {
     if (!isCallStatementPath(path)) {
@@ -68,7 +60,10 @@ export default class Macros {
     }
   }
 
-  _cleanImports() {
+  /**
+   * Removes obsolete import bindings for the debug tools.
+   */
+  cleanImports() {
     if (!this.debugHelpers?.module) {
       if (this.localDebugBindings.length > 0) {
         let importPath = this.localDebugBindings[0].findParent((p) =>
