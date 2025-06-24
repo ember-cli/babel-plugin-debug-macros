@@ -100,7 +100,7 @@ export default function macros(babel: typeof Babel): Babel.PluginObj<State> {
         },
 
         exit() {
-          this.macroBuilder.expand();
+          this.macroBuilder.cleanImports();
         },
       },
 

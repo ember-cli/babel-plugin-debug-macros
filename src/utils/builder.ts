@@ -30,8 +30,6 @@ export default class Builder {
   private isDebug: boolean | '@embroider/macros';
   private util: ImportUtil;
 
-  private expressions: [CallStatementPath, (debugIdentifier: t.Expression) => t.Expression][] = [];
-
   constructor(
     readonly t: typeof Babel.types,
     util: ImportUtil,
@@ -149,10 +147,10 @@ export default class Builder {
       prefixedIdentifiers.push(negatedPredicate);
     }
 
-    this.expressions.push([
-      path,
-      this._buildLogicalExpressions(prefixedIdentifiers, callExpression),
-    ]);
+    // Expand the macro!
+    let replacementPath = this._buildLogicalExpressions(prefixedIdentifiers, callExpression, this._debugExpression(path));
+    path.replaceWith(replacementPath);
+    path.scope.crawl();
   }
 
   /**
@@ -210,21 +208,6 @@ export default class Builder {
     });
   }
 
-  /**
-   * Performs the actually expansion of macros
-   */
-  expandMacros() {
-    let t = this.t;
-    for (let i = 0; i < this.expressions.length; i++) {
-      let expression = this.expressions[i];
-      let exp = expression[0];
-      let flag = this._debugExpression(exp);
-      let logicalExp = expression[1];
-      exp.replaceWith(t.parenthesizedExpression(logicalExp(flag)));
-      exp.scope.crawl();
-    }
-  }
-
   _debugExpression(target: NodePath) {
     if (typeof this.isDebug === 'boolean') {
       return this.t.booleanLiteral(this.isDebug);
@@ -252,26 +235,25 @@ export default class Builder {
 
   _buildLogicalExpressions(
     identifiers: t.Expression[],
-    callExpression: t.Expression
-  ): (debugIdentifier: t.Expression) => t.Expression {
+    callExpression: t.Expression,
+    debugIdentifier: t.Expression
+  ): t.Expression {
     let t = this.t;
 
-    return (debugIdentifier: t.Expression) => {
-      identifiers.unshift(debugIdentifier);
-      identifiers.push(callExpression);
-      let logicalExpressions;
+    identifiers.unshift(debugIdentifier);
+    identifiers.push(callExpression);
+    let logicalExpressions;
 
-      for (let i = 0; i < identifiers.length; i++) {
-        let left = identifiers[i];
-        let right = identifiers[i + 1];
-        if (!logicalExpressions) {
-          logicalExpressions = t.logicalExpression('&&', left, right);
-        } else if (right) {
-          logicalExpressions = t.logicalExpression('&&', logicalExpressions, right);
-        }
+    for (let i = 0; i < identifiers.length; i++) {
+      let left = identifiers[i];
+      let right = identifiers[i + 1];
+      if (!logicalExpressions) {
+        logicalExpressions = t.logicalExpression('&&', left, right);
+      } else if (right) {
+        logicalExpressions = t.logicalExpression('&&', logicalExpressions, right);
       }
+    }
 
-      return logicalExpressions!;
-    };
+    return t.parenthesizedExpression(logicalExpressions!);
   }
 }
