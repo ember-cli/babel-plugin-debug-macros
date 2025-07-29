@@ -1,17 +1,17 @@
 {
   "solution": {
     "babel-plugin-debug-macros": {
-      "impact": "patch",
-      "oldVersion": "1.0.1",
-      "newVersion": "1.0.2",
+      "impact": "major",
+      "oldVersion": "1.0.2",
+      "newVersion": "2.0.0",
       "constraints": [
         {
-          "impact": "patch",
-          "reason": "Appears in changelog section :house: Internal"
+          "impact": "major",
+          "reason": "Appears in changelog section :boom: Breaking Change"
         }
       ],
       "pkgJSONPath": "./package.json"
     }
   },
-  "description": "## Release (2024-07-11)\n\nbabel-plugin-debug-macros 1.0.2 (patch)\n\n#### :house: Internal\n* `babel-plugin-debug-macros`\n  * [#101](https://github.com/ember-cli/babel-plugin-debug-macros/pull/101) fix repo link ([@mansona](https://github.com/mansona))\n\n#### Committers: 1\n- Chris Manson ([@mansona](https://github.com/mansona))\n"
+  "description": "## Release (2025-06-24)\n\nbabel-plugin-debug-macros 2.0.0 (major)\n\n#### :boom: Breaking Change\n* `babel-plugin-debug-macros`\n  * [#103](https://github.com/ember-cli/babel-plugin-debug-macros/pull/103) Expand debug statements in place to permit subsequent Babel plugin translation ([@robbytx](https://github.com/robbytx))\n\n#### Committers: 1\n- Robby Morgan ([@robbytx](https://github.com/robbytx))\n"
 }

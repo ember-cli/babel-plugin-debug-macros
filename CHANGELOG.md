@@ -1,5 +1,16 @@
 # Changelog
 
+## Release (2025-06-24)
+
+babel-plugin-debug-macros 2.0.0 (major)
+
+#### :boom: Breaking Change
+* `babel-plugin-debug-macros`
+  * [#103](https://github.com/ember-cli/babel-plugin-debug-macros/pull/103) Expand debug statements in place to permit subsequent Babel plugin translation ([@robbytx](https://github.com/robbytx))
+
+#### Committers: 1
+- Robby Morgan ([@robbytx](https://github.com/robbytx))
+
 ## Release (2024-07-11)
 
 babel-plugin-debug-macros 1.0.2 (patch)
