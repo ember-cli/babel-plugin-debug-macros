@@ -1,7 +1,7 @@
 import DebugToolsPlugin from '../src/index.js';
 import fs from 'fs';
 import 'code-equality-assertions/jest';
-import { type TransformOptions, transform } from '@babel/core';
+import { type TransformOptions, transformSync } from '@babel/core';
 import * as Babel from '@babel/core';
 import { types as t } from '@babel/core';
 import { UserOptions } from '../src/utils/normalize-options.js';
@@ -11,7 +11,7 @@ const CONSOLE = Object.assign({}, console);
 export interface Options {
   presets: TransformOptions['presets'];
   babelVersion: 7;
-  transform: typeof transform;
+  transform: typeof transformSync;
 }
 
 export default function createTests(options: Options) {
