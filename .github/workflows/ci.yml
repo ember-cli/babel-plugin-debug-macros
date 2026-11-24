@@ -48,3 +48,26 @@ jobs:
     - run: pnpm install
     - run: pnpm tsc
     - run: pnpm test
+
+  babel-8:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: pnpm/action-setup@v2
+      name: Install pnpm
+      with:
+        version: 8
+        run_install: false
+    - name: Use Node.js 24
+      uses: actions/setup-node@v3
+      with:
+        node-version: 24
+        cache: pnpm
+    - run: pnpm install
+    - run: pnpm tsc
+    # Babel 8 is ESM-only. Jest 30 loads it with require(esm) when vm modules are on.
+    - run: pnpm add --save-dev --ignore-scripts @babel/core@^8.0.0 @babel/preset-env@^8.0.0 jest@^30.0.0
+    - run: pnpm test
+      env:
+        NODE_OPTIONS: --experimental-vm-modules

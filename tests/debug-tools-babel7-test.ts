@@ -1,5 +1,5 @@
 import createTests from './create-tests.js';
-import { transform } from '@babel/core';
+import { transformSync as transform } from '@babel/core';
 
 const presets = [
   [
