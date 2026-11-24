@@ -1,5 +1,22 @@
 # Changelog
 
+## Release (2026-11-24)
+
+* babel-plugin-debug-macros 2.0.1 (patch)
+
+#### :bug: Bug Fix
+* `babel-plugin-debug-macros`
+  * [#105](https://github.com/ember-cli/babel-plugin-debug-macros/pull/105) broaden peer on @babel/core to include babel 8 and run the test suite on Babel 8 in CI ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+
+#### :house: Internal
+* `babel-plugin-debug-macros`
+  * [#105](https://github.com/ember-cli/babel-plugin-debug-macros/pull/105) broaden peer on @babel/core to include babel 8 and run the test suite on Babel 8 in CI ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+  * [#106](https://github.com/ember-cli/babel-plugin-debug-macros/pull/106) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 2
+- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
 ## Release (2025-06-24)
 
 babel-plugin-debug-macros 2.0.0 (major)

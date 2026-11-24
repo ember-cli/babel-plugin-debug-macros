@@ -1,17 +1,22 @@
 {
   "solution": {
     "babel-plugin-debug-macros": {
-      "impact": "major",
-      "oldVersion": "1.0.2",
-      "newVersion": "2.0.0",
+      "impact": "patch",
+      "oldVersion": "2.0.0",
+      "newVersion": "2.0.1",
+      "tagName": "latest",
       "constraints": [
         {
-          "impact": "major",
-          "reason": "Appears in changelog section :boom: Breaking Change"
+          "impact": "patch",
+          "reason": "Appears in changelog section :bug: Bug Fix"
+        },
+        {
+          "impact": "patch",
+          "reason": "Appears in changelog section :house: Internal"
         }
       ],
       "pkgJSONPath": "./package.json"
     }
   },
-  "description": "## Release (2025-06-24)\n\nbabel-plugin-debug-macros 2.0.0 (major)\n\n#### :boom: Breaking Change\n* `babel-plugin-debug-macros`\n  * [#103](https://github.com/ember-cli/babel-plugin-debug-macros/pull/103) Expand debug statements in place to permit subsequent Babel plugin translation ([@robbytx](https://github.com/robbytx))\n\n#### Committers: 1\n- Robby Morgan ([@robbytx](https://github.com/robbytx))\n"
+  "description": "## Release (2026-11-24)\n\n* babel-plugin-debug-macros 2.0.1 (patch)\n\n#### :bug: Bug Fix\n* `babel-plugin-debug-macros`\n  * [#105](https://github.com/ember-cli/babel-plugin-debug-macros/pull/105) broaden peer on @babel/core to include babel 8 and run the test suite on Babel 8 in CI ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n\n#### :house: Internal\n* `babel-plugin-debug-macros`\n  * [#105](https://github.com/ember-cli/babel-plugin-debug-macros/pull/105) broaden peer on @babel/core to include babel 8 and run the test suite on Babel 8 in CI ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n  * [#106](https://github.com/ember-cli/babel-plugin-debug-macros/pull/106) Update release-plan ([@NullVoxPopuli](https://github.com/NullVoxPopuli))\n\n#### Committers: 2\n- @NullVoxPopuli's reduced-access machine account for AI usage ([@NullVoxPopuli-ai-agent](https://github.com/NullVoxPopuli-ai-agent))\n- [@NullVoxPopuli](https://github.com/NullVoxPopuli)\n"
 }
